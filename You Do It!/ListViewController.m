@@ -34,6 +34,8 @@ NSString *kTableName = @"ShoppingList";
     
     NSBundle *bundle = [NSBundle mainBundle];
     
+    [self playAudioFile:@"You Do It"];
+    
     self.client = [MSClient clientWithApplicationURL:[NSURL URLWithString:[bundle objectForInfoDictionaryKey:@"MSURL"]] applicationKey:[bundle objectForInfoDictionaryKey:@"MSAppKey"]];
     self.table = [self.client tableWithName:kTableName];
     
