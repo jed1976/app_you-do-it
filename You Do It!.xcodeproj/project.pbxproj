@@ -14,13 +14,21 @@
 		D8BD8CBA17DA9F07002941C9 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D8BD8CB917DA9F07002941C9 /* main.m */; };
 		D8BD8CBE17DA9F07002941C9 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D8BD8CBD17DA9F07002941C9 /* AppDelegate.m */; };
 		D8BD8CC117DA9F07002941C9 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D8BD8CBF17DA9F07002941C9 /* Main.storyboard */; };
-		D8BD8CC417DA9F07002941C9 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D8BD8CC317DA9F07002941C9 /* ViewController.m */; };
 		D8BD8CC617DA9F07002941C9 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D8BD8CC517DA9F07002941C9 /* Images.xcassets */; };
 		D8BD8CCD17DA9F07002941C9 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8BD8CCC17DA9F07002941C9 /* XCTest.framework */; };
 		D8BD8CCE17DA9F07002941C9 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8BD8CAD17DA9F07002941C9 /* Foundation.framework */; };
 		D8BD8CCF17DA9F07002941C9 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8BD8CB117DA9F07002941C9 /* UIKit.framework */; };
 		D8BD8CD717DA9F07002941C9 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = D8BD8CD517DA9F07002941C9 /* InfoPlist.strings */; };
 		D8BD8CD917DA9F07002941C9 /* You_Do_It_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = D8BD8CD817DA9F07002941C9 /* You_Do_It_Tests.m */; };
+		D8BD8CE317DA9F28002941C9 /* WindowsAzureMobileServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8BD8CE217DA9F28002941C9 /* WindowsAzureMobileServices.framework */; };
+		D8BD8CE817DA9FC8002941C9 /* ListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D8BD8CE717DA9FC8002941C9 /* ListViewController.m */; };
+		D8BD8CEA17DAA275002941C9 /* Localizable.strings in Sources */ = {isa = PBXBuildFile; fileRef = D8BD8CE917DAA26A002941C9 /* Localizable.strings */; };
+		D8BD8CED17DAA2A9002941C9 /* FormViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D8BD8CEC17DAA2A9002941C9 /* FormViewController.m */; };
+		D8BD8CEF17DABDA1002941C9 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8BD8CEE17DABDA1002941C9 /* AVFoundation.framework */; };
+		D8BD8CF217DABE19002941C9 /* You Do It.m4a in Resources */ = {isa = PBXBuildFile; fileRef = D8BD8CF017DABE19002941C9 /* You Do It.m4a */; };
+		D8BD8CF317DABE19002941C9 /* You Promised.m4a in Resources */ = {isa = PBXBuildFile; fileRef = D8BD8CF117DABE19002941C9 /* You Promised.m4a */; };
+		D8BD8CF517DABF4B002941C9 /* Oh Yeah.m4a in Resources */ = {isa = PBXBuildFile; fileRef = D8BD8CF417DABF4B002941C9 /* Oh Yeah.m4a */; };
+		D8BD8CF717DAC021002941C9 /* No.m4a in Resources */ = {isa = PBXBuildFile; fileRef = D8BD8CF617DAC021002941C9 /* No.m4a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -45,14 +53,23 @@
 		D8BD8CBC17DA9F07002941C9 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		D8BD8CBD17DA9F07002941C9 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		D8BD8CC017DA9F07002941C9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		D8BD8CC217DA9F07002941C9 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		D8BD8CC317DA9F07002941C9 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		D8BD8CC517DA9F07002941C9 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		D8BD8CCB17DA9F07002941C9 /* You Do It!Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "You Do It!Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8BD8CCC17DA9F07002941C9 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		D8BD8CD417DA9F07002941C9 /* You Do It!Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "You Do It!Tests-Info.plist"; sourceTree = "<group>"; };
 		D8BD8CD617DA9F07002941C9 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		D8BD8CD817DA9F07002941C9 /* You_Do_It_Tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = You_Do_It_Tests.m; sourceTree = "<group>"; };
+		D8BD8CE217DA9F28002941C9 /* WindowsAzureMobileServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WindowsAzureMobileServices.framework; path = "../azuresdk-iOS-v1.0.3/WindowsAzureMobileServices.framework"; sourceTree = "<group>"; };
+		D8BD8CE617DA9FC8002941C9 /* ListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ListViewController.h; sourceTree = "<group>"; };
+		D8BD8CE717DA9FC8002941C9 /* ListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ListViewController.m; sourceTree = "<group>"; };
+		D8BD8CE917DAA26A002941C9 /* Localizable.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
+		D8BD8CEB17DAA2A9002941C9 /* FormViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FormViewController.h; sourceTree = "<group>"; };
+		D8BD8CEC17DAA2A9002941C9 /* FormViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FormViewController.m; sourceTree = "<group>"; };
+		D8BD8CEE17DABDA1002941C9 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		D8BD8CF017DABE19002941C9 /* You Do It.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = "You Do It.m4a"; sourceTree = "<group>"; };
+		D8BD8CF117DABE19002941C9 /* You Promised.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = "You Promised.m4a"; sourceTree = "<group>"; };
+		D8BD8CF417DABF4B002941C9 /* Oh Yeah.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Oh Yeah.m4a"; sourceTree = "<group>"; };
+		D8BD8CF617DAC021002941C9 /* No.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = No.m4a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,6 +77,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D8BD8CEF17DABDA1002941C9 /* AVFoundation.framework in Frameworks */,
+				D8BD8CE317DA9F28002941C9 /* WindowsAzureMobileServices.framework in Frameworks */,
 				D8BD8CB017DA9F07002941C9 /* CoreGraphics.framework in Frameworks */,
 				D8BD8CB217DA9F07002941C9 /* UIKit.framework in Frameworks */,
 				D8BD8CAE17DA9F07002941C9 /* Foundation.framework in Frameworks */,
@@ -101,6 +120,8 @@
 		D8BD8CAC17DA9F07002941C9 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D8BD8CEE17DABDA1002941C9 /* AVFoundation.framework */,
+				D8BD8CE217DA9F28002941C9 /* WindowsAzureMobileServices.framework */,
 				D8BD8CAD17DA9F07002941C9 /* Foundation.framework */,
 				D8BD8CAF17DA9F07002941C9 /* CoreGraphics.framework */,
 				D8BD8CB117DA9F07002941C9 /* UIKit.framework */,
@@ -114,10 +135,8 @@
 			children = (
 				D8BD8CBC17DA9F07002941C9 /* AppDelegate.h */,
 				D8BD8CBD17DA9F07002941C9 /* AppDelegate.m */,
-				D8BD8CBF17DA9F07002941C9 /* Main.storyboard */,
-				D8BD8CC217DA9F07002941C9 /* ViewController.h */,
-				D8BD8CC317DA9F07002941C9 /* ViewController.m */,
-				D8BD8CC517DA9F07002941C9 /* Images.xcassets */,
+				D8BD8CE417DA9F31002941C9 /* Controllers */,
+				D8BD8CE517DA9F44002941C9 /* Resources */,
 				D8BD8CB417DA9F07002941C9 /* Supporting Files */,
 			);
 			path = "You Do It!";
@@ -126,6 +145,7 @@
 		D8BD8CB417DA9F07002941C9 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				D8BD8CE917DAA26A002941C9 /* Localizable.strings */,
 				D8BD8CB517DA9F07002941C9 /* You Do It!-Info.plist */,
 				D8BD8CB617DA9F07002941C9 /* InfoPlist.strings */,
 				D8BD8CB917DA9F07002941C9 /* main.m */,
@@ -150,6 +170,30 @@
 				D8BD8CD517DA9F07002941C9 /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		D8BD8CE417DA9F31002941C9 /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				D8BD8CE617DA9FC8002941C9 /* ListViewController.h */,
+				D8BD8CE717DA9FC8002941C9 /* ListViewController.m */,
+				D8BD8CEB17DAA2A9002941C9 /* FormViewController.h */,
+				D8BD8CEC17DAA2A9002941C9 /* FormViewController.m */,
+			);
+			name = Controllers;
+			sourceTree = "<group>";
+		};
+		D8BD8CE517DA9F44002941C9 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				D8BD8CC517DA9F07002941C9 /* Images.xcassets */,
+				D8BD8CBF17DA9F07002941C9 /* Main.storyboard */,
+				D8BD8CF617DAC021002941C9 /* No.m4a */,
+				D8BD8CF417DABF4B002941C9 /* Oh Yeah.m4a */,
+				D8BD8CF017DABE19002941C9 /* You Do It.m4a */,
+				D8BD8CF117DABE19002941C9 /* You Promised.m4a */,
+			);
+			name = Resources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -199,6 +243,9 @@
 				LastUpgradeCheck = 0500;
 				ORGANIZATIONNAME = "Teacup Studio, LLC";
 				TargetAttributes = {
+					D8BD8CA917DA9F07002941C9 = {
+						DevelopmentTeam = M5Q4N4LH75;
+					};
 					D8BD8CCA17DA9F07002941C9 = {
 						TestTargetID = D8BD8CA917DA9F07002941C9;
 					};
@@ -228,8 +275,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D8BD8CF717DAC021002941C9 /* No.m4a in Resources */,
 				D8BD8CC617DA9F07002941C9 /* Images.xcassets in Resources */,
+				D8BD8CF517DABF4B002941C9 /* Oh Yeah.m4a in Resources */,
 				D8BD8CB817DA9F07002941C9 /* InfoPlist.strings in Resources */,
+				D8BD8CF317DABE19002941C9 /* You Promised.m4a in Resources */,
+				D8BD8CF217DABE19002941C9 /* You Do It.m4a in Resources */,
 				D8BD8CC117DA9F07002941C9 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -249,9 +300,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D8BD8CC417DA9F07002941C9 /* ViewController.m in Sources */,
+				D8BD8CEA17DAA275002941C9 /* Localizable.strings in Sources */,
 				D8BD8CBE17DA9F07002941C9 /* AppDelegate.m in Sources */,
 				D8BD8CBA17DA9F07002941C9 /* main.m in Sources */,
+				D8BD8CED17DAA2A9002941C9 /* FormViewController.m in Sources */,
+				D8BD8CE817DA9FC8002941C9 /* ListViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -374,10 +427,18 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"/Users/joe/Documents/azuresdk-iOS-v1.0.3",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "You Do It!/You Do It!-Prefix.pch";
 				INFOPLIST_FILE = "You Do It!/You Do It!-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -387,10 +448,18 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"/Users/joe/Documents/azuresdk-iOS-v1.0.3",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "You Do It!/You Do It!-Prefix.pch";
 				INFOPLIST_FILE = "You Do It!/You Do It!-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
@@ -454,6 +523,7 @@
 				D8BD8CDE17DA9F07002941C9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		D8BD8CDF17DA9F07002941C9 /* Build configuration list for PBXNativeTarget "You Do It!Tests" */ = {
 			isa = XCConfigurationList;
@@ -462,6 +532,7 @@
 				D8BD8CE117DA9F07002941C9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
