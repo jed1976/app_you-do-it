@@ -261,7 +261,7 @@ NSString *kTableName = @"ShoppingList";
     [switchControl setTag:2];
     
     cell.accessoryView = switchControl;
-    
+
     return cell;
 }
 
@@ -274,7 +274,7 @@ NSString *kTableName = @"ShoppingList";
 {
     if (editingStyle == UITableViewCellEditingStyleDelete)
     {
-        NSDictionary *item = [self.items objectAtIndex:indexPath.row];
+        NSDictionary *item = [[self.items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
         
         [self.table delete:item completion:^(NSNumber *itemId, NSError *error) {
             [self playAudioFile:@"No"];            
