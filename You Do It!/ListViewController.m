@@ -105,7 +105,7 @@ NSString *kTableName = @"ShoppingList";
 
 - (IBAction)add:(id)sender
 {
-    NSDictionary *newItem = @{ @"name": @"", @"created": [NSDate date], @"active": @NO, @"order": @-1 };
+    NSDictionary *newItem = @{ @"name": @"", @"created": [NSDate date], @"active": @NO };
     
     [self.table insert:newItem completion:^(NSDictionary *result, NSError *error) {
         if (error != nil)
@@ -132,11 +132,41 @@ NSString *kTableName = @"ShoppingList";
         }
         else
         {
-            self.items = [items mutableCopy];
+            self.items = (NSMutableArray *)[self partitionObjects:items collationStringSelector:@selector(self)];
             [self.tableView reloadData];
             [self.refreshControl endRefreshing];
         }
     }];
+}
+
+-(NSArray *)partitionObjects:(NSArray *)array collationStringSelector:(SEL)selector
+{
+    UILocalizedIndexedCollation *collation = [UILocalizedIndexedCollation currentCollation];
+    NSInteger sectionCount = [[collation sectionTitles] count];
+    NSMutableArray *unsortedSections = [NSMutableArray arrayWithCapacity:sectionCount];
+    
+    for (NSInteger i = 0; i < sectionCount; i++)
+    {
+        [unsortedSections addObject:[NSMutableArray array]];
+    }
+    
+    for (id object in array)
+    {
+        NSInteger index = [collation sectionForObject:[object objectForKey:@"name"] collationStringSelector:selector];
+        [[unsortedSections objectAtIndex:index] addObject:object];
+    }
+    
+    NSMutableArray *sections = [NSMutableArray arrayWithCapacity:sectionCount];
+    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES];
+    NSArray *sortDescriptors = [NSArray arrayWithObject:sortDescriptor];
+    
+    for (NSMutableArray *section in unsortedSections)
+    {
+        NSMutableArray *sortedArray = [[section sortedArrayUsingDescriptors:sortDescriptors] mutableCopy];
+        [sections addObject:sortedArray];
+    }
+    
+    return sections;
 }
 
 - (void)playAudioFile:(NSString *)file
@@ -164,7 +194,7 @@ NSString *kTableName = @"ShoppingList";
     CGRect buttonFrame = [switchControl convertRect:switchControl.bounds toView:self.tableView];
     NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:buttonFrame.origin];
     
-    NSMutableDictionary *item = [[self.items objectAtIndex:indexPath.row] mutableCopy];
+    NSMutableDictionary *item = [[[self.items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row] mutableCopy];
     [item setObject:[NSNumber numberWithBool:switchControl.on] forKey:@"active"];
     
     if ([switchControl isOn])
@@ -187,19 +217,31 @@ NSString *kTableName = @"ShoppingList";
 
 #pragma mark - Table view data source
 
+- (NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView
+{
+    return [[UILocalizedIndexedCollation currentCollation] sectionIndexTitles];
+}
+
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    return 1;
+    return [[[UILocalizedIndexedCollation currentCollation] sectionTitles] count];
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return [self.items count];
+    return [[self.items objectAtIndex:section] count];
 }
 
-- (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
-    return [NSString stringWithFormat:@"%i Items", [self.items count]];
+    BOOL showSection = [[self.items objectAtIndex:section] count] != 0;
+    
+    return (showSection) ? [[[UILocalizedIndexedCollation currentCollation] sectionTitles] objectAtIndex:section] : nil;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView sectionForSectionIndexTitle:(NSString *)title atIndex:(NSInteger)index
+{
+    return [[UILocalizedIndexedCollation currentCollation] sectionForSectionIndexTitleAtIndex:index];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -207,8 +249,8 @@ NSString *kTableName = @"ShoppingList";
     static NSString *CellIdentifier = @"Cell";
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
     
-    NSDictionary *item = [self.items objectAtIndex:indexPath.row];
-
+    NSDictionary *item = [[self.items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
+    
     UILabel *label = (UILabel *)[cell viewWithTag:1];
     label.text = [item objectForKey:@"name"];
     
@@ -243,34 +285,8 @@ NSString *kTableName = @"ShoppingList";
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    self.currentRecord = [self.items objectAtIndex:indexPath.row];
+    self.currentRecord = [[self.items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
     [self performSegueWithIdentifier:kSegueShowFormId sender:self];
-}
-
-- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
-{
-    NSString *stringToMove = [self.items objectAtIndex:fromIndexPath.row];
-    [self.items removeObjectAtIndex:fromIndexPath.row];
-    [self.items insertObject:stringToMove atIndex:toIndexPath.row];
-    
-    NSInteger index = 0;
-    
-    for (NSDictionary *item in self.items)
-    {
-        NSMutableDictionary *updatedItem = [item mutableCopy];
-        [updatedItem setObject:[NSNumber numberWithInt:index] forKey:@"order"];
-        
-        [self.table update:[updatedItem copy] completion:^(NSDictionary *item, NSError *error) {
-            if (error != nil) [self displayDataUpdateAlert];
-        }];
-        
-        index++;
-    }
-}
-
-- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    return YES;
 }
 
 #pragma mark - UIAlert
@@ -288,7 +304,6 @@ NSString *kTableName = @"ShoppingList";
             [self loadData];
         }
     }];
-    
 }
 
 - (void)didCancelAddingItem:(NSDictionary *)record
