@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>9BEC96F6-09D1-40CB-83DA-BF2C0CAD0DDC</string>
+	<key>IDESourceControlProjectName</key>
+	<string>You Do It!</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>9FDB548F-BA9E-4F3D-B048-5F6B470574CC</key>
+		<string>ssh://bitbucket.org/jdakroub/you-do-it.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>You Do It!.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>9FDB548F-BA9E-4F3D-B048-5F6B470574CC</key>
+		<string>../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>ssh://bitbucket.org/jdakroub/you-do-it.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>9FDB548F-BA9E-4F3D-B048-5F6B470574CC</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>9FDB548F-BA9E-4F3D-B048-5F6B470574CC</string>
+			<key>IDESourceControlWCCName</key>
+			<string>You Do It!</string>
+		</dict>
+	</array>
+</dict>
+</plist>

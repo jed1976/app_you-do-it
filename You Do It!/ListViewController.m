@@ -41,6 +41,9 @@ NSString *kTableName = @"ShoppingList";
     [refreshControl addTarget:self action:@selector(loadData) forControlEvents:UIControlEventValueChanged];
     self.refreshControl = refreshControl;
     
+    if (floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_6_1)
+        [self.navigationController.navigationBar setTintColor:[UIColor orangeColor]];
+
     self.navigationItem.leftBarButtonItem = [self editButtonItem];
     
     [self loadData];

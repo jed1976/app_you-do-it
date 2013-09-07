@@ -24,6 +24,9 @@
     
     [[[[[self navigationController] navigationBar] topItem] rightBarButtonItem] setEnabled:! [[self.requiredTextField text] isEqualToString:@""]];
     
+    if (floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_6_1)
+        [self.navigationController.navigationBar setTintColor:[UIColor orangeColor]];
+    
     [self.tableView setSeparatorStyle:UITableViewCellSeparatorStyleSingleLine];
 }
 
