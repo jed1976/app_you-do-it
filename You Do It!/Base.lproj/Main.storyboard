@@ -14,16 +14,24 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <color key="tintColor" red="1" green="0.50196081399917603" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                        <searchBar key="tableHeaderView" contentMode="redraw" id="KBb-7a-xp8">
+                            <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                            <textInputTraits key="textInputTraits" autocapitalizationType="words" autocorrectionType="no"/>
+                            <connections>
+                                <outlet property="delegate" destination="oEO-ik-Fg2" id="Cuw-yw-bnG"/>
+                            </connections>
+                        </searchBar>
                         <prototypes>
                             <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="Cell" id="BBe-1E-1dE">
-                                <rect key="frame" x="0.0" y="22" width="320" height="44"/>
+                                <rect key="frame" x="0.0" y="66" width="320" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="BBe-1E-1dE" id="MtO-N2-nBy">
                                     <rect key="frame" x="0.0" y="0.0" width="320" height="43"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" tag="1" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="p4o-lT-d2c">
-                                            <rect key="frame" x="20" y="11" width="280" height="21"/>
+                                            <rect key="frame" x="15" y="11" width="285" height="21"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                                             <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="15"/>
                                             <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
@@ -46,10 +54,20 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
+                        <outlet property="searchDisplayController" destination="rPY-QK-jtg" id="aj4-vL-Zt8"/>
                         <segue destination="a1I-gI-Ty5" kind="modal" identifier="editItemSegue" id="BMi-jQ-3L6"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="QJw-d9-n5t" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <searchDisplayController id="rPY-QK-jtg">
+                    <connections>
+                        <outlet property="delegate" destination="oEO-ik-Fg2" id="onJ-io-DWY"/>
+                        <outlet property="searchBar" destination="KBb-7a-xp8" id="kdF-s2-NyY"/>
+                        <outlet property="searchContentsController" destination="oEO-ik-Fg2" id="9Cu-Zf-u3r"/>
+                        <outlet property="searchResultsDataSource" destination="oEO-ik-Fg2" id="XP3-xl-afd"/>
+                        <outlet property="searchResultsDelegate" destination="oEO-ik-Fg2" id="p7p-f1-f63"/>
+                    </connections>
+                </searchDisplayController>
             </objects>
             <point key="canvasLocation" x="-235" y="408"/>
         </scene>

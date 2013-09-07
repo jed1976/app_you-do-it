@@ -43,7 +43,7 @@
         [_delegate didCancelAddingItem:self.record];
     
     [self.requiredTextField resignFirstResponder];
-    [self dismissViewControllerAnimated:YES completion:nil];
+    [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (IBAction)done:(id)sender

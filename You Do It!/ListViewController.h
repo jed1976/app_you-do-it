@@ -11,7 +11,7 @@
 #import <WindowsAzureMobileServices/WindowsAzureMobileServices.h>
 #import "FormViewController.h"
 
-@interface ListViewController : UITableViewController <FormViewControllerDelegate>
+@interface ListViewController : UITableViewController <FormViewControllerDelegate, UISearchBarDelegate, UISearchDisplayDelegate>
 
 - (IBAction)switchToggle:(id)sender;
 - (IBAction)toggleEdit:(id)sender;

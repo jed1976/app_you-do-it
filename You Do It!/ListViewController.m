@@ -18,7 +18,11 @@ NSString *kTableName = @"ShoppingList";
 
 @property (nonatomic, strong) MSClient *client;
 @property (nonatomic, strong) NSDictionary *currentRecord;
+@property (nonatomic, strong) NSIndexPath *currentEditIndexPath;
 @property (nonatomic, strong) NSMutableArray *items;
+@property (nonatomic, strong) NSMutableArray *rawItems;
+@property IBOutlet UISearchBar *searchBar;
+@property (strong,nonatomic) NSMutableArray *searchResults;
 @property (nonatomic, strong) MSTable *table;
 @property (nonatomic, strong) NSString *tableName;
 
@@ -47,6 +51,9 @@ NSString *kTableName = @"ShoppingList";
         [self.navigationController.navigationBar setTintColor:[UIColor orangeColor]];
 
     self.navigationItem.leftBarButtonItem = [self editButtonItem];
+    
+    self.rawItems = [NSMutableArray array];
+    self.searchResults = [NSMutableArray array];
     
     [self loadData];
 }
@@ -121,10 +128,7 @@ NSString *kTableName = @"ShoppingList";
 
 - (void)loadData
 {
-    MSQuery *query = [self.table query];
-    [query orderByAscending:@"order"];
-    
-    [query readWithCompletion:^(NSArray *items, NSInteger totalCount, NSError *error) {
+    [self.table readWithCompletion:^(NSArray *items, NSInteger totalCount, NSError *error) {
         if (error != nil)
         {
             [self displayDataReadAlert];
@@ -133,10 +137,19 @@ NSString *kTableName = @"ShoppingList";
         else
         {
             self.items = (NSMutableArray *)[self partitionObjects:items collationStringSelector:@selector(self)];
+            self.rawItems = [items mutableCopy];
+            
             [self.tableView reloadData];
+            [self.searchDisplayController.searchResultsTableView reloadData];
             [self.refreshControl endRefreshing];
         }
     }];
+}
+
+-(void)filterContentForSearchText:(NSString*)searchText scope:(NSString*)scope
+{
+    NSPredicate *resultPredicate = [NSPredicate predicateWithFormat:@"SELF.name contains[cd] %@", searchText];
+    self.searchResults = (NSMutableArray *)[self.rawItems filteredArrayUsingPredicate:resultPredicate];
 }
 
 -(NSArray *)partitionObjects:(NSArray *)array collationStringSelector:(SEL)selector
@@ -191,10 +204,18 @@ NSString *kTableName = @"ShoppingList";
 - (IBAction)switchToggle:(id)sender
 {
     UISwitch *switchControl = (UISwitch *)sender;
-    CGRect buttonFrame = [switchControl convertRect:switchControl.bounds toView:self.tableView];
-    NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:buttonFrame.origin];
+    UITableView *tableView = self.searchDisplayController.active ? self.searchDisplayController.searchResultsTableView : self.tableView;
+    CGRect buttonFrame = [switchControl convertRect:switchControl.bounds toView:tableView];
+    NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:buttonFrame.origin];
+    self.currentEditIndexPath = indexPath;
     
-    NSMutableDictionary *item = [[[self.items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row] mutableCopy];
+    NSMutableDictionary *item = nil;
+    
+    if (self.searchDisplayController.active)
+        item = [self.searchResults objectAtIndex:indexPath.row];
+    else
+        item = [[[self.items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row] mutableCopy];
+    
     [item setObject:[NSNumber numberWithBool:switchControl.on] forKey:@"active"];
     
     if ([switchControl isOn])
@@ -204,9 +225,14 @@ NSString *kTableName = @"ShoppingList";
     
     [self.table update:[item copy] completion:^(NSDictionary *item, NSError *error) {
         if (error != nil)
+        {
             [self displayDataUpdateAlert];
+        }
         else
-            [self loadData];
+        {
+            if ( ! self.searchDisplayController.active)
+                [self loadData];
+        }
     }];
 }
 
@@ -215,41 +241,88 @@ NSString *kTableName = @"ShoppingList";
     [self.tableView setEditing:! [self.tableView isEditing] animated:YES];
 }
 
+#pragma mark - UISearchDisplayController Delegate Methods
+
+-(BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString
+{
+    [self filterContentForSearchText:searchString
+                               scope:[[self.searchDisplayController.searchBar scopeButtonTitles]
+                                      objectAtIndex:[self.searchDisplayController.searchBar selectedScopeButtonIndex]]];
+    
+    return YES;
+}
+
+- (void)searchDisplayController:(UISearchDisplayController *)controller didLoadSearchResultsTableView:(UITableView *)tableView
+{
+    [tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"Cell"];
+    [tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"Cell"];
+}
+
+- (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar
+{
+    if ( ! self.searchDisplayController.active)
+        [self loadData];
+}
+
 #pragma mark - Table view data source
 
 - (NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView
 {
-    return [[UILocalizedIndexedCollation currentCollation] sectionIndexTitles];
+    if (tableView == self.searchDisplayController.searchResultsTableView)
+        return nil;
+    else
+        return [[UILocalizedIndexedCollation currentCollation] sectionIndexTitles];
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    return [[[UILocalizedIndexedCollation currentCollation] sectionTitles] count];
+    if (tableView == self.searchDisplayController.searchResultsTableView)
+        return 1;
+    else
+        return [[[UILocalizedIndexedCollation currentCollation] sectionTitles] count];
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return [[self.items objectAtIndex:section] count];
+    if (tableView == self.searchDisplayController.searchResultsTableView)
+        return [self.searchResults count];
+    else
+        return [[self.items objectAtIndex:section] count];
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
-    BOOL showSection = [[self.items objectAtIndex:section] count] != 0;
-    
-    return (showSection) ? [[[UILocalizedIndexedCollation currentCollation] sectionTitles] objectAtIndex:section] : nil;
+    if (tableView == self.searchDisplayController.searchResultsTableView)
+    {
+        return nil;
+    }
+    else
+    {
+        BOOL showSection = [[self.items objectAtIndex:section] count] != 0;
+        
+        return (showSection) ? [[[UILocalizedIndexedCollation currentCollation] sectionTitles] objectAtIndex:section] : nil;
+    }
 }
 
 - (NSInteger)tableView:(UITableView *)tableView sectionForSectionIndexTitle:(NSString *)title atIndex:(NSInteger)index
 {
-    return [[UILocalizedIndexedCollation currentCollation] sectionForSectionIndexTitleAtIndex:index];
+    if (tableView == self.searchDisplayController.searchResultsTableView)
+        return 0;
+    else
+        return [[UILocalizedIndexedCollation currentCollation] sectionForSectionIndexTitleAtIndex:index];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     static NSString *CellIdentifier = @"Cell";
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
+    UITableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     
-    NSDictionary *item = [[self.items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
+    NSDictionary *item = nil;
+    
+    if (tableView == self.searchDisplayController.searchResultsTableView)
+        item = [self.searchResults objectAtIndex:indexPath.row];
+    else
+        item = [[self.items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
     
     UILabel *label = (UILabel *)[cell viewWithTag:1];
     label.text = [item objectForKey:@"name"];
@@ -283,8 +356,15 @@ NSString *kTableName = @"ShoppingList";
     }   
 }
 
+- (BOOL)tableView:(UITableView *)tableView shouldHighlightRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return ! self.searchDisplayController.active;
+}
+
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    if (self.searchDisplayController.active) return;
+    
     self.currentRecord = [[self.items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
     [self performSegueWithIdentifier:kSegueShowFormId sender:self];
 }
