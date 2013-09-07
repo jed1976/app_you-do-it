@@ -128,7 +128,10 @@ NSString *kTableName = @"ShoppingList";
 
 - (void)loadData
 {
-    [self.table readWithCompletion:^(NSArray *items, NSInteger totalCount, NSError *error) {
+    MSQuery *query = [self.table query];
+    query.fetchLimit = 500;
+    
+    [query readWithCompletion:^(NSArray *items, NSInteger totalCount, NSError *error) {
         if (error != nil)
         {
             [self displayDataReadAlert];
@@ -140,7 +143,6 @@ NSString *kTableName = @"ShoppingList";
             self.rawItems = [items mutableCopy];
             
             [self.tableView reloadData];
-            [self.searchDisplayController.searchResultsTableView reloadData];
             [self.refreshControl endRefreshing];
         }
     }];
