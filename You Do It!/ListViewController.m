@@ -19,11 +19,12 @@ NSString *kTableName = @"ShoppingList";
 @property (nonatomic, strong) MSClient *client;
 @property (nonatomic, strong) NSDictionary *currentRecord;
 @property (nonatomic, strong) NSIndexPath *currentEditIndexPath;
-@property (nonatomic) NSInteger selectedFilterSegment;
+@property (nonatomic, strong) UISegmentedControl *filterControl;
 @property (nonatomic, strong) NSMutableArray *items;
 @property (nonatomic, strong) NSMutableArray *rawItems;
 @property IBOutlet UISearchBar *searchBar;
 @property (strong,nonatomic) NSMutableArray *searchResults;
+@property (nonatomic) NSInteger selectedFilterSegment;
 @property (nonatomic, strong) MSTable *table;
 @property (nonatomic, strong) NSString *tableName;
 
@@ -37,34 +38,18 @@ NSString *kTableName = @"ShoppingList";
 {
     [super viewDidLoad];
     
-    NSBundle *bundle = [NSBundle mainBundle];
-    
     [self playAudioFile:@"You Do It"];
+    
+    NSBundle *bundle = [NSBundle mainBundle];
     
     self.client = [MSClient clientWithApplicationURL:[NSURL URLWithString:[bundle objectForInfoDictionaryKey:@"MSURL"]] applicationKey:[bundle objectForInfoDictionaryKey:@"MSAppKey"]];
     self.table = [self.client tableWithName:kTableName];
-    
-    UIRefreshControl *refreshControl = [[UIRefreshControl alloc] init];
-    [refreshControl addTarget:self action:@selector(loadData) forControlEvents:UIControlEventValueChanged];
-    self.refreshControl = refreshControl;
-    
-    if (floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_6_1)
-        [self.navigationController.navigationBar setTintColor:[UIColor orangeColor]];
-
-    self.navigationItem.leftBarButtonItem = [self editButtonItem];
-    
-    self.selectedFilterSegment = 0;
-    
-    UISegmentedControl *filterControl = [[UISegmentedControl alloc] initWithItems:@[@"All", @"Active"]];
-    [filterControl setSelectedSegmentIndex:self.selectedFilterSegment];
-    [filterControl addTarget:self action:@selector(toggleFilter:) forControlEvents:UIControlEventValueChanged];
-    
-    UIBarButtonItem *barButton = [[UIBarButtonItem alloc] initWithCustomView:filterControl];
-    UIBarButtonItem *spaceItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:NULL];
-    self.toolbarItems = @[spaceItem, barButton, spaceItem];
-    
     self.rawItems = [NSMutableArray array];
     self.searchResults = [NSMutableArray array];
+    
+    self.navigationItem.leftBarButtonItem = [self editButtonItem];
+    
+    [self addFilterControl];
     
     [self loadData];
 }
@@ -73,8 +58,10 @@ NSString *kTableName = @"ShoppingList";
 {
     [super didReceiveMemoryWarning];
     
-    self.table = nil;
     self.client = nil;
+    self.rawItems = nil;
+    self.searchResults = nil;
+    self.table = nil;
 }
 
 #pragma mark - UIAlert actions
@@ -137,6 +124,19 @@ NSString *kTableName = @"ShoppingList";
     }];
 }
 
+- (void)addFilterControl
+{
+    self.selectedFilterSegment = 0;
+    
+    self.filterControl = [[UISegmentedControl alloc] initWithItems:@[@"All", @"Active"]];
+    [self.filterControl setSelectedSegmentIndex:self.selectedFilterSegment];
+    [self.filterControl addTarget:self action:@selector(toggleFilter:) forControlEvents:UIControlEventValueChanged];
+    
+    UIBarButtonItem *barButton = [[UIBarButtonItem alloc] initWithCustomView:self.filterControl];
+    UIBarButtonItem *spaceItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:NULL];
+    self.toolbarItems = @[spaceItem, barButton, spaceItem];
+}
+
 - (void)toggleFilter:(id)sender
 {
     self.selectedFilterSegment = [sender selectedSegmentIndex];
@@ -183,6 +183,7 @@ NSString *kTableName = @"ShoppingList";
 
 -(void)filterContentForSearchText:(NSString*)searchText scope:(NSString*)scope
 {
+    self.filterControl.enabled = NO;
     NSPredicate *resultPredicate = [NSPredicate predicateWithFormat:@"SELF.name contains[cd] %@", searchText];
     self.searchResults = (NSMutableArray *)[self.rawItems filteredArrayUsingPredicate:resultPredicate];
 }
@@ -234,6 +235,11 @@ NSString *kTableName = @"ShoppingList";
     FormViewController *destinationController = [[navigationController childViewControllers] objectAtIndex:0];
     destinationController.delegate = self;
     [destinationController setRecord:self.currentRecord];
+}
+
+- (IBAction)refresh:(id)sender
+{
+    [self loadData];
 }
 
 - (IBAction)switchToggle:(id)sender
@@ -296,7 +302,10 @@ NSString *kTableName = @"ShoppingList";
 - (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar
 {
     if ( ! self.searchDisplayController.active)
+    {
+        self.filterControl.enabled = YES;
         [self loadData];
+    }
 }
 
 #pragma mark - Table view data source
