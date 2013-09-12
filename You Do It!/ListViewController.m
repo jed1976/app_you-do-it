@@ -373,6 +373,7 @@ NSString *kTableName = @"ShoppingList";
     
     UISwitch *switchControl = [[UISwitch alloc] initWithFrame:CGRectZero];
     [switchControl setOn:[[item objectForKey:@"active"] boolValue]];
+    [switchControl setOnTintColor:[UIColor orangeColor]];
     [switchControl addTarget:self action:@selector(switchToggle:) forControlEvents:UIControlEventValueChanged];
     [switchControl setTag:2];
     
