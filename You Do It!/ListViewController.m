@@ -19,6 +19,7 @@ NSString *kTableName = @"ShoppingList";
 @property (nonatomic, strong) MSClient *client;
 @property (nonatomic, strong) NSDictionary *currentRecord;
 @property (nonatomic, strong) NSIndexPath *currentEditIndexPath;
+@property (nonatomic) NSInteger selectedFilterSegment;
 @property (nonatomic, strong) NSMutableArray *items;
 @property (nonatomic, strong) NSMutableArray *rawItems;
 @property IBOutlet UISearchBar *searchBar;
@@ -51,6 +52,16 @@ NSString *kTableName = @"ShoppingList";
         [self.navigationController.navigationBar setTintColor:[UIColor orangeColor]];
 
     self.navigationItem.leftBarButtonItem = [self editButtonItem];
+    
+    self.selectedFilterSegment = 0;
+    
+    UISegmentedControl *filterControl = [[UISegmentedControl alloc] initWithItems:@[@"All", @"Active"]];
+    [filterControl setSelectedSegmentIndex:self.selectedFilterSegment];
+    [filterControl addTarget:self action:@selector(toggleFilter:) forControlEvents:UIControlEventValueChanged];
+    
+    UIBarButtonItem *barButton = [[UIBarButtonItem alloc] initWithCustomView:filterControl];
+    UIBarButtonItem *spaceItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:NULL];
+    self.toolbarItems = @[spaceItem, barButton, spaceItem];
     
     self.rawItems = [NSMutableArray array];
     self.searchResults = [NSMutableArray array];
@@ -126,10 +137,29 @@ NSString *kTableName = @"ShoppingList";
     }];
 }
 
+- (void)toggleFilter:(id)sender
+{
+    self.selectedFilterSegment = [sender selectedSegmentIndex];
+    [self loadData];
+}
+
 - (void)loadData
 {
-    MSQuery *query = [self.table query];
+    MSQuery *query = nil;
     query.fetchLimit = 500;
+    
+    if (self.selectedFilterSegment == 0)
+    {
+        query = [self.table query];
+    }
+    else
+    {
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF.active == YES"];
+        query = [self.table queryWithPredicate:predicate];
+    }
+    
+    self.navigationController.navigationBar.topItem.leftBarButtonItem.enabled = NO;
+    self.navigationController.navigationBar.topItem.rightBarButtonItem.enabled = NO;
     
     [query readWithCompletion:^(NSArray *items, NSInteger totalCount, NSError *error) {
         if (error != nil)
@@ -139,6 +169,9 @@ NSString *kTableName = @"ShoppingList";
         }
         else
         {
+            self.navigationController.navigationBar.topItem.leftBarButtonItem.enabled = YES;
+            self.navigationController.navigationBar.topItem.rightBarButtonItem.enabled = YES;
+            
             self.items = (NSMutableArray *)[self partitionObjects:items collationStringSelector:@selector(self)];
             self.rawItems = [items mutableCopy];
             
@@ -331,7 +364,6 @@ NSString *kTableName = @"ShoppingList";
     
     UISwitch *switchControl = [[UISwitch alloc] initWithFrame:CGRectZero];
     [switchControl setOn:[[item objectForKey:@"active"] boolValue]];
-    [switchControl setOnTintColor:[UIColor orangeColor]];
     [switchControl addTarget:self action:@selector(switchToggle:) forControlEvents:UIControlEventValueChanged];
     [switchControl setTag:2];
     
