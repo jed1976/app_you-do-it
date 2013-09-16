@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "Base64.h"
+#import "UIImage+ProportionalFill.h"
 
 @protocol FormViewControllerDelegate
 - (void)didFinishEditingForm:(NSDictionary *)record;

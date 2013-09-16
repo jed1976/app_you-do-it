@@ -133,14 +133,17 @@ NSInteger kDeletePhotoAlertSheetTag = 2000;
     if ([actionSheet tag] == kAddPhotoAlertSheetTag)
     {
         UIImagePickerController *imagePickerController = [[UIImagePickerController alloc] init];
+        [imagePickerController setAllowsEditing:YES];
         [imagePickerController setDelegate:self];
         
         if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera] == YES)
         {
             if (buttonIndex == 0)
-            {
                 NSLog(@"TAKE");
-            }
+            else if (buttonIndex == 1)
+                [self.navigationController presentViewController:imagePickerController animated:YES completion:nil];
+            else if (buttonIndex == 2)
+                [self deletePhoto];
             
         }
         else if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera] == NO)
@@ -170,7 +173,8 @@ NSInteger kDeletePhotoAlertSheetTag = 2000;
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
 {
-    self.productImageView.image = [info objectForKey:UIImagePickerControllerOriginalImage];
+    UIImage *resizedImage = [[info objectForKey:UIImagePickerControllerEditedImage] imageToFitSize:self.productImageView.frame.size method:MGImageResizeScale];
+    self.productImageView.image = resizedImage;
     
     [self.pickerButton setTitle:NSLocalizedString(@"UIButtonEditPhoto", nil) forState:UIControlStateNormal];
     
