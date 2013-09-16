@@ -18,16 +18,18 @@
 {
     [super viewDidLoad];
     
-    [self.requiredTextField setText:[self.record valueForKey:@"name"]];
-    [self.requiredTextField addTarget:self action:@selector(requiredTextFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
-    [self.requiredTextField becomeFirstResponder];
-    
-    [[[[[self navigationController] navigationBar] topItem] rightBarButtonItem] setEnabled:! [[self.requiredTextField text] isEqualToString:@""]];
+    [[[[[self navigationController] navigationBar] topItem] rightBarButtonItem] setEnabled:[[self.nameTextField text] isEqualToString:@""]];
     
     if (floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_6_1)
         [self.navigationController.navigationBar setTintColor:[UIColor orangeColor]];
     
     [self.tableView setSeparatorStyle:UITableViewCellSeparatorStyleSingleLine];
+    
+    [self.nameTextField setText:[self.record valueForKey:@"name"]];
+    [self.nameTextField addTarget:self action:@selector(nameTextFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
+    [self.nameTextField becomeFirstResponder];
+    
+    [self.detailsTextField setText:[[self.record valueForKey:@"details"] isKindOfClass:[NSNull class]] ? @"" : [self.record valueForKey:@"details"]];
 }
 
 - (void)didReceiveMemoryWarning
@@ -39,26 +41,29 @@
 
 - (IBAction)cancel:(id)sender
 {
-    if ([[self.requiredTextField text] isEqualToString:@""])
+    if ([[self.nameTextField text] isEqualToString:@""])
         [_delegate didCancelAddingItem:self.record];
     
-    [self.requiredTextField resignFirstResponder];
+    [self.nameTextField resignFirstResponder];
+    [self.detailsTextField resignFirstResponder];
+    
     [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (IBAction)done:(id)sender
 {
     NSMutableDictionary *updatedRecord = [NSMutableDictionary dictionaryWithDictionary:self.record];
-    [updatedRecord setObject:self.requiredTextField.text forKey:@"name"];
+    [updatedRecord setObject:self.nameTextField.text forKey:@"name"];
+    [updatedRecord setObject:self.detailsTextField.text forKey:@"details"];
     [_delegate didFinishEditingForm:updatedRecord];
     [self cancel:self];      
 }
 
 #pragma mark - UITextFieldDelegate
 
-- (void)requiredTextFieldDidChange:(id)sender
+- (void)nameTextFieldDidChange:(id)sender
 {
-    [[[[[self navigationController] navigationBar] topItem] rightBarButtonItem] setEnabled:! [[self.requiredTextField text] isEqualToString:@""]];
+    [[[[[self navigationController] navigationBar] topItem] rightBarButtonItem] setEnabled:! [[self.nameTextField text] isEqualToString:@""]];
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField

@@ -14,7 +14,6 @@
 @interface ListViewController : UITableViewController <FormViewControllerDelegate, UISearchBarDelegate, UISearchDisplayDelegate>
 
 - (IBAction)switchToggle:(id)sender;
-- (IBAction)toggleEdit:(id)sender;
 - (IBAction)refresh:(id)sender;
 
 @end

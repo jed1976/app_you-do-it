@@ -110,7 +110,12 @@ NSString *kTableName = @"ShoppingList";
 
 - (IBAction)add:(id)sender
 {
-    NSDictionary *newItem = @{ @"name": @"", @"created": [NSDate date], @"active": @NO };
+    NSDictionary *newItem = @{
+                              @"name": @"",
+                              @"details": @"",
+                              @"created": [NSDate date],
+                              @"active": @NO
+                            };
     
     [self.table insert:newItem completion:^(NSDictionary *result, NSError *error) {
         if (error != nil)
@@ -145,6 +150,8 @@ NSString *kTableName = @"ShoppingList";
 
 - (void)loadData
 {
+    [self.refreshControl beginRefreshing];
+    
     MSQuery *query = nil;
     
     self.filterControl.enabled = NO;
@@ -168,7 +175,6 @@ NSString *kTableName = @"ShoppingList";
         if (error != nil)
         {
             [self displayDataReadAlert];
-            [self.refreshControl endRefreshing];
         }
         else
         {
@@ -180,8 +186,9 @@ NSString *kTableName = @"ShoppingList";
             self.rawItems = [items mutableCopy];
             
             [self.tableView reloadData];
-            [self.refreshControl endRefreshing];
         }
+        
+        [self.refreshControl endRefreshing];
     }];
 }
 
@@ -246,6 +253,13 @@ NSString *kTableName = @"ShoppingList";
     [self loadData];
 }
 
+- (void)setEditing:(BOOL)editing animated:(BOOL)animated
+{
+    [super setEditing:editing animated:animated];
+
+    [self.navigationController.navigationBar.topItem.rightBarButtonItem setEnabled: ! [self.tableView isEditing]];
+}
+
 - (IBAction)switchToggle:(id)sender
 {
     UISwitch *switchControl = (UISwitch *)sender;
@@ -281,11 +295,6 @@ NSString *kTableName = @"ShoppingList";
     }];
 }
 
-- (IBAction)toggleEdit:(id)sender
-{
-    [self.tableView setEditing:! [self.tableView isEditing] animated:YES];
-}
-
 #pragma mark - UISearchDisplayController Delegate Methods
 
 -(BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString
@@ -312,54 +321,39 @@ NSString *kTableName = @"ShoppingList";
 - (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar
 {
     self.filterControl.enabled = YES;
+    [self loadData];
 }
 
 #pragma mark - Table view data source
 
 - (NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView
 {
-    if (tableView == self.searchDisplayController.searchResultsTableView)
-        return nil;
-    else
-        return [[UILocalizedIndexedCollation currentCollation] sectionIndexTitles];
+    return tableView == self.searchDisplayController.searchResultsTableView ? nil : [[UILocalizedIndexedCollation currentCollation] sectionIndexTitles];
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    if (tableView == self.searchDisplayController.searchResultsTableView)
-        return 1;
-    else
-        return [[[UILocalizedIndexedCollation currentCollation] sectionTitles] count];
+    return tableView == self.searchDisplayController.searchResultsTableView ? 1 : [[[UILocalizedIndexedCollation currentCollation] sectionTitles] count];
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    if (tableView == self.searchDisplayController.searchResultsTableView)
-        return [self.searchResults count];
-    else
-        return [[self.items objectAtIndex:section] count];
+    return tableView == self.searchDisplayController.searchResultsTableView ? [self.searchResults count] : [[self.items objectAtIndex:section] count];
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
+    BOOL showSection = [[self.items objectAtIndex:section] count] != 0;
+    
     if (tableView == self.searchDisplayController.searchResultsTableView)
-    {
         return nil;
-    }
     else
-    {
-        BOOL showSection = [[self.items objectAtIndex:section] count] != 0;
-        
         return (showSection) ? [[[UILocalizedIndexedCollation currentCollation] sectionTitles] objectAtIndex:section] : nil;
-    }
 }
 
 - (NSInteger)tableView:(UITableView *)tableView sectionForSectionIndexTitle:(NSString *)title atIndex:(NSInteger)index
 {
-    if (tableView == self.searchDisplayController.searchResultsTableView)
-        return 0;
-    else
-        return [[UILocalizedIndexedCollation currentCollation] sectionForSectionIndexTitleAtIndex:index];
+    return tableView == self.searchDisplayController.searchResultsTableView ? 0 : [[UILocalizedIndexedCollation currentCollation] sectionForSectionIndexTitleAtIndex:index];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -374,8 +368,11 @@ NSString *kTableName = @"ShoppingList";
     else
         item = [[self.items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
     
-    UILabel *label = (UILabel *)[cell viewWithTag:1];
-    label.text = [item objectForKey:@"name"];
+    [cell textLabel].text = [item objectForKey:@"name"];
+    
+    // Temporarily check for NSNull as the previous version of the app did not contain
+    // a "details" column and the Azure API return NSNull in such cases.
+    [cell detailTextLabel].text = [[item objectForKey:@"details"] isKindOfClass:[NSNull class]] ? @"" : [item objectForKey:@"details"];
     
     UISwitch *switchControl = [[UISwitch alloc] initWithFrame:CGRectZero];
     [switchControl setOn:[[item objectForKey:@"active"] boolValue]];

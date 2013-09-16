@@ -16,7 +16,8 @@
 @interface FormViewController : UITableViewController <UITextFieldDelegate>
 
 @property (nonatomic, assign) id <FormViewControllerDelegate> delegate;
-@property (nonatomic, strong) IBOutlet UITextField *requiredTextField;
+@property (nonatomic, strong) IBOutlet UITextField *nameTextField;
+@property (nonatomic, strong) IBOutlet UITextField *detailsTextField;
 @property (nonatomic, strong) NSDictionary *record;
 
 - (IBAction)cancel:(id)sender;
