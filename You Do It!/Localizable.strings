@@ -6,6 +6,8 @@
   Copyright (c) 2013 Teacup Studio, LLC. All rights reserved.
 */
 
+"UILabelLoadingMessage" = "Loading…";
+
 "UIAlertReadErrorTitle" = "Error Reading Data";
 "UIAlertReadErrorMessage" = "There was a problem reading the specified data. Please pull to refresh to try again.";
 

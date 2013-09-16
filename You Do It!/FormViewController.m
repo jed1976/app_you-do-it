@@ -29,12 +29,9 @@
     [self.nameTextField addTarget:self action:@selector(nameTextFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
     [self.nameTextField becomeFirstResponder];
     
+    // Temporarily check for NSNull as the previous version of the app did not contain
+    // a "details" column and the Azure API return NSNull in such cases.
     [self.detailsTextField setText:[[self.record valueForKey:@"details"] isKindOfClass:[NSNull class]] ? @"" : [self.record valueForKey:@"details"]];
-}
-
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
 }
 
 #pragma mark - Actions
@@ -63,7 +60,7 @@
 
 - (void)nameTextFieldDidChange:(id)sender
 {
-    [[[[[self navigationController] navigationBar] topItem] rightBarButtonItem] setEnabled:! [[self.nameTextField text] isEqualToString:@""]];
+    [[[[[self navigationController] navigationBar] topItem] rightBarButtonItem] setEnabled: ! [[self.nameTextField text] isEqualToString:@""]];
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField

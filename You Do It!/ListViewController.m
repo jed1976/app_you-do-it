@@ -50,7 +50,7 @@ NSString *kTableName = @"ShoppingList";
     self.navigationItem.leftBarButtonItem = [self editButtonItem];
     
     [self addFilterControl];
-    
+  
     [self loadData];
 }
 
@@ -151,6 +151,14 @@ NSString *kTableName = @"ShoppingList";
 - (void)loadData
 {
     [self.refreshControl beginRefreshing];
+
+    // BUG: This is due to the tableView being inside a UINavigationController
+    if (self.tableView.contentOffset.y == 0)
+    {
+        [UIView animateWithDuration:0.25 delay:0 options:UIViewAnimationOptionBeginFromCurrentState animations:^(void) {
+            self.tableView.contentOffset = CGPointMake(0, -self.refreshControl.frame.size.height);
+        } completion:nil];
+    }
     
     MSQuery *query = nil;
     
@@ -172,6 +180,7 @@ NSString *kTableName = @"ShoppingList";
     self.navigationController.navigationBar.topItem.rightBarButtonItem.enabled = NO;
     
     [query readWithCompletion:^(NSArray *items, NSInteger totalCount, NSError *error) {
+        
         if (error != nil)
         {
             [self displayDataReadAlert];
