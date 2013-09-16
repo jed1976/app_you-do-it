@@ -146,7 +146,8 @@ NSString *kTableName = @"ShoppingList";
 - (void)loadData
 {
     MSQuery *query = nil;
-    query.fetchLimit = 500;
+    
+    self.filterControl.enabled = NO;
     
     if (self.selectedFilterSegment == 0)
     {
@@ -157,6 +158,8 @@ NSString *kTableName = @"ShoppingList";
         NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF.active == YES"];
         query = [self.table queryWithPredicate:predicate];
     }
+    
+    query.fetchLimit = 500;
     
     self.navigationController.navigationBar.topItem.leftBarButtonItem.enabled = NO;
     self.navigationController.navigationBar.topItem.rightBarButtonItem.enabled = NO;
@@ -171,6 +174,7 @@ NSString *kTableName = @"ShoppingList";
         {
             self.navigationController.navigationBar.topItem.leftBarButtonItem.enabled = YES;
             self.navigationController.navigationBar.topItem.rightBarButtonItem.enabled = YES;
+            self.filterControl.enabled = YES;
             
             self.items = (NSMutableArray *)[self partitionObjects:items collationStringSelector:@selector(self)];
             self.rawItems = [items mutableCopy];
@@ -302,10 +306,12 @@ NSString *kTableName = @"ShoppingList";
 - (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar
 {
     if ( ! self.searchDisplayController.active)
-    {
-        self.filterControl.enabled = YES;
         [self loadData];
-    }
+}
+
+- (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar
+{
+    self.filterControl.enabled = YES;
 }
 
 #pragma mark - Table view data source
