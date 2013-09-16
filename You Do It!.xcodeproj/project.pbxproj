@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D87B6B5D17E796770062A5B8 /* Base64.m in Sources */ = {isa = PBXBuildFile; fileRef = D87B6B5C17E796770062A5B8 /* Base64.m */; };
 		D8BD8CAE17DA9F07002941C9 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8BD8CAD17DA9F07002941C9 /* Foundation.framework */; };
 		D8BD8CB017DA9F07002941C9 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8BD8CAF17DA9F07002941C9 /* CoreGraphics.framework */; };
 		D8BD8CB217DA9F07002941C9 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8BD8CB117DA9F07002941C9 /* UIKit.framework */; };
@@ -42,6 +43,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		D87B6B5B17E796770062A5B8 /* Base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Base64.h; sourceTree = "<group>"; };
+		D87B6B5C17E796770062A5B8 /* Base64.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Base64.m; sourceTree = "<group>"; };
 		D8BD8CAA17DA9F07002941C9 /* You Do It!.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "You Do It!.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8BD8CAD17DA9F07002941C9 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		D8BD8CAF17DA9F07002941C9 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -98,6 +101,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D87B6B5A17E796770062A5B8 /* Base64 */ = {
+			isa = PBXGroup;
+			children = (
+				D87B6B5B17E796770062A5B8 /* Base64.h */,
+				D87B6B5C17E796770062A5B8 /* Base64.m */,
+			);
+			path = Base64;
+			sourceTree = "<group>";
+		};
 		D8BD8CA117DA9F07002941C9 = {
 			isa = PBXGroup;
 			children = (
@@ -135,6 +147,7 @@
 			children = (
 				D8BD8CBC17DA9F07002941C9 /* AppDelegate.h */,
 				D8BD8CBD17DA9F07002941C9 /* AppDelegate.m */,
+				D87B6B5A17E796770062A5B8 /* Base64 */,
 				D8BD8CE417DA9F31002941C9 /* Controllers */,
 				D8BD8CE517DA9F44002941C9 /* Resources */,
 				D8BD8CB417DA9F07002941C9 /* Supporting Files */,
@@ -304,6 +317,7 @@
 				D8BD8CBE17DA9F07002941C9 /* AppDelegate.m in Sources */,
 				D8BD8CBA17DA9F07002941C9 /* main.m in Sources */,
 				D8BD8CED17DAA2A9002941C9 /* FormViewController.m in Sources */,
+				D87B6B5D17E796770062A5B8 /* Base64.m in Sources */,
 				D8BD8CE817DA9FC8002941C9 /* ListViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -7,19 +7,23 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "Base64.h"
 
 @protocol FormViewControllerDelegate
 - (void)didFinishEditingForm:(NSDictionary *)record;
 - (void)didCancelAddingItem:(NSDictionary *)record;
 @end
 
-@interface FormViewController : UITableViewController <UITextFieldDelegate>
+@interface FormViewController : UITableViewController <UIActionSheetDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate>
 
 @property (nonatomic, assign) id <FormViewControllerDelegate> delegate;
-@property (nonatomic, strong) IBOutlet UITextField *nameTextField;
 @property (nonatomic, strong) IBOutlet UITextField *detailsTextField;
+@property (nonatomic, strong) IBOutlet UITextField *nameTextField;
+@property (nonatomic, strong) IBOutlet UIButton *pickerButton;
+@property (nonatomic, strong) IBOutlet UIImageView *productImageView;
 @property (nonatomic, strong) NSDictionary *record;
 
+- (IBAction)addPhoto:(id)sender;
 - (IBAction)cancel:(id)sender;
 - (IBAction)done:(id)sender;
 

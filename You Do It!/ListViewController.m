@@ -113,10 +113,11 @@ NSString *kTableName = @"ShoppingList";
     NSDictionary *newItem = @{
                               @"name": @"",
                               @"details": @"",
+                              @"photo": @"",
                               @"created": [NSDate date],
                               @"active": @NO
                             };
-    
+
     [self.table insert:newItem completion:^(NSDictionary *result, NSError *error) {
         if (error != nil)
             [self displayDataInsertAlert];
@@ -382,6 +383,8 @@ NSString *kTableName = @"ShoppingList";
     // Temporarily check for NSNull as the previous version of the app did not contain
     // a "details" column and the Azure API return NSNull in such cases.
     [cell detailTextLabel].text = [[item objectForKey:@"details"] isKindOfClass:[NSNull class]] ? @"" : [item objectForKey:@"details"];
+    
+    cell.imageView.image = [[item objectForKey:@"photo"] isKindOfClass:[NSNull class]] ? nil : [[UIImage alloc] initWithData:[[item objectForKey:@"photo"] base64DecodedData]];
     
     UISwitch *switchControl = [[UISwitch alloc] initWithFrame:CGRectZero];
     [switchControl setOn:[[item objectForKey:@"active"] boolValue]];

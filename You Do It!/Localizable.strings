@@ -21,3 +21,11 @@
 "UIAlertDeleteErrorMessage" = "There was a problem deleting the specified data. Please try again soon.";
 
 "UIAlertOKButton" = "OK";
+"UIAlertCancelButton" = "Cancel";
+
+"UIAlertTakePhoto" = "Take Photo";
+"UIAlertChoosePhoto" = "Choose Photo";
+"UIAlertDeletePhoto" = "Delete Photo";
+
+"UIButtonAddPhoto" = "Add Photo";
+"UIButtonEditPhoto" = "Edit";
