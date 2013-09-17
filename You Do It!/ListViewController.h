@@ -10,6 +10,7 @@
 #import <AVFoundation/AVFoundation.h>
 #import <WindowsAzureMobileServices/WindowsAzureMobileServices.h>
 #import "FormViewController.h"
+#import "ProductImageViewController.h"
 
 @interface ListViewController : UITableViewController <FormViewControllerDelegate, UISearchBarDelegate, UISearchDisplayDelegate>
 

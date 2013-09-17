@@ -9,6 +9,7 @@
 #import "ListViewController.h"
 
 NSString *kSegueShowFormId = @"editItemSegue";
+NSString *kSegueShowProductImage = @"productImageSegue";
 NSString *kTableName = @"ShoppingList";
 
 @interface ListViewController ()
@@ -21,9 +22,10 @@ NSString *kTableName = @"ShoppingList";
 @property (nonatomic, strong) NSIndexPath *currentEditIndexPath;
 @property (nonatomic, strong) UISegmentedControl *filterControl;
 @property (nonatomic, strong) NSMutableArray *items;
+@property (nonatomic, strong) ProductImageViewController *productImageViewController;
 @property (nonatomic, strong) NSMutableArray *rawItems;
 @property IBOutlet UISearchBar *searchBar;
-@property (strong,nonatomic) NSMutableArray *searchResults;
+@property (nonatomic, strong) NSMutableArray *searchResults;
 @property (nonatomic) NSInteger selectedFilterSegment;
 @property (nonatomic, strong) MSTable *table;
 @property (nonatomic, strong) NSString *tableName;
@@ -110,6 +112,8 @@ NSString *kTableName = @"ShoppingList";
 
 - (IBAction)add:(id)sender
 {
+    [self disableActionButtons];
+    
     NSDictionary *newItem = @{
                               @"name": @"",
                               @"details": @"",
@@ -126,6 +130,7 @@ NSString *kTableName = @"ShoppingList";
         {
             self.currentRecord = result;
             [self performSegueWithIdentifier:kSegueShowFormId sender:self];
+            [self enableActionButtons];
         }
     }];
 }
@@ -141,6 +146,20 @@ NSString *kTableName = @"ShoppingList";
     UIBarButtonItem *barButton = [[UIBarButtonItem alloc] initWithCustomView:self.filterControl];
     UIBarButtonItem *spaceItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:NULL];
     self.toolbarItems = @[spaceItem, barButton, spaceItem];
+}
+
+- (void)disableActionButtons
+{
+    self.navigationController.navigationBar.topItem.leftBarButtonItem.enabled = NO;
+    self.navigationController.navigationBar.topItem.rightBarButtonItem.enabled = NO;
+    self.filterControl.enabled = NO;
+}
+
+- (void)enableActionButtons
+{
+    self.navigationController.navigationBar.topItem.leftBarButtonItem.enabled = YES;
+    self.navigationController.navigationBar.topItem.rightBarButtonItem.enabled = YES;
+    self.filterControl.enabled = YES;
 }
 
 - (void)toggleFilter:(id)sender
@@ -163,7 +182,7 @@ NSString *kTableName = @"ShoppingList";
     
     MSQuery *query = nil;
     
-    self.filterControl.enabled = NO;
+    [self disableActionButtons];
     
     if (self.selectedFilterSegment == 0)
     {
@@ -177,9 +196,6 @@ NSString *kTableName = @"ShoppingList";
     
     query.fetchLimit = 500;
     
-    self.navigationController.navigationBar.topItem.leftBarButtonItem.enabled = NO;
-    self.navigationController.navigationBar.topItem.rightBarButtonItem.enabled = NO;
-    
     [query readWithCompletion:^(NSArray *items, NSInteger totalCount, NSError *error) {
         
         if (error != nil)
@@ -188,9 +204,7 @@ NSString *kTableName = @"ShoppingList";
         }
         else
         {
-            self.navigationController.navigationBar.topItem.leftBarButtonItem.enabled = YES;
-            self.navigationController.navigationBar.topItem.rightBarButtonItem.enabled = YES;
-            self.filterControl.enabled = YES;
+            [self enableActionButtons];
             
             self.items = (NSMutableArray *)[self partitionObjects:items collationStringSelector:@selector(self)];
             self.rawItems = [items mutableCopy];
@@ -204,7 +218,8 @@ NSString *kTableName = @"ShoppingList";
 
 -(void)filterContentForSearchText:(NSString*)searchText scope:(NSString*)scope
 {
-    self.filterControl.enabled = NO;
+    [self disableActionButtons];
+    
     NSPredicate *resultPredicate = [NSPredicate predicateWithFormat:@"SELF.name contains[cd] %@", searchText];
     self.searchResults = (NSMutableArray *)[self.rawItems filteredArrayUsingPredicate:resultPredicate];
 }
@@ -253,9 +268,18 @@ NSString *kTableName = @"ShoppingList";
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
     UINavigationController *navigationController = segue.destinationViewController;
-    FormViewController *destinationController = [[navigationController childViewControllers] objectAtIndex:0];
-    destinationController.delegate = self;
-    [destinationController setRecord:self.currentRecord];
+
+    if ([segue.identifier isEqualToString:kSegueShowFormId])
+    {
+        FormViewController *destinationController = [[navigationController childViewControllers] objectAtIndex:0];
+        destinationController.delegate = self;
+        [destinationController setRecord:self.currentRecord];
+    }
+    else if ([segue.identifier isEqualToString:kSegueShowProductImage])
+    {
+        ProductImageViewController *destinationController = [[navigationController childViewControllers] objectAtIndex:0];
+        [destinationController setRecord:self.currentRecord];
+    }
 }
 
 - (IBAction)refresh:(id)sender
@@ -330,7 +354,7 @@ NSString *kTableName = @"ShoppingList";
 
 - (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar
 {
-    self.filterControl.enabled = YES;
+    [self enableActionButtons];
     [self loadData];
 }
 
@@ -383,9 +407,7 @@ NSString *kTableName = @"ShoppingList";
     // Temporarily check for NSNull as the previous version of the app did not contain
     // a "details" column and the Azure API return NSNull in such cases.
     [cell detailTextLabel].text = [[item objectForKey:@"details"] isKindOfClass:[NSNull class]] ? @"" : [item objectForKey:@"details"];
-    
-    cell.imageView.image = [[item objectForKey:@"photo"] isKindOfClass:[NSNull class]] ? nil : [[UIImage alloc] initWithData:[[item objectForKey:@"photo"] base64DecodedData]];
-    
+        
     UISwitch *switchControl = [[UISwitch alloc] initWithFrame:CGRectZero];
     [switchControl setOn:[[item objectForKey:@"active"] boolValue]];
     [switchControl setOnTintColor:[UIColor orangeColor]];
@@ -423,9 +445,10 @@ NSString *kTableName = @"ShoppingList";
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (self.searchDisplayController.active) return;
-    
+
     self.currentRecord = [[self.items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
-    [self performSegueWithIdentifier:kSegueShowFormId sender:self];
+    
+    [self performSegueWithIdentifier:tableView.isEditing ? kSegueShowFormId : kSegueShowProductImage sender:self];
 }
 
 #pragma mark - UIAlert

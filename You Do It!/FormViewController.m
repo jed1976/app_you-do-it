@@ -11,11 +11,19 @@
 NSInteger kAddPhotoAlertSheetTag = 1000;
 NSInteger kDeletePhotoAlertSheetTag = 2000;
 
+@interface FormViewController()
+
+@property (nonatomic) BOOL showingDeleteButton;
+
+@end
+
 @implementation FormViewController
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    self.showingDeleteButton = NO;
     
     [[[[[self navigationController] navigationBar] topItem] rightBarButtonItem] setEnabled:[[self.nameTextField text] isEqualToString:@""]];
     
@@ -40,18 +48,17 @@ NSInteger kDeletePhotoAlertSheetTag = 2000;
     [actionSheet setDelegate:self];
     [actionSheet setTag:kAddPhotoAlertSheetTag];
     
-    BOOL supportsCamera = [UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera];
-    
-    if (supportsCamera)
-        [actionSheet addButtonWithTitle:NSLocalizedString(@"UIAlertTakePhoto", nil)];
-    
+    [actionSheet addButtonWithTitle:NSLocalizedString(@"UIAlertTakePhoto", nil)];
     [actionSheet addButtonWithTitle:NSLocalizedString(@"UIAlertChoosePhoto", nil)];
 
     if (self.productImageView.image != nil)
+    {
+        self.showingDeleteButton = YES;
         [actionSheet addButtonWithTitle:NSLocalizedString(@"UIAlertDeletePhoto", nil)];
+    }
     
     [actionSheet addButtonWithTitle:NSLocalizedString(@"UIAlertCancelButton", nil)];
-//    [actionSheet setCancelButtonIndex:supportsCamera ? 2 : 1];
+    [actionSheet setCancelButtonIndex:self.showingDeleteButton ? 3 : 2];
     
     [actionSheet showInView:self.navigationController.view];
 }
@@ -119,7 +126,7 @@ NSInteger kDeletePhotoAlertSheetTag = 2000;
     [record setObject:self.detailsTextField.text forKey:@"details"];
     
     if (self.productImageView.image != nil)
-        [record setObject:[UIImagePNGRepresentation(self.productImageView.image) base64EncodedString] forKey:@"photo"];
+        [record setObject:[UIImageJPEGRepresentation(self.productImageView.image, 1.0) base64EncodedString] forKey:@"photo"];
     else
         [record setObject:[NSNull null] forKey:@"photo"];
     
@@ -132,28 +139,22 @@ NSInteger kDeletePhotoAlertSheetTag = 2000;
 {
     if ([actionSheet tag] == kAddPhotoAlertSheetTag)
     {
+        if (self.showingDeleteButton && buttonIndex == 2)
+        {
+            self.showingDeleteButton = NO;
+            [self deletePhoto];
+            
+            return;
+        }
+        
         UIImagePickerController *imagePickerController = [[UIImagePickerController alloc] init];
         [imagePickerController setAllowsEditing:YES];
         [imagePickerController setDelegate:self];
         
-        if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera] == YES)
-        {
-            if (buttonIndex == 0)
-                NSLog(@"TAKE");
-            else if (buttonIndex == 1)
-                [self.navigationController presentViewController:imagePickerController animated:YES completion:nil];
-            else if (buttonIndex == 2)
-                [self deletePhoto];
-            
-        }
-        else if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera] == NO)
-        {
-            if (buttonIndex == 0)
-                [self.navigationController presentViewController:imagePickerController animated:YES completion:nil];
-            else if (buttonIndex == 1)
-                [self deletePhoto];
-        }
-
+        if (buttonIndex == 0)
+            [imagePickerController setSourceType:UIImagePickerControllerSourceTypeCamera];
+        
+        [self.navigationController presentViewController:imagePickerController animated:YES completion:nil];
     }
     else if ([actionSheet tag] == kDeletePhotoAlertSheetTag)
     {
