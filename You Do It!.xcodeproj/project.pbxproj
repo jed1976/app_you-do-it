@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		D87B6B5D17E796770062A5B8 /* Base64.m in Sources */ = {isa = PBXBuildFile; fileRef = D87B6B5C17E796770062A5B8 /* Base64.m */; };
 		D87B6B6017E7A7F00062A5B8 /* UIImage+ProportionalFill.m in Sources */ = {isa = PBXBuildFile; fileRef = D87B6B5F17E7A7F00062A5B8 /* UIImage+ProportionalFill.m */; };
+		D87B6B6417E8A0FB0062A5B8 /* ProductImageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D87B6B6317E8A0FB0062A5B8 /* ProductImageViewController.m */; };
 		D8BD8CAE17DA9F07002941C9 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8BD8CAD17DA9F07002941C9 /* Foundation.framework */; };
 		D8BD8CB017DA9F07002941C9 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8BD8CAF17DA9F07002941C9 /* CoreGraphics.framework */; };
 		D8BD8CB217DA9F07002941C9 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8BD8CB117DA9F07002941C9 /* UIKit.framework */; };
@@ -44,10 +45,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		D87B6B5B17E796770062A5B8 /* Base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Base64.h; sourceTree = "<group>"; };
-		D87B6B5C17E796770062A5B8 /* Base64.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Base64.m; sourceTree = "<group>"; };
+		D87B6B5B17E796770062A5B8 /* Base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Base64.h; path = Base64/Base64.h; sourceTree = "<group>"; };
+		D87B6B5C17E796770062A5B8 /* Base64.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Base64.m; path = Base64/Base64.m; sourceTree = "<group>"; };
 		D87B6B5E17E7A7F00062A5B8 /* UIImage+ProportionalFill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+ProportionalFill.h"; sourceTree = "<group>"; };
 		D87B6B5F17E7A7F00062A5B8 /* UIImage+ProportionalFill.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+ProportionalFill.m"; sourceTree = "<group>"; };
+		D87B6B6217E8A0FB0062A5B8 /* ProductImageViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProductImageViewController.h; sourceTree = "<group>"; };
+		D87B6B6317E8A0FB0062A5B8 /* ProductImageViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProductImageViewController.m; sourceTree = "<group>"; };
 		D8BD8CAA17DA9F07002941C9 /* You Do It!.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "You Do It!.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8BD8CAD17DA9F07002941C9 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		D8BD8CAF17DA9F07002941C9 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -104,13 +107,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		D87B6B5A17E796770062A5B8 /* Base64 */ = {
+		D87B6B6117E8A0650062A5B8 /* Categories */ = {
 			isa = PBXGroup;
 			children = (
 				D87B6B5B17E796770062A5B8 /* Base64.h */,
 				D87B6B5C17E796770062A5B8 /* Base64.m */,
+				D87B6B5E17E7A7F00062A5B8 /* UIImage+ProportionalFill.h */,
+				D87B6B5F17E7A7F00062A5B8 /* UIImage+ProportionalFill.m */,
 			);
-			path = Base64;
+			name = Categories;
 			sourceTree = "<group>";
 		};
 		D8BD8CA117DA9F07002941C9 = {
@@ -148,11 +153,9 @@
 		D8BD8CB317DA9F07002941C9 /* You Do It! */ = {
 			isa = PBXGroup;
 			children = (
-				D87B6B5E17E7A7F00062A5B8 /* UIImage+ProportionalFill.h */,
-				D87B6B5F17E7A7F00062A5B8 /* UIImage+ProportionalFill.m */,
+				D87B6B6117E8A0650062A5B8 /* Categories */,
 				D8BD8CBC17DA9F07002941C9 /* AppDelegate.h */,
 				D8BD8CBD17DA9F07002941C9 /* AppDelegate.m */,
-				D87B6B5A17E796770062A5B8 /* Base64 */,
 				D8BD8CE417DA9F31002941C9 /* Controllers */,
 				D8BD8CE517DA9F44002941C9 /* Resources */,
 				D8BD8CB417DA9F07002941C9 /* Supporting Files */,
@@ -197,6 +200,8 @@
 				D8BD8CE717DA9FC8002941C9 /* ListViewController.m */,
 				D8BD8CEB17DAA2A9002941C9 /* FormViewController.h */,
 				D8BD8CEC17DAA2A9002941C9 /* FormViewController.m */,
+				D87B6B6217E8A0FB0062A5B8 /* ProductImageViewController.h */,
+				D87B6B6317E8A0FB0062A5B8 /* ProductImageViewController.m */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -320,6 +325,7 @@
 			files = (
 				D8BD8CEA17DAA275002941C9 /* Localizable.strings in Sources */,
 				D8BD8CBE17DA9F07002941C9 /* AppDelegate.m in Sources */,
+				D87B6B6417E8A0FB0062A5B8 /* ProductImageViewController.m in Sources */,
 				D8BD8CBA17DA9F07002941C9 /* main.m in Sources */,
 				D8BD8CED17DAA2A9002941C9 /* FormViewController.m in Sources */,
 				D87B6B5D17E796770062A5B8 /* Base64.m in Sources */,

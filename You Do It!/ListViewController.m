@@ -18,6 +18,7 @@ NSString *kTableName = @"ShoppingList";
 }
 
 @property (nonatomic, strong) MSClient *client;
+@property (nonatomic) NSInteger currentRecordId;
 @property (nonatomic, strong) NSDictionary *currentRecord;
 @property (nonatomic, strong) NSIndexPath *currentEditIndexPath;
 @property (nonatomic, strong) UISegmentedControl *filterControl;
@@ -68,40 +69,10 @@ NSString *kTableName = @"ShoppingList";
 
 #pragma mark - UIAlert actions
 
-- (void)displayDataReadAlert
+- (void)displayErrorAlert:(NSError *)error
 {
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"UIAlertReadErrorTitle", nil)
-                                                    message:NSLocalizedString(@"UIAlertReadErrorMessage", nil)
-                                                   delegate:self
-                                          cancelButtonTitle:nil
-                                          otherButtonTitles:NSLocalizedString(@"UIAlertOKButton", nil), nil];
-    [alert show];
-}
-
-- (void)displayDataInsertAlert
-{
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"UIAlertInsertErrorTitle", nil)
-                                                    message:NSLocalizedString(@"UIAlertInsertErrorMessage", nil)
-                                                   delegate:self
-                                          cancelButtonTitle:nil
-                                          otherButtonTitles:NSLocalizedString(@"UIAlertOKButton", nil), nil];
-    [alert show];
-}
-
-- (void)displayDataUpdateAlert
-{
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"UIAlertUpdateErrorTitle", nil)
-                                                    message:NSLocalizedString(@"UIAlertUpdateErrorMessage", nil)
-                                                   delegate:self
-                                          cancelButtonTitle:nil
-                                          otherButtonTitles:NSLocalizedString(@"UIAlertOKButton", nil), nil];
-    [alert show];
-}
-
-- (void)displayDataDeleteAlert
-{
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"UIAlertDeleteErrorTitle", nil)
-                                                    message:NSLocalizedString(@"UIAlertDeleteErrorMessage", nil)
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:[NSString stringWithFormat:@"Error %i", error.code]
+                                                    message:[error.userInfo objectForKey:@"NSDebugDescription"]
                                                    delegate:self
                                           cancelButtonTitle:nil
                                           otherButtonTitles:NSLocalizedString(@"UIAlertOKButton", nil), nil];
@@ -124,11 +95,11 @@ NSString *kTableName = @"ShoppingList";
 
     [self.table insert:newItem completion:^(NSDictionary *result, NSError *error) {
         if (error != nil)
-            [self displayDataInsertAlert];
+            [self displayErrorAlert:error];
         
         if (result != nil)
         {
-            self.currentRecord = result;
+            self.currentRecordId = [[result objectForKey:@"id"] intValue];
             [self performSegueWithIdentifier:kSegueShowFormId sender:self];
             [self enableActionButtons];
         }
@@ -195,12 +166,12 @@ NSString *kTableName = @"ShoppingList";
     }
     
     query.fetchLimit = 500;
+    query.selectFields = @[@"id", @"name", @"details", @"active"];
     
     [query readWithCompletion:^(NSArray *items, NSInteger totalCount, NSError *error) {
-        
         if (error != nil)
         {
-            [self displayDataReadAlert];
+            [self displayErrorAlert:error];
         }
         else
         {
@@ -268,7 +239,7 @@ NSString *kTableName = @"ShoppingList";
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
     UINavigationController *navigationController = segue.destinationViewController;
-
+    
     if ([segue.identifier isEqualToString:kSegueShowFormId])
     {
         FormViewController *destinationController = [[navigationController childViewControllers] objectAtIndex:0];
@@ -319,7 +290,7 @@ NSString *kTableName = @"ShoppingList";
     [self.table update:[item copy] completion:^(NSDictionary *item, NSError *error) {
         if (error != nil)
         {
-            [self displayDataUpdateAlert];
+            [self displayErrorAlert:error];
         }
         else
         {
@@ -446,9 +417,12 @@ NSString *kTableName = @"ShoppingList";
 {
     if (self.searchDisplayController.active) return;
 
-    self.currentRecord = [[self.items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
+    self.currentRecordId = [[[[self.items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row] objectForKey:@"id"] intValue];
     
-    [self performSegueWithIdentifier:tableView.isEditing ? kSegueShowFormId : kSegueShowProductImage sender:self];
+    [self.table readWithId:[NSNumber numberWithInt:self.currentRecordId] completion:^(NSDictionary *item, NSError *error) {
+        self.currentRecord = item;
+        [self performSegueWithIdentifier:tableView.isEditing ? kSegueShowFormId : kSegueShowProductImage sender:self];
+    }];
 }
 
 #pragma mark - UIAlert
@@ -458,7 +432,7 @@ NSString *kTableName = @"ShoppingList";
     [self.table update:record completion:^(NSDictionary *item, NSError *error) {
         if (error != nil)
         {
-            [self displayDataUpdateAlert];
+            [self displayErrorAlert:error];
         }
         else
         {
