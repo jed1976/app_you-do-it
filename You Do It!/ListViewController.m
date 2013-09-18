@@ -310,7 +310,7 @@ NSString *kTableName = @"ShoppingList";
             [self playAudioFile:@"You Promised"];
         
         if ( ! self.searchDisplayController.active)
-            [self syncItems];
+            [self setupItems];
     }
 }
 
@@ -407,7 +407,7 @@ NSString *kTableName = @"ShoppingList";
 
 - (void)searchDisplayController:(UISearchDisplayController *)controller didHideSearchResultsTableView:(UITableView *)tableView
 {
-    [self syncItems];
+    [self setupItems];
 }
 
 - (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar

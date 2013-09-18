@@ -37,7 +37,57 @@ NSInteger kDeletePhotoAlertSheetTag = 2000;
     [self.nameTextField addTarget:self action:@selector(nameTextFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
     [self.nameTextField becomeFirstResponder];
     
+    UILongPressGestureRecognizer *gr = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPress:)];
+    [self.view addGestureRecognizer:gr];
+ 
     [self togglePickerButtonText];
+}
+
+- (void)longPress:(UILongPressGestureRecognizer *) gestureRecognizer {
+    if ([gestureRecognizer state] == UIGestureRecognizerStateBegan) {
+        CGPoint location = [gestureRecognizer locationInView:[gestureRecognizer view]];
+        UIMenuController *menuController = [UIMenuController sharedMenuController];
+        NSAssert([self becomeFirstResponder], @"Sorry, UIMenuController will not work with %@ since it cannot become first responder", self);
+        [menuController setTargetRect:CGRectMake(location.x, location.y, 0.0f, 0.0f) inView:[gestureRecognizer view]];
+        [menuController setMenuVisible:YES animated:YES];
+    }
+}
+
+- (void)paste:(id)sender
+{
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    
+    if ([pasteboard pasteboardTypes].count == 0) return;
+    
+    NSData *data = [pasteboard dataForPasteboardType:[[pasteboard pasteboardTypes] lastObject]];
+    UIImage *image = [[UIImage alloc] initWithData:data];
+    
+    if ([self saveImage:image])
+    {
+        self.productImageView.image = image;
+        [self.nameTextField becomeFirstResponder];
+    }
+}
+
+- (void)delete:(id)sender
+{
+    [self deletePhoto];
+}
+
+- (BOOL)canPerformAction:(SEL)selector withSender:(id) sender
+{
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+
+    if (selector == @selector(paste:) && [pasteboard pasteboardTypes].count > 0) return YES;
+    
+    if (selector == @selector(delete:) && ! [self.record[@"photo"] isEqualToString:@""]) return YES;
+    
+    return NO;
+}
+
+- (BOOL)canBecomeFirstResponder
+{
+    return YES;
 }
 
 #pragma mark - Actions
@@ -163,9 +213,9 @@ NSInteger kDeletePhotoAlertSheetTag = 2000;
     else if ([actionSheet tag] == kDeletePhotoAlertSheetTag)
     {
         if (buttonIndex == 0)
-        {
             [self deletePhotoAtStringPath:self.record[@"photo"]];
-        }
+        
+        [self.nameTextField becomeFirstResponder];
     }
     
     [self togglePickerButtonText];
@@ -197,26 +247,35 @@ NSInteger kDeletePhotoAlertSheetTag = 2000;
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
 {
-    DBError *error = nil;
-    
     if ( ! [self.record[@"photo"] isEqualToString:@""])
         [self deletePhotoAtStringPath:self.record[@"photo"]];
     
     UIImage *resizedImage = [[info objectForKey:UIImagePickerControllerEditedImage] imageScaledToFitSize:self.productImageView.frame.size];
-    
+
+    if ([self saveImage:resizedImage])
+    {
+        [self dismissPicker:picker];
+        self.productImageView.image = resizedImage;
+        [self.pickerButton setTitle:NSLocalizedString(@"UIButtonEditPhoto", nil) forState:UIControlStateNormal];
+    }
+}
+
+- (BOOL)saveImage:(UIImage *)image
+{
+    DBError *error = nil;
     DBPath *path = [[DBPath root] childPath:[NSString stringWithFormat:@"image-%@", self.record.recordId]];
     DBFile *file = [[DBFilesystem sharedFilesystem] createFile:path error:nil];
-    [file writeData:UIImageJPEGRepresentation(resizedImage, 1.0) error:&error];
-
-    [self dismissPicker:picker];
+    [file writeData:UIImageJPEGRepresentation(image, 1.0) error:&error];
     
     if (error != nil)
+    {
         [self displayErrorAlert:error];
+        return NO;
+    }
     else
     {
         self.record[@"photo"] = path.name;
-        self.productImageView.image = resizedImage;
-        [self.pickerButton setTitle:NSLocalizedString(@"UIButtonEditPhoto", nil) forState:UIControlStateNormal];
+        return YES;
     }
 }
 
