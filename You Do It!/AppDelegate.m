@@ -24,7 +24,7 @@
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
 {
     [[DBAccountManager sharedManager] handleOpenURL:url];
-        
+    
     return YES;
 }
 

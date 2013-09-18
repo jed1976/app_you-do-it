@@ -187,20 +187,20 @@ NSString *kTableName = @"ShoppingList";
         [unsortedSections addObject:[NSMutableArray array]];
     }
     
-    for (id object in array)
+    for (DBRecord *object in array)
     {
-        NSInteger index = [collation sectionForObject:[object objectForKey:@"name"] collationStringSelector:selector];
+        NSInteger index = [collation sectionForObject:[object.fields objectForKey:@"name"] collationStringSelector:selector];
         [[unsortedSections objectAtIndex:index] addObject:object];
     }
     
     NSMutableArray *sections = [NSMutableArray arrayWithCapacity:sectionCount];
-    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES];
-    NSArray *sortDescriptors = [NSArray arrayWithObject:sortDescriptor];
     
     for (NSMutableArray *section in unsortedSections)
     {
-        NSMutableArray *sortedArray = [[section sortedArrayUsingDescriptors:sortDescriptors] mutableCopy];
-        [sections addObject:sortedArray];
+        [section sortedArrayUsingComparator:^(DBRecord *obj1, DBRecord *obj2) {
+            return [obj1[@"name"] compare:obj2[@"name"]];
+        }];
+        [sections addObject:section];
     }
     
     return sections;
@@ -275,7 +275,6 @@ NSString *kTableName = @"ShoppingList";
         [[DBAccountManager sharedManager] linkFromController:self];
     }
     
-    [self.tableView reloadData];
     [self syncItems];
 }
 
@@ -308,6 +307,9 @@ NSString *kTableName = @"ShoppingList";
             [self playAudioFile:@"Oh Yeah"];
         else
             [self playAudioFile:@"You Promised"];
+        
+        if ( ! self.searchDisplayController.active)
+            [self syncItems];
     }
 }
 
@@ -410,7 +412,7 @@ NSString *kTableName = @"ShoppingList";
 - (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar
 {
     if ( ! self.searchDisplayController.active)
-        [self setupItems];
+        [self syncItems];
 }
 
 - (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar
@@ -464,9 +466,7 @@ NSString *kTableName = @"ShoppingList";
     
     [cell textLabel].text = [item objectForKey:@"name"];
     
-    // Temporarily check for NSNull as the previous version of the app did not contain
-    // a "details" column and the Azure API return NSNull in such cases.
-    [cell detailTextLabel].text = [[item objectForKey:@"details"] isKindOfClass:[NSNull class]] ? @"" : [item objectForKey:@"details"];
+    [cell detailTextLabel].text = [item objectForKey:@"details"];
         
     UISwitch *switchControl = [[UISwitch alloc] initWithFrame:CGRectZero];
     [switchControl setOn:[[item objectForKey:@"active"] boolValue]];

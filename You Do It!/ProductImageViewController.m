@@ -18,17 +18,19 @@
 {
     [super viewDidLoad];
 
-    DBError *error = nil;
-    DBPath *path = [[DBPath root] childPath:self.record[@"photo"]];
-    DBFile *file = [[DBFilesystem sharedFilesystem] openFile:path error:&error];
-
     self.navigationController.navigationBar.topItem.title = self.record[@"name"];
     
     if ( ! [self.record[@"details"] isEqualToString:@""])
         self.navigationController.navigationBar.topItem.prompt = self.record[@"details"];
     
     if ( ! [self.record[@"photo"] isEqualToString:@""])
+    {
+        DBError *error = nil;
+        DBPath *path = [[DBPath root] childPath:self.record[@"photo"]];
+        DBFile *file = [[DBFilesystem sharedFilesystem] openFile:path error:&error];
+        
         self.imageView.image = [[UIImage alloc] initWithData:[file readData:nil]];
+    }
 }
 
 #pragma mark - Actions
