@@ -93,10 +93,19 @@ NSInteger kDeletePhotoAlertSheetTag = 2000;
     }];
 }
 
+- (void)displayErrorAlert:(DBError *)error
+{
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:[NSString stringWithFormat:@"Error %i", error.code]
+                                                    message:[error.userInfo objectForKey:@"NSDebugDescription"]
+                                                   delegate:self
+                                          cancelButtonTitle:nil
+                                          otherButtonTitles:NSLocalizedString(@"UIAlertOKButton", nil), nil];
+    [alert show];
+}
+
 - (IBAction)done:(id)sender
 {
     [self updateRecord];
-    
     [_delegate didFinishEditingForm:self.record];
 
     [self cancel:self];
@@ -108,7 +117,13 @@ NSInteger kDeletePhotoAlertSheetTag = 2000;
     self.detailsTextField.text = self.record[@"details"];
     
     if ( ! [self.record[@"photo"] isEqualToString:@""])
-        self.productImageView.image = [[UIImage alloc] initWithData:[self.record[@"photo"] base64DecodedData]];
+    {
+        DBError *error = nil;
+        DBPath *path = [[DBPath root] childPath:self.record[@"photo"]];
+        DBFile *file = [[DBFilesystem sharedFilesystem] openFile:path error:&error];
+        
+        self.productImageView.image = [[UIImage alloc] initWithData:[file readData:&error]];
+    }
 }
 
 - (void)togglePickerButtonText
@@ -119,8 +134,7 @@ NSInteger kDeletePhotoAlertSheetTag = 2000;
 - (void)updateRecord
 {
     self.record[@"name"] = self.nameTextField.text;
-    self.record[@"details"] = self.detailsTextField.text;    
-    self.record[@"photo"] = self.productImageView.image != nil ? [UIImageJPEGRepresentation(self.productImageView.image, 1.0)base64EncodedString] : @"";
+    self.record[@"details"] = self.detailsTextField.text;
 }
 
 #pragma mark - UIActionSheetDelegate
@@ -149,10 +163,29 @@ NSInteger kDeletePhotoAlertSheetTag = 2000;
     else if ([actionSheet tag] == kDeletePhotoAlertSheetTag)
     {
         if (buttonIndex == 0)
-            self.productImageView.image = nil;
+        {
+            [self deletePhotoAtStringPath:self.record[@"photo"]];
+        }
     }
     
     [self togglePickerButtonText];
+}
+
+- (void)deletePhotoAtStringPath:(NSString *)string
+{
+    DBError *error = nil;
+    DBPath *path = [[DBPath root] initWithString:string];
+    [[DBFilesystem sharedFilesystem] deletePath:path error:&error];
+    
+    if (error != nil)
+    {
+        [self displayErrorAlert:error];
+    }
+    else
+    {
+        self.record[@"photo"] = @"";
+        self.productImageView.image = nil;
+    }
 }
 
 #pragma mark - UIImagePickerControllerDelegate
@@ -164,12 +197,27 @@ NSInteger kDeletePhotoAlertSheetTag = 2000;
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
 {
-    UIImage *resizedImage = [[info objectForKey:UIImagePickerControllerEditedImage] imageToFitSize:self.productImageView.frame.size method:MGImageResizeScale];
-    self.productImageView.image = resizedImage;
+    DBError *error = nil;
     
-    [self.pickerButton setTitle:NSLocalizedString(@"UIButtonEditPhoto", nil) forState:UIControlStateNormal];
+    if ( ! [self.record[@"photo"] isEqualToString:@""])
+        [self deletePhotoAtStringPath:self.record[@"photo"]];
     
+    UIImage *resizedImage = [[info objectForKey:UIImagePickerControllerEditedImage] imageScaledToFitSize:self.productImageView.frame.size];
+    
+    DBPath *path = [[DBPath root] childPath:[NSString stringWithFormat:@"image-%@", self.record.recordId]];
+    DBFile *file = [[DBFilesystem sharedFilesystem] createFile:path error:nil];
+    [file writeData:UIImageJPEGRepresentation(resizedImage, 1.0) error:&error];
+
     [self dismissPicker:picker];
+    
+    if (error != nil)
+        [self displayErrorAlert:error];
+    else
+    {
+        self.record[@"photo"] = path.name;
+        self.productImageView.image = resizedImage;
+        [self.pickerButton setTitle:NSLocalizedString(@"UIButtonEditPhoto", nil) forState:UIControlStateNormal];
+    }
 }
 
 #pragma mark - UITextFieldDelegate

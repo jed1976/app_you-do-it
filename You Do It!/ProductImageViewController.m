@@ -18,13 +18,17 @@
 {
     [super viewDidLoad];
 
-    self.navigationController.navigationBar.topItem.title = [self.record objectForKey:@"name"];
+    DBError *error = nil;
+    DBPath *path = [[DBPath root] childPath:self.record[@"photo"]];
+    DBFile *file = [[DBFilesystem sharedFilesystem] openFile:path error:&error];
+
+    self.navigationController.navigationBar.topItem.title = self.record[@"name"];
     
-    if ( ! [[self.record objectForKey:@"details"] isKindOfClass:[NSNull class]] && ! [[self.record objectForKey:@"details"] isEqualToString:@""])
-        self.navigationController.navigationBar.topItem.prompt = [self.record objectForKey:@"details"];
+    if ( ! [self.record[@"details"] isEqualToString:@""])
+        self.navigationController.navigationBar.topItem.prompt = self.record[@"details"];
     
-    if ( ! [[self.record objectForKey:@"photo"] isKindOfClass:[NSNull class]])
-        self.imageView.image = [[UIImage alloc] initWithData:[[self.record objectForKey:@"photo"] base64DecodedData]];
+    if ( ! [self.record[@"photo"] isEqualToString:@""])
+        self.imageView.image = [[UIImage alloc] initWithData:[file readData:nil]];
 }
 
 #pragma mark - Actions

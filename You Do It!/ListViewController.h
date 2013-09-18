@@ -14,6 +14,4 @@
 
 @interface ListViewController : UITableViewController <FormViewControllerDelegate, UISearchBarDelegate, UISearchDisplayDelegate>
 
-- (void)loadData;
-
 @end

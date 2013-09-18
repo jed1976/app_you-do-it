@@ -30,7 +30,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string></string>
+			<string>Dropbox</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>db-ep2co3ah7tumyvn</string>
