@@ -160,9 +160,10 @@ NSString *kTableName = @"ShoppingList";
 
 -(void)filterContentForSearchText:(NSString*)searchText scope:(NSString*)scope
 {
-    [self disableActionButtons];
-    
     [self.searchResults removeAllObjects];
+
+    if ([searchText isEqualToString:@""])
+        return;
     
     for (NSArray *section in self.items)
     {
@@ -386,8 +387,9 @@ NSString *kTableName = @"ShoppingList";
     }
     
     self.items = (NSMutableArray *)[self partitionObjects:self.rawItems collationStringSelector:@selector(self)];
-    
-    [self.tableView reloadData];
+
+    if ( ! self.searchDisplayController.active)
+        [self.tableView reloadData];
     
     [self enableActionButtons];
 }
@@ -403,16 +405,9 @@ NSString *kTableName = @"ShoppingList";
     return YES;
 }
 
-- (void)searchDisplayController:(UISearchDisplayController *)controller didLoadSearchResultsTableView:(UITableView *)tableView
+- (void)searchDisplayController:(UISearchDisplayController *)controller didHideSearchResultsTableView:(UITableView *)tableView
 {
-    [tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"Cell"];
-    [tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"Cell"];
-}
-
-- (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar
-{
-    if ( ! self.searchDisplayController.active)
-        [self syncItems];
+    [self syncItems];
 }
 
 - (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar
