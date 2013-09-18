@@ -7,12 +7,13 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <Dropbox/Dropbox.h>
 #import "Base64.h"
 #import "UIImage+ProportionalFill.h"
 
 @protocol FormViewControllerDelegate
-- (void)didFinishEditingForm:(NSDictionary *)record;
-- (void)didCancelAddingItem:(NSDictionary *)record;
+- (void)didFinishEditingForm:(DBRecord *)record;
+- (void)didCancelAddingItem:(DBRecord *)record;
 @end
 
 @interface FormViewController : UITableViewController <UIActionSheetDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate>
@@ -22,7 +23,7 @@
 @property (nonatomic, strong) IBOutlet UITextField *nameTextField;
 @property (nonatomic, strong) IBOutlet UIButton *pickerButton;
 @property (nonatomic, strong) IBOutlet UIImageView *productImageView;
-@property (nonatomic, strong) NSDictionary *record;
+@property (nonatomic, strong) DBRecord *record;
 
 - (IBAction)addPhoto:(id)sender;
 - (IBAction)cancel:(id)sender;

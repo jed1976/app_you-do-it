@@ -17,9 +17,8 @@ NSString *kTableName = @"ShoppingList";
     AVAudioPlayer *audioPlayer;
 }
 
-@property (nonatomic, strong) MSClient *client;
-@property (nonatomic) NSInteger currentRecordId;
-@property (nonatomic, strong) NSDictionary *currentRecord;
+@property (nonatomic, strong) DBAccount *account;
+@property (nonatomic, strong) DBRecord *currentRecord;
 @property (nonatomic, strong) NSIndexPath *currentEditIndexPath;
 @property (nonatomic, strong) UISegmentedControl *filterControl;
 @property (nonatomic, strong) NSMutableArray *items;
@@ -28,10 +27,11 @@ NSString *kTableName = @"ShoppingList";
 @property IBOutlet UISearchBar *searchBar;
 @property (nonatomic, strong) NSMutableArray *searchResults;
 @property (nonatomic) NSInteger selectedFilterSegment;
-@property (nonatomic, strong) MSTable *table;
-@property (nonatomic, strong) NSString *tableName;
+@property (nonatomic, strong) DBDatastore *store;
+@property (nonatomic, strong) DBTable *table;
 
-- (void)loadData;
+- (IBAction)switchToggle:(id)sender;
+- (IBAction)refresh:(id)sender;
 
 @end
 
@@ -42,34 +42,40 @@ NSString *kTableName = @"ShoppingList";
     [super viewDidLoad];
     
     [self playAudioFile:@"You Do It"];
-    
-    NSBundle *bundle = [NSBundle mainBundle];
-    
-    self.client = [MSClient clientWithApplicationURL:[NSURL URLWithString:[bundle objectForInfoDictionaryKey:@"MSURL"]] applicationKey:[bundle objectForInfoDictionaryKey:@"MSAppKey"]];
-    self.table = [self.client tableWithName:kTableName];
+
     self.rawItems = [NSMutableArray array];
     self.searchResults = [NSMutableArray array];
     
     self.navigationItem.leftBarButtonItem = [self editButtonItem];
     
     [self addFilterControl];
-  
-    [self loadData];
+    
+    self.account = [[DBAccountManager sharedManager] linkedAccount];
+    
+    if (self.account)
+    {
+        self.store = [DBDatastore openDefaultStoreForAccount:self.account error:nil];
+        self.table = [self.store getTable:kTableName];
+        
+        [self loadData];
+    }
+    else
+    {
+        [[DBAccountManager sharedManager] linkFromController:self];
+    }
 }
 
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
     
-    self.client = nil;
     self.rawItems = nil;
     self.searchResults = nil;
-    self.table = nil;
 }
 
 #pragma mark - UIAlert actions
 
-- (void)displayErrorAlert:(NSError *)error
+- (void)displayErrorAlert:(DBError *)error
 {
     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:[NSString stringWithFormat:@"Error %i", error.code]
                                                     message:[error.userInfo objectForKey:@"NSDebugDescription"]
@@ -85,25 +91,20 @@ NSString *kTableName = @"ShoppingList";
 {
     [self disableActionButtons];
     
-    NSDictionary *newItem = @{
-                              @"name": @"",
-                              @"details": @"",
-                              @"photo": @"",
-                              @"created": [NSDate date],
-                              @"active": @NO
-                            };
-
-    [self.table insert:newItem completion:^(NSDictionary *result, NSError *error) {
-        if (error != nil)
-            [self displayErrorAlert:error];
-        
-        if (result != nil)
-        {
-            self.currentRecordId = [[result objectForKey:@"id"] intValue];
-            [self performSegueWithIdentifier:kSegueShowFormId sender:self];
-            [self enableActionButtons];
-        }
-    }];
+    DBError *error = nil;
+    DBRecord *record = [self.table insert:@{ @"active": @NO, @"created": [NSDate date], @"name": @"", @"details": @"", @"photo": @"" }];
+    [self.store sync:&error];
+    
+    if (error != nil)
+    {
+        [self displayErrorAlert:error];
+    }
+    else
+    {
+        self.currentRecord = record;
+        [self performSegueWithIdentifier:kSegueShowFormId sender:self];
+        [self enableActionButtons];
+    }
 }
 
 - (void)addFilterControl
@@ -151,40 +152,30 @@ NSString *kTableName = @"ShoppingList";
         } completion:nil];
     }
     
-    MSQuery *query = nil;
-    
     [self disableActionButtons];
     
+    DBError *error = nil;
+    NSArray *items = nil;
+    
     if (self.selectedFilterSegment == 0)
+        items = [self.table query:nil error:&error];
+    else
+        items = [self.table query:@{ @"active": @YES } error:&error];
+    
+    if (error != nil)
     {
-        query = [self.table query];
+        [self displayErrorAlert:error];
     }
     else
     {
-        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF.active == YES"];
-        query = [self.table queryWithPredicate:predicate];
-    }
-    
-    query.fetchLimit = 500;
-    query.selectFields = @[@"id", @"name", @"details", @"active"];
-    
-    [query readWithCompletion:^(NSArray *items, NSInteger totalCount, NSError *error) {
-        if (error != nil)
-        {
-            [self displayErrorAlert:error];
-        }
-        else
-        {
-            [self enableActionButtons];
-            
-            self.items = (NSMutableArray *)[self partitionObjects:items collationStringSelector:@selector(self)];
-            self.rawItems = [items mutableCopy];
-            
-            [self.tableView reloadData];
-        }
+        self.items = (NSMutableArray *)[self partitionObjects:items collationStringSelector:@selector(self)];
+        self.rawItems = [self.items mutableCopy];
+        [self.tableView reloadData];
+        
+        [self enableActionButtons];
         
         [self.refreshControl endRefreshing];
-    }];
+    }
 }
 
 -(void)filterContentForSearchText:(NSString*)searchText scope:(NSString*)scope
@@ -255,7 +246,7 @@ NSString *kTableName = @"ShoppingList";
 
 - (IBAction)refresh:(id)sender
 {
-    [self loadData];
+    [self.tableView reloadData];
 }
 
 - (void)setEditing:(BOOL)editing animated:(BOOL)animated
@@ -273,31 +264,28 @@ NSString *kTableName = @"ShoppingList";
     NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:buttonFrame.origin];
     self.currentEditIndexPath = indexPath;
     
-    NSMutableDictionary *item = nil;
+    DBRecord *item = nil;
+    DBError *error = nil;
     
     if (self.searchDisplayController.active)
-        item = [self.searchResults objectAtIndex:indexPath.row];
+        item = (DBRecord *)[self.searchResults objectAtIndex:indexPath.row];
     else
-        item = [[[self.items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row] mutableCopy];
+        item = (DBRecord *)[[self.items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
     
-    [item setObject:[NSNumber numberWithBool:switchControl.on] forKey:@"active"];
+    item[@"active"] = [NSNumber numberWithBool:switchControl.on];
+    [self.store sync:&error];
     
-    if ([switchControl isOn])
-        [self playAudioFile:@"Oh Yeah"];
+    if (error != nil)
+    {
+        [self displayErrorAlert:error];
+    }
     else
-        [self playAudioFile:@"You Promised"];
-    
-    [self.table update:[item copy] completion:^(NSDictionary *item, NSError *error) {
-        if (error != nil)
-        {
-            [self displayErrorAlert:error];
-        }
+    {
+        if ([switchControl isOn])
+            [self playAudioFile:@"Oh Yeah"];
         else
-        {
-            if ( ! self.searchDisplayController.active)
-                [self loadData];
-        }
-    }];
+            [self playAudioFile:@"You Promised"];
+    }
 }
 
 #pragma mark - UISearchDisplayController Delegate Methods
@@ -399,13 +387,17 @@ NSString *kTableName = @"ShoppingList";
 {
     if (editingStyle == UITableViewCellEditingStyleDelete)
     {
-        NSDictionary *item = [[self.items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
+        DBError *error = nil;
+        DBRecord *item = (DBRecord *)[[self.items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
+        [item deleteRecord];
         
-        [self.table delete:item completion:^(NSNumber *itemId, NSError *error) {
-            [self playAudioFile:@"No"];            
+        [self.store sync:&error];
+        
+        if (error != nil)
+            [self displayErrorAlert:error];
+        else
             [self loadData];
-        }];
-    }   
+    }
 }
 
 - (BOOL)tableView:(UITableView *)tableView shouldHighlightRowAtIndexPath:(NSIndexPath *)indexPath
@@ -417,34 +409,38 @@ NSString *kTableName = @"ShoppingList";
 {
     if (self.searchDisplayController.active) return;
 
-    self.currentRecordId = [[[[self.items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row] objectForKey:@"id"] intValue];
-    
-    [self.table readWithId:[NSNumber numberWithInt:self.currentRecordId] completion:^(NSDictionary *item, NSError *error) {
-        self.currentRecord = item;
-        [self performSegueWithIdentifier:tableView.isEditing ? kSegueShowFormId : kSegueShowProductImage sender:self];
-    }];
+    self.currentRecord = (DBRecord *)[[self.items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
+
+    [self performSegueWithIdentifier:tableView.isEditing ? kSegueShowFormId : kSegueShowProductImage sender:self];
 }
 
 #pragma mark - UIAlert
 
-- (void)didFinishEditingForm:(NSDictionary *)record
+- (void)didFinishEditingForm:(DBRecord *)record
 {
-    [self.table update:record completion:^(NSDictionary *item, NSError *error) {
-        if (error != nil)
-        {
-            [self displayErrorAlert:error];
-        }
-        else
-        {
-            [self playAudioFile:@"You Do It"];
-            [self loadData];
-        }
-    }];
+    DBError *error = nil;
+    [self.store sync:&error];
+    
+    if (error != nil)
+    {
+        [self displayErrorAlert:error];
+    }
+    else
+    {
+        [self playAudioFile:@"You Do It"];
+        [self loadData];
+    }
 }
 
-- (void)didCancelAddingItem:(NSDictionary *)record
+- (void)didCancelAddingItem:(DBRecord *)record
 {
-    [self.table delete:record completion:nil];
+    DBError *error = nil;
+    [record deleteRecord];
+
+    [self.store sync:&error];
+    
+    if (error != nil)
+        [self displayErrorAlert:error];
 }
 
 @end

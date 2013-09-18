@@ -8,13 +8,12 @@
 
 #import <UIKit/UIKit.h>
 #import <AVFoundation/AVFoundation.h>
-#import <WindowsAzureMobileServices/WindowsAzureMobileServices.h>
+#import <Dropbox/Dropbox.h>
 #import "FormViewController.h"
 #import "ProductImageViewController.h"
 
 @interface ListViewController : UITableViewController <FormViewControllerDelegate, UISearchBarDelegate, UISearchDisplayDelegate>
 
-- (IBAction)switchToggle:(id)sender;
-- (IBAction)refresh:(id)sender;
+- (void)loadData;
 
 @end

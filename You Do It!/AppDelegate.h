@@ -7,6 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <Dropbox/Dropbox.h>
+#import "ListViewController.h"
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 

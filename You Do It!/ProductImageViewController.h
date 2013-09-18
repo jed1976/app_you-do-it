@@ -7,11 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <Dropbox/Dropbox.h>
 #import "Base64.h"
 
 @interface ProductImageViewController : UIViewController
 
-@property (nonatomic, strong) NSDictionary *record;
+@property (nonatomic, strong) DBRecord *record;
 @property (nonatomic, strong) IBOutlet UIImageView *imageView;
 
 - (IBAction)done:(id)sender;

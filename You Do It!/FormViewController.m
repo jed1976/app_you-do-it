@@ -104,14 +104,11 @@ NSInteger kDeletePhotoAlertSheetTag = 2000;
 
 - (void)loadRecord
 {
-    [self.nameTextField setText:[self.record valueForKey:@"name"]];
+    self.nameTextField.text = self.record[@"name"];
+    self.detailsTextField.text = self.record[@"details"];
     
-    // Temporarily check for NSNull as the previous version of the app did not contain
-    // a "details" column and the Azure API return NSNull in such cases.
-    [self.detailsTextField setText:[[self.record valueForKey:@"details"] isKindOfClass:[NSNull class]] ? @"" : [self.record valueForKey:@"details"]];
-    
-    if ( ! [[self.record objectForKey:@"photo"] isKindOfClass:[NSNull class]])
-        [self.productImageView setImage:[[UIImage alloc] initWithData:[[self.record objectForKey:@"photo"] base64DecodedData]]];
+    if ( ! [self.record[@"photo"] isEqualToString:@""])
+        self.productImageView.image = [[UIImage alloc] initWithData:[self.record[@"photo"] base64DecodedData]];
 }
 
 - (void)togglePickerButtonText
@@ -121,16 +118,9 @@ NSInteger kDeletePhotoAlertSheetTag = 2000;
 
 - (void)updateRecord
 {
-    NSMutableDictionary *record = [NSMutableDictionary dictionaryWithDictionary:self.record];
-    [record setObject:self.nameTextField.text forKey:@"name"];
-    [record setObject:self.detailsTextField.text forKey:@"details"];
-    
-    if (self.productImageView.image != nil)
-        [record setObject:[UIImageJPEGRepresentation(self.productImageView.image, 1.0) base64EncodedString] forKey:@"photo"];
-    else
-        [record setObject:[NSNull null] forKey:@"photo"];
-    
-    self.record = [record copy];
+    self.record[@"name"] = self.nameTextField.text;
+    self.record[@"details"] = self.detailsTextField.text;    
+    self.record[@"photo"] = self.productImageView.image != nil ? [UIImageJPEGRepresentation(self.productImageView.image, 1.0)base64EncodedString] : @"";
 }
 
 #pragma mark - UIActionSheetDelegate
