@@ -37,7 +37,6 @@
 		D8F0BCF617E91C050081ED64 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8F0BCF517E91C050081ED64 /* SystemConfiguration.framework */; };
 		D8F0BCF817E91C0E0081ED64 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8F0BCF717E91C0E0081ED64 /* QuartzCore.framework */; };
 		D8F0BCFA17E91C1F0081ED64 /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = D8F0BCF917E91C1F0081ED64 /* libc++.dylib */; };
-		D8F0BCFC17EA26A00081ED64 /* List.plist in Resources */ = {isa = PBXBuildFile; fileRef = D8F0BCFB17EA26A00081ED64 /* List.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -90,7 +89,6 @@
 		D8F0BCF517E91C050081ED64 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		D8F0BCF717E91C0E0081ED64 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		D8F0BCF917E91C1F0081ED64 /* libc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.dylib"; path = "usr/lib/libc++.dylib"; sourceTree = SDKROOT; };
-		D8F0BCFB17EA26A00081ED64 /* List.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = List.plist; path = ../../../Desktop/List.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -231,7 +229,6 @@
 		D8BD8CE517DA9F44002941C9 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				D8F0BCFB17EA26A00081ED64 /* List.plist */,
 				D8BD8CC517DA9F07002941C9 /* Images.xcassets */,
 				D8BD8CBF17DA9F07002941C9 /* Main.storyboard */,
 				D8BD8CF617DAC021002941C9 /* No.m4a */,
@@ -321,7 +318,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D8F0BCFC17EA26A00081ED64 /* List.plist in Resources */,
 				D8BD8CF717DAC021002941C9 /* No.m4a in Resources */,
 				D8BD8CC617DA9F07002941C9 /* Images.xcassets in Resources */,
 				D8BD8CF517DABF4B002941C9 /* Oh Yeah.m4a in Resources */,

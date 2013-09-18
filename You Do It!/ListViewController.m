@@ -136,6 +136,7 @@ NSString *kTableName = @"ShoppingList";
     self.selectedFilterSegment = 0;
     
     self.filterControl = [[UISegmentedControl alloc] initWithItems:@[@"All", @"Active"]];
+    [self.filterControl setSegmentedControlStyle:UISegmentedControlStyleBar];
     [self.filterControl setSelectedSegmentIndex:self.selectedFilterSegment];
     [self.filterControl addTarget:self action:@selector(toggleFilter:) forControlEvents:UIControlEventValueChanged];
     
