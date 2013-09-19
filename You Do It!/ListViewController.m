@@ -91,7 +91,7 @@ NSString *kTableName = @"ShoppingList";
 - (void)displayErrorAlert:(DBError *)error
 {
     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:[NSString stringWithFormat:@"Error %i", error.code]
-                                                    message:[error.userInfo objectForKey:@"NSDebugDescription"]
+                                                    message:error.domain
                                                    delegate:self
                                           cancelButtonTitle:nil
                                           otherButtonTitles:NSLocalizedString(@"UIAlertOKButton", nil), nil];
@@ -221,19 +221,18 @@ NSString *kTableName = @"ShoppingList";
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
-    UINavigationController *navigationController = segue.destinationViewController;
-    
     if ([segue.identifier isEqualToString:kSegueShowFormId])
     {
         self.editing = NO;
-        
+
+        UINavigationController *navigationController = segue.destinationViewController;
         FormViewController *destinationController = [[navigationController childViewControllers] objectAtIndex:0];
         destinationController.delegate = self;
         [destinationController setRecord:self.currentRecord];
     }
     else if ([segue.identifier isEqualToString:kSegueShowProductImage])
     {
-        ProductImageViewController *destinationController = [[navigationController childViewControllers] objectAtIndex:0];
+        ProductImageViewController *destinationController = segue.destinationViewController;
         [destinationController setRecord:self.currentRecord];
     }
 }
@@ -247,7 +246,7 @@ NSString *kTableName = @"ShoppingList";
 
 - (void)setupItems
 {
-    DBError *error = nil;
+    DBError *error;
     
     if (self.account)
     {
@@ -289,7 +288,7 @@ NSString *kTableName = @"ShoppingList";
     self.currentEditIndexPath = indexPath;
     
     DBRecord *item = nil;
-    DBError *error = nil;
+    DBError *error;
     
     if (self.searchDisplayController.active)
         item = (DBRecord *)[self.searchResults objectAtIndex:indexPath.row];
@@ -319,7 +318,7 @@ NSString *kTableName = @"ShoppingList";
 {
     if (self.account)
     {
-        DBError *error = nil;
+        DBError *error;
         NSDictionary *changed = [self.store sync:&error];
         
         if (error != nil)
@@ -484,7 +483,7 @@ NSString *kTableName = @"ShoppingList";
 {
     if (editingStyle == UITableViewCellEditingStyleDelete)
     {
-        DBError *error = nil;
+        DBError *error;
         DBRecord *item = (DBRecord *)[[self.items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
         
         DBPath *path = [[DBPath root] initWithString:item[@"photo"]];
@@ -519,11 +518,11 @@ NSString *kTableName = @"ShoppingList";
     [self performSegueWithIdentifier:tableView.isEditing ? kSegueShowFormId : kSegueShowProductImage sender:self];
 }
 
-#pragma mark - UIAlert
+#pragma mark - FormViewControllerDelegate
 
 - (void)didFinishEditingForm:(DBRecord *)record
 {
-    DBError *error = nil;
+    DBError *error;
     
     [self.store sync:&error];
     
@@ -535,7 +534,7 @@ NSString *kTableName = @"ShoppingList";
 
 - (void)didCancelAddingItem:(DBRecord *)record
 {
-    DBError *error = nil;
+    DBError *error;
 
     [record deleteRecord];
     [self.store sync:&error];

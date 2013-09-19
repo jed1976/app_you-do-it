@@ -5,7 +5,7 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3742"/>
     </dependencies>
     <scenes>
-        <!--List View Controller - You Do It!-->
+        <!--List View Controller-->
         <scene sceneID="hTe-VS-vd5">
             <objects>
                 <tableViewController id="oEO-ik-Fg2" customClass="ListViewController" sceneMemberID="viewController">
@@ -52,7 +52,8 @@
                             <outlet property="delegate" destination="oEO-ik-Fg2" id="OaK-CQ-b3h"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="You Do It!" id="hlf-Ib-8v8">
+                    <navigationItem key="navigationItem" id="hlf-Ib-8v8">
+                        <barButtonItem key="backBarButtonItem" title="Items" id="Pin-3h-lsR"/>
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="KqZ-cl-pgv">
                             <connections>
                                 <action selector="add:" destination="oEO-ik-Fg2" id="DfB-yo-IOG"/>
@@ -63,7 +64,7 @@
                         <outlet property="searchBar" destination="KBb-7a-xp8" id="Gqt-dc-5G5"/>
                         <outlet property="searchDisplayController" destination="rPY-QK-jtg" id="aj4-vL-Zt8"/>
                         <segue destination="a1I-gI-Ty5" kind="modal" identifier="editItemSegue" id="BMi-jQ-3L6"/>
-                        <segue destination="ukj-5F-NsJ" kind="modal" identifier="productImageSegue" id="Nw2-uH-PUO"/>
+                        <segue destination="Fn9-jv-cV9" kind="push" identifier="productImageSegue" id="19M-pu-Wwb"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="QJw-d9-n5t" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -79,7 +80,7 @@
             </objects>
             <point key="canvasLocation" x="-235" y="408"/>
         </scene>
-        <!--Form View Controller - Edit Item-->
+        <!--Form View Controller-->
         <scene sceneID="GwZ-KT-exH">
             <objects>
                 <tableViewController id="xQE-6y-SMG" customClass="FormViewController" sceneMemberID="viewController">
@@ -171,7 +172,7 @@
                             <outlet property="delegate" destination="xQE-6y-SMG" id="Pxa-eH-z36"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Edit Item" id="nwr-kH-PWg">
+                    <navigationItem key="navigationItem" id="nwr-kH-PWg">
                         <barButtonItem key="leftBarButtonItem" systemItem="cancel" id="bSx-bK-gls">
                             <connections>
                                 <action selector="cancel:" destination="xQE-6y-SMG" id="GEy-Ob-y5a"/>
@@ -194,22 +195,6 @@
             </objects>
             <point key="canvasLocation" x="782" y="408"/>
         </scene>
-        <!--Navigation Controller-->
-        <scene sceneID="cWt-1F-yvd">
-            <objects>
-                <navigationController definesPresentationContext="YES" id="ukj-5F-NsJ" sceneMemberID="viewController">
-                    <navigationItem key="navigationItem" id="5DS-b2-aOx"/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="SyO-iF-V9z">
-                        <autoresizingMask key="autoresizingMask"/>
-                    </navigationBar>
-                    <connections>
-                        <segue destination="Fn9-jv-cV9" kind="relationship" relationship="rootViewController" id="fJk-gO-BUC"/>
-                    </connections>
-                </navigationController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="hOA-cH-zLF" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="-235" y="-306"/>
-        </scene>
         <!--Product Image View Controller-->
         <scene sceneID="Fj1-lY-PKs">
             <objects>
@@ -226,19 +211,20 @@
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                     </view>
                     <navigationItem key="navigationItem" id="CAF-Vy-Kao">
-                        <barButtonItem key="rightBarButtonItem" style="done" systemItem="done" id="EQq-bH-sRQ">
+                        <barButtonItem key="rightBarButtonItem" systemItem="edit" id="9Kb-AS-DTb">
                             <connections>
-                                <action selector="done:" destination="Fn9-jv-cV9" id="nw3-xL-UMQ"/>
+                                <action selector="edit:" destination="Fn9-jv-cV9" id="jA4-61-bmV"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
                     <connections>
                         <outlet property="imageView" destination="jNh-pU-6M2" id="eOr-Sm-S7o"/>
+                        <segue destination="a1I-gI-Ty5" kind="modal" identifier="editItemSegue" id="qnK-aQ-M1z"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="vFN-8p-aiO" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="248" y="-306"/>
+            <point key="canvasLocation" x="248" y="-324"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="yA9-db-vvg">
@@ -283,4 +269,7 @@
         <simulatedOrientationMetrics key="orientation"/>
         <simulatedScreenMetrics key="destination" type="retina4"/>
     </simulatedMetricsContainer>
+    <inferredMetricsTieBreakers>
+        <segue reference="BMi-jQ-3L6"/>
+    </inferredMetricsTieBreakers>
 </document>

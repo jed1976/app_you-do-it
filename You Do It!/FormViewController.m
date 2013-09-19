@@ -37,6 +37,8 @@ NSInteger kDeletePhotoAlertSheetTag = 2000;
     [self.nameTextField addTarget:self action:@selector(nameTextFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
     [self.nameTextField becomeFirstResponder];
     
+    [self.detailsTextField addTarget:self action:@selector(detailsTextFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
+    
     UILongPressGestureRecognizer *gr = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPress:)];
     [self.view addGestureRecognizer:gr];
  
@@ -163,12 +165,17 @@ NSInteger kDeletePhotoAlertSheetTag = 2000;
 
 - (void)loadRecord
 {
+    self.navigationItem.title = self.record[@"name"];
+    
+    if ( ! [self.record[@"details"] isEqualToString:@""])
+        self.navigationItem.prompt = self.record[@"details"];
+    
     self.nameTextField.text = self.record[@"name"];
     self.detailsTextField.text = self.record[@"details"];
     
     if ( ! [self.record[@"photo"] isEqualToString:@""])
     {
-        DBError *error = nil;
+        DBError *error;
         DBPath *path = [[DBPath root] childPath:self.record[@"photo"]];
         DBFile *file = [[DBFilesystem sharedFilesystem] openFile:path error:&error];
         
@@ -223,7 +230,7 @@ NSInteger kDeletePhotoAlertSheetTag = 2000;
 
 - (void)deletePhotoAtStringPath:(NSString *)string
 {
-    DBError *error = nil;
+    DBError *error;
     DBPath *path = [[DBPath root] initWithString:string];
     [[DBFilesystem sharedFilesystem] deletePath:path error:&error];
     
@@ -262,7 +269,7 @@ NSInteger kDeletePhotoAlertSheetTag = 2000;
 
 - (BOOL)saveImage:(UIImage *)image
 {
-    DBError *error = nil;
+    DBError *error;
     DBPath *path = [[DBPath root] childPath:[NSString stringWithFormat:@"image-%@.jpg", self.record.recordId]];
     DBFile *file = [[DBFilesystem sharedFilesystem] createFile:path error:nil];
     [file writeData:UIImageJPEGRepresentation(image, 0.5) error:&error];
@@ -284,6 +291,14 @@ NSInteger kDeletePhotoAlertSheetTag = 2000;
 - (void)nameTextFieldDidChange:(id)sender
 {
     [[[[[self navigationController] navigationBar] topItem] rightBarButtonItem] setEnabled: ! [[self.nameTextField text] isEqualToString:@""]];
+    
+    self.navigationItem.title = self.nameTextField.text;    
+}
+
+- (void)detailsTextFieldDidChange:(id)sender
+{
+    if ( ! [self.detailsTextField.text isEqualToString:@""])
+        self.navigationItem.prompt = self.detailsTextField.text;
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField

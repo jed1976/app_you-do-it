@@ -8,9 +8,7 @@
 
 #import "ProductImageViewController.h"
 
-@interface ProductImageViewController ()
-
-@end
+NSString *kSegueShowEditFormId = @"editItemSegue";
 
 @implementation ProductImageViewController
 
@@ -18,14 +16,26 @@
 {
     [super viewDidLoad];
 
-    self.navigationController.navigationBar.topItem.title = self.record[@"name"];
+    [self loadRecord];
+}
+
+#pragma mark - Actions
+
+- (IBAction)edit:(id)sender
+{
+    [self performSegueWithIdentifier:kSegueShowEditFormId sender:self];
+}
+
+- (void)loadRecord
+{
+    self.navigationItem.title = self.record[@"name"];
     
     if ( ! [self.record[@"details"] isEqualToString:@""])
-        self.navigationController.navigationBar.topItem.prompt = self.record[@"details"];
+        self.navigationItem.prompt = self.record[@"details"];
     
     if ( ! [self.record[@"photo"] isEqualToString:@""])
     {
-        DBError *error = nil;
+        DBError *error;
         DBPath *path = [[DBPath root] childPath:self.record[@"photo"]];
         DBFile *file = [[DBFilesystem sharedFilesystem] openFile:path error:&error];
         
@@ -33,11 +43,28 @@
     }
 }
 
-#pragma mark - Actions
-
-- (IBAction)done:(id)sender
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
-    [self dismissViewControllerAnimated:YES completion:nil];
+    UINavigationController *navigationController = segue.destinationViewController;
+    FormViewController *destinationController = [[navigationController childViewControllers] objectAtIndex:0];
+    destinationController.delegate = self;
+    [destinationController setRecord:self.record];
+}
+
+#pragma mark - FormViewControllerDelegate
+
+- (void)didFinishEditingForm:(DBRecord *)record
+{
+    self.record = record;
+    
+    [self loadRecord];
+}
+
+- (void)didCancelAddingItem:(DBRecord *)record
+{
+    self.record = record;
+    
+    [self loadRecord];    
 }
 
 @end
