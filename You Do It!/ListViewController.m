@@ -486,8 +486,16 @@ NSString *kTableName = @"ShoppingList";
     {
         DBError *error = nil;
         DBRecord *item = (DBRecord *)[[self.items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
-        [item deleteRecord];
         
+        DBPath *path = [[DBPath root] initWithString:item[@"photo"]];
+        [[DBFilesystem sharedFilesystem] deletePath:path error:&error];
+        
+        if (error != nil)
+            [self displayErrorAlert:error];
+        else
+            item[@"photo"] = @"";
+
+        [item deleteRecord];
         [self.store sync:&error];
         
         if (error != nil)

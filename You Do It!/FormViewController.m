@@ -263,9 +263,9 @@ NSInteger kDeletePhotoAlertSheetTag = 2000;
 - (BOOL)saveImage:(UIImage *)image
 {
     DBError *error = nil;
-    DBPath *path = [[DBPath root] childPath:[NSString stringWithFormat:@"image-%@", self.record.recordId]];
+    DBPath *path = [[DBPath root] childPath:[NSString stringWithFormat:@"image-%@.jpg", self.record.recordId]];
     DBFile *file = [[DBFilesystem sharedFilesystem] createFile:path error:nil];
-    [file writeData:UIImageJPEGRepresentation(image, 1.0) error:&error];
+    [file writeData:UIImageJPEGRepresentation(image, 0.5) error:&error];
     
     if (error != nil)
     {
