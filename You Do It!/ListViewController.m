@@ -415,6 +415,7 @@ NSString *kTableName = @"ShoppingList";
 - (void)searchDisplayControllerDidBeginSearch:(UISearchDisplayController *)controller
 {
     self.editing = NO;
+    [self disableActionButtons];
 }
 
 -(BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString

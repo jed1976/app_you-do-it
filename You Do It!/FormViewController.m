@@ -10,6 +10,7 @@
 
 NSInteger kAddPhotoAlertSheetTag = 1000;
 NSInteger kDeletePhotoAlertSheetTag = 2000;
+CGFloat kImageQualityLevel = 0.75;
 
 @interface FormViewController()
 
@@ -64,7 +65,7 @@ NSInteger kDeletePhotoAlertSheetTag = 2000;
     if ([pasteboard pasteboardTypes].count == 0) return;
     
     NSData *data = [pasteboard dataForPasteboardType:[[pasteboard pasteboardTypes] lastObject]];
-    UIImage *image = [[UIImage alloc] initWithData:data];
+    UIImage *image = [[[UIImage alloc] initWithData:data] imageScaledToFitSize:self.productImageView.frame.size];
     
     if ([self saveImage:image])
     {
@@ -159,7 +160,6 @@ NSInteger kDeletePhotoAlertSheetTag = 2000;
 
 - (IBAction)done:(id)sender
 {
-    [self updateRecord];
     [_delegate didFinishEditingItem:self.record];
 
     [self cancel:self];
@@ -195,12 +195,6 @@ NSInteger kDeletePhotoAlertSheetTag = 2000;
 {
     UISwitch *switchControl = (UISwitch *)sender;
     self.record[@"active"] = [NSNumber numberWithBool:[switchControl isOn]];
-}
-
-- (void)updateRecord
-{
-    self.record[@"name"] = self.nameTextField.text;
-    self.record[@"details"] = self.detailsTextField.text;
 }
 
 #pragma mark - UIActionSheetDelegate
@@ -283,7 +277,7 @@ NSInteger kDeletePhotoAlertSheetTag = 2000;
     DBError *error;
     DBPath *path = [[DBPath root] childPath:[NSString stringWithFormat:@"image-%@.jpg", self.record.recordId]];
     DBFile *file = [[DBFilesystem sharedFilesystem] createFile:path error:nil];
-    [file writeData:UIImageJPEGRepresentation(image, 0.5) error:&error];
+    [file writeData:UIImageJPEGRepresentation(image, kImageQualityLevel) error:&error];
     
     if (error != nil)
     {
@@ -303,13 +297,16 @@ NSInteger kDeletePhotoAlertSheetTag = 2000;
 {
     [[[[[self navigationController] navigationBar] topItem] rightBarButtonItem] setEnabled: ! [[self.nameTextField text] isEqualToString:@""]];
     
-    self.navigationItem.title = self.nameTextField.text;    
+    self.navigationItem.title = self.nameTextField.text;
+    self.record[@"name"] = self.nameTextField.text;
 }
 
 - (void)detailsTextFieldDidChange:(id)sender
 {
     if ( ! [self.detailsTextField.text isEqualToString:@""])
         self.navigationItem.prompt = self.detailsTextField.text;
+    
+    self.record[@"details"] = self.detailsTextField.text;
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
