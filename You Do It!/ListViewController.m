@@ -67,7 +67,8 @@ NSString *kTableName = @"ShoppingList";
     [self setupItems];
 }
 
-- (void)viewWillDisappear:(BOOL)animated {
+- (void)viewWillDisappear:(BOOL)animated
+{
     [super viewWillDisappear:animated];
 
     [self.accountManager removeObserver:self];

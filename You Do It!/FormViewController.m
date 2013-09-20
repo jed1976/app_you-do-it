@@ -209,6 +209,8 @@ NSInteger kDeletePhotoAlertSheetTag = 2000;
 {
     if ([actionSheet tag] == kAddPhotoAlertSheetTag)
     {
+        if ((self.showingDeleteButton && buttonIndex == 3) || (! self.showingDeleteButton && buttonIndex == 2)) return;
+        
         if (self.showingDeleteButton && buttonIndex == 2)
         {
             self.showingDeleteButton = NO;
@@ -216,7 +218,7 @@ NSInteger kDeletePhotoAlertSheetTag = 2000;
             
             return;
         }
-        
+
         UIImagePickerController *imagePickerController = [[UIImagePickerController alloc] init];
         [imagePickerController setAllowsEditing:YES];
         [imagePickerController setDelegate:self];
