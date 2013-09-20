@@ -169,9 +169,6 @@ CGFloat kImageQualityLevel = 0.75;
 {
     self.navigationItem.title = self.record[@"name"];
     
-    if ( ! [self.record[@"details"] isEqualToString:@""])
-        self.navigationItem.prompt = self.record[@"details"];
-    
     self.nameTextField.text = self.record[@"name"];
     self.detailsTextField.text = self.record[@"details"];
     self.activeSwitch.on = [self.record[@"active"] boolValue];
@@ -303,9 +300,6 @@ CGFloat kImageQualityLevel = 0.75;
 
 - (void)detailsTextFieldDidChange:(id)sender
 {
-    if ( ! [self.detailsTextField.text isEqualToString:@""])
-        self.navigationItem.prompt = self.detailsTextField.text;
-    
     self.record[@"details"] = self.detailsTextField.text;
 }
 

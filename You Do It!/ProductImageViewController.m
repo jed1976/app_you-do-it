@@ -10,6 +10,12 @@
 
 NSString *kSegueShowEditFormId = @"editItemSegue";
 
+@interface ProductImageViewController()
+
+@property (nonatomic, strong) IBOutlet UIBarButtonItem *details;
+
+@end
+
 @implementation ProductImageViewController
 
 - (void)viewDidLoad
@@ -17,13 +23,6 @@ NSString *kSegueShowEditFormId = @"editItemSegue";
     [super viewDidLoad];
 
     [self loadRecord];
-}
-
-- (void)viewDidAppear:(BOOL)animated
-{
-    [super viewDidAppear:animated];
-    
-    [self.navigationController setToolbarHidden:YES animated:YES];
 }
 
 #pragma mark - Actions
@@ -37,8 +36,13 @@ NSString *kSegueShowEditFormId = @"editItemSegue";
 {
     self.navigationItem.title = self.record[@"name"];
     
-    if ( ! [self.record[@"details"] isEqualToString:@""])
-        self.navigationItem.prompt = self.record[@"details"];
+    if ([self.record[@"details"] isEqualToString:@""])
+        [self.navigationController setToolbarHidden:YES animated:YES];
+    else
+    {
+        [self.navigationController setToolbarHidden:NO animated:YES];
+        self.details.title = self.record[@"details"];
+    }
     
     if ( ! [self.record[@"photo"] isEqualToString:@""])
     {
