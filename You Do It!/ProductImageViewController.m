@@ -53,14 +53,14 @@ NSString *kSegueShowEditFormId = @"editItemSegue";
 
 #pragma mark - FormViewControllerDelegate
 
-- (void)didFinishEditingForm:(DBRecord *)record
+- (void)didFinishEditingItem:(DBRecord *)record
 {
     self.record = record;
     
     [self loadRecord];
 }
 
-- (void)didCancelAddingItem:(DBRecord *)record
+- (void)didCancelEditingItem:(DBRecord *)record
 {
     self.record = record;
     

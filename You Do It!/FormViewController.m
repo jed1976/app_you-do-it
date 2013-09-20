@@ -15,6 +15,8 @@ NSInteger kDeletePhotoAlertSheetTag = 2000;
 
 @property (nonatomic) BOOL showingDeleteButton;
 
+- (IBAction)switchToggle:(id)sender;
+
 @end
 
 @implementation FormViewController
@@ -118,7 +120,7 @@ NSInteger kDeletePhotoAlertSheetTag = 2000;
 - (IBAction)cancel:(id)sender
 {
     if ([[self.nameTextField text] isEqualToString:@""])
-        [_delegate didCancelAddingItem:self.record];
+        [_delegate didCancelEditingItem:self.record];
     
     [self.nameTextField resignFirstResponder];
     [self.detailsTextField resignFirstResponder];
@@ -158,7 +160,7 @@ NSInteger kDeletePhotoAlertSheetTag = 2000;
 - (IBAction)done:(id)sender
 {
     [self updateRecord];
-    [_delegate didFinishEditingForm:self.record];
+    [_delegate didFinishEditingItem:self.record];
 
     [self cancel:self];
 }
@@ -172,6 +174,7 @@ NSInteger kDeletePhotoAlertSheetTag = 2000;
     
     self.nameTextField.text = self.record[@"name"];
     self.detailsTextField.text = self.record[@"details"];
+    self.activeSwitch.on = [self.record[@"active"] boolValue];
     
     if ( ! [self.record[@"photo"] isEqualToString:@""])
     {
@@ -186,6 +189,12 @@ NSInteger kDeletePhotoAlertSheetTag = 2000;
 - (void)togglePickerButtonText
 {
     [self.pickerButton setTitle:NSLocalizedString(self.productImageView.image == nil ? @"UIButtonAddPhoto" : @"UIButtonEditPhoto", nil) forState:UIControlStateNormal];
+}
+
+- (IBAction)switchToggle:(id)sender
+{
+    UISwitch *switchControl = (UISwitch *)sender;
+    self.record[@"active"] = [NSNumber numberWithBool:[switchControl isOn]];
 }
 
 - (void)updateRecord

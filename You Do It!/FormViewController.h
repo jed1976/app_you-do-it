@@ -12,12 +12,13 @@
 #import "UIImage+ProportionalFill.h"
 
 @protocol FormViewControllerDelegate
-- (void)didFinishEditingForm:(DBRecord *)record;
-- (void)didCancelAddingItem:(DBRecord *)record;
+- (void)didFinishEditingItem:(DBRecord *)record;
+- (void)didCancelEditingItem:(DBRecord *)record;
 @end
 
 @interface FormViewController : UITableViewController <UIActionSheetDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate>
 
+@property (nonatomic, strong) IBOutlet UISwitch *activeSwitch;
 @property (nonatomic, assign) id <FormViewControllerDelegate> delegate;
 @property (nonatomic, strong) IBOutlet UITextField *detailsTextField;
 @property (nonatomic, strong) IBOutlet UITextField *nameTextField;

@@ -76,6 +76,11 @@ NSString *kTableName = @"ShoppingList";
         [_store removeObserver:self];
 }
 
+- (void)viewDidDisappear:(BOOL)animated
+{
+    self.editing = NO;
+}
+
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
@@ -91,7 +96,7 @@ NSString *kTableName = @"ShoppingList";
 - (void)displayErrorAlert:(DBError *)error
 {
     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:[NSString stringWithFormat:@"Error %i", error.code]
-                                                    message:error.domain
+                                                    message:error.userInfo.description
                                                    delegate:self
                                           cancelButtonTitle:nil
                                           otherButtonTitles:NSLocalizedString(@"UIAlertOKButton", nil), nil];
@@ -223,8 +228,6 @@ NSString *kTableName = @"ShoppingList";
 {
     if ([segue.identifier isEqualToString:kSegueShowFormId])
     {
-        self.editing = NO;
-
         UINavigationController *navigationController = segue.destinationViewController;
         FormViewController *destinationController = [[navigationController childViewControllers] objectAtIndex:0];
         destinationController.delegate = self;
@@ -309,8 +312,11 @@ NSString *kTableName = @"ShoppingList";
         else
             [self playAudioFile:@"You Promised"];
         
-        if ( ! self.searchDisplayController.active)
-            [self setupItems];
+        if ( ! self.searchDisplayController.active && self.selectedFilterSegment == 1)
+        {
+            [[self.items objectAtIndex:indexPath.section] removeObjectAtIndex:indexPath.row];
+            [self.tableView deleteRowsAtIndexPaths:@[self.currentEditIndexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+        }
     }
 }
 
@@ -396,6 +402,12 @@ NSString *kTableName = @"ShoppingList";
 
 #pragma mark - UISearchDisplayController Delegate Methods
 
+- (void)searchDisplayControllerDidBeginSearch:(UISearchDisplayController *)controller
+
+{
+    self.editing = NO;
+}
+
 -(BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString
 {
     [self filterContentForSearchText:searchString
@@ -403,11 +415,6 @@ NSString *kTableName = @"ShoppingList";
                                       objectAtIndex:[self.searchDisplayController.searchBar selectedScopeButtonIndex]]];
     
     return YES;
-}
-
-- (void)searchDisplayController:(UISearchDisplayController *)controller didHideSearchResultsTableView:(UITableView *)tableView
-{
-    [self setupItems];
 }
 
 - (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar
@@ -486,14 +493,17 @@ NSString *kTableName = @"ShoppingList";
         DBError *error;
         DBRecord *item = (DBRecord *)[[self.items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
         
-        DBPath *path = [[DBPath root] initWithString:item[@"photo"]];
-        [[DBFilesystem sharedFilesystem] deletePath:path error:&error];
+        if ( ! [item[@"photo"] isEqualToString:@""])
+        {
+            DBPath *path = [[DBPath root] initWithString:item[@"photo"]];
+            [[DBFilesystem sharedFilesystem] deletePath:path error:&error];
+            
+            if (error != nil)
+                [self displayErrorAlert:error];
+            else
+                item[@"photo"] = @"";
+        }
         
-        if (error != nil)
-            [self displayErrorAlert:error];
-        else
-            item[@"photo"] = @"";
-
         [item deleteRecord];
         [self.store sync:&error];
         
@@ -520,7 +530,7 @@ NSString *kTableName = @"ShoppingList";
 
 #pragma mark - FormViewControllerDelegate
 
-- (void)didFinishEditingForm:(DBRecord *)record
+- (void)didFinishEditingItem:(DBRecord *)record
 {
     DBError *error;
     
@@ -532,7 +542,7 @@ NSString *kTableName = @"ShoppingList";
         [self playAudioFile:@"You Do It"];
 }
 
-- (void)didCancelAddingItem:(DBRecord *)record
+- (void)didCancelEditingItem:(DBRecord *)record
 {
     DBError *error;
 
