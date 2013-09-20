@@ -403,7 +403,6 @@ NSString *kTableName = @"ShoppingList";
 #pragma mark - UISearchDisplayController Delegate Methods
 
 - (void)searchDisplayControllerDidBeginSearch:(UISearchDisplayController *)controller
-
 {
     self.editing = NO;
 }
