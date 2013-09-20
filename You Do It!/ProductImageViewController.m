@@ -19,6 +19,13 @@ NSString *kSegueShowEditFormId = @"editItemSegue";
     [self loadRecord];
 }
 
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    
+    [self.navigationController setToolbarHidden:YES animated:YES];
+}
+
 #pragma mark - Actions
 
 - (IBAction)edit:(id)sender

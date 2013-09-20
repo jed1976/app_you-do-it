@@ -5,7 +5,7 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3742"/>
     </dependencies>
     <scenes>
-        <!--List View Controller-->
+        <!--List View Controller - 😠-->
         <scene sceneID="hTe-VS-vd5">
             <objects>
                 <tableViewController id="oEO-ik-Fg2" customClass="ListViewController" sceneMemberID="viewController">
@@ -52,7 +52,7 @@
                             <outlet property="delegate" destination="oEO-ik-Fg2" id="OaK-CQ-b3h"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" id="hlf-Ib-8v8">
+                    <navigationItem key="navigationItem" title="😠" id="hlf-Ib-8v8">
                         <barButtonItem key="backBarButtonItem" title="Items" id="Pin-3h-lsR"/>
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="KqZ-cl-pgv">
                             <connections>
@@ -230,8 +230,8 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" id="jNh-pU-6M2">
-                                <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
-                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                <rect key="frame" x="0.0" y="65" width="320" height="503"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
                             </imageView>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
@@ -243,6 +243,7 @@
                             </connections>
                         </barButtonItem>
                     </navigationItem>
+                    <nil key="simulatedBottomBarMetrics"/>
                     <connections>
                         <outlet property="imageView" destination="jNh-pU-6M2" id="eOr-Sm-S7o"/>
                         <segue destination="a1I-gI-Ty5" kind="modal" identifier="editItemSegue" id="qnK-aQ-M1z"/>
@@ -250,7 +251,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="vFN-8p-aiO" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="248" y="-324"/>
+            <point key="canvasLocation" x="248" y="-242"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="yA9-db-vvg">

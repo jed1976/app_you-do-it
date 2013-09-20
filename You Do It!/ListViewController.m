@@ -76,8 +76,17 @@ NSString *kTableName = @"ShoppingList";
         [_store removeObserver:self];
 }
 
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    
+    [self.navigationController setToolbarHidden:NO animated:YES];
+}
+
 - (void)viewDidDisappear:(BOOL)animated
 {
+    [super viewDidDisappear:animated];
+    
     self.editing = NO;
 }
 
