@@ -21,7 +21,7 @@ NSString *kSegueShowEditFormId = @"editItemSegue";
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-
+    
     [self loadRecord];
 }
 

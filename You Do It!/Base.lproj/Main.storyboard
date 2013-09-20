@@ -238,7 +238,7 @@
                     </view>
                     <toolbarItems>
                         <barButtonItem style="plain" systemItem="flexibleSpace" id="A9C-rr-JTD"/>
-                        <barButtonItem style="plain" id="gej-kU-vRq">
+                        <barButtonItem enabled="NO" style="plain" id="gej-kU-vRq">
                             <color key="tintColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                         </barButtonItem>
                         <barButtonItem style="plain" systemItem="flexibleSpace" id="UG3-pu-l4N"/>

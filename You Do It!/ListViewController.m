@@ -207,9 +207,15 @@ NSString *kTableName = @"ShoppingList";
     
     for (NSMutableArray *section in unsortedSections)
     {
-        [section sortedArrayUsingComparator:^(DBRecord *obj1, DBRecord *obj2) {
+        NSSortDescriptor *nameSortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"fields" ascending:YES comparator:^(DBRecord *obj1, DBRecord *obj2) {
             return [obj1[@"name"] compare:obj2[@"name"]];
         }];
+        
+        NSSortDescriptor *detailsSortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"fields" ascending:YES comparator:^(DBRecord *obj1, DBRecord *obj2) {
+            return [obj1[@"details"] compare:obj2[@"details"]];
+        }];
+        
+        [section sortUsingDescriptors:@[nameSortDescriptor, detailsSortDescriptor]];
         [sections addObject:section];
     }
     
