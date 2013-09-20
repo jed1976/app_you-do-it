@@ -151,7 +151,7 @@ CGFloat kImageQualityLevel = 0.75;
 - (void)displayErrorAlert:(DBError *)error
 {
     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:[NSString stringWithFormat:@"Error %i", error.code]
-                                                    message:[error.userInfo objectForKey:@"NSDebugDescription"]
+                                                    message:error.description
                                                    delegate:self
                                           cancelButtonTitle:nil
                                           otherButtonTitles:NSLocalizedString(@"UIAlertOKButton", nil), nil];
@@ -167,8 +167,6 @@ CGFloat kImageQualityLevel = 0.75;
 
 - (void)loadRecord
 {
-    self.navigationItem.title = self.record[@"name"];
-    
     self.nameTextField.text = self.record[@"name"];
     self.detailsTextField.text = self.record[@"details"];
     self.activeSwitch.on = [self.record[@"active"] boolValue];

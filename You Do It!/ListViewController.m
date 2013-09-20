@@ -99,7 +99,7 @@ NSString *kTableName = @"ShoppingList";
 - (void)displayErrorAlert:(DBError *)error
 {
     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:[NSString stringWithFormat:@"Error %i", error.code]
-                                                    message:error.userInfo.description
+                                                    message:error.description
                                                    delegate:self
                                           cancelButtonTitle:nil
                                           otherButtonTitles:NSLocalizedString(@"UIAlertOKButton", nil), nil];

@@ -53,7 +53,7 @@
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" title="😠" id="hlf-Ib-8v8">
-                        <barButtonItem key="backBarButtonItem" title="Items" id="Pin-3h-lsR"/>
+                        <barButtonItem key="backBarButtonItem" title="All Items" id="Pin-3h-lsR"/>
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="KqZ-cl-pgv">
                             <connections>
                                 <action selector="add:" destination="oEO-ik-Fg2" id="DfB-yo-IOG"/>
@@ -203,7 +203,7 @@
                                 <action selector="cancel:" destination="xQE-6y-SMG" id="GEy-Ob-y5a"/>
                             </connections>
                         </barButtonItem>
-                        <barButtonItem key="rightBarButtonItem" systemItem="done" id="pom-fb-SgT">
+                        <barButtonItem key="rightBarButtonItem" style="done" systemItem="done" id="pom-fb-SgT">
                             <connections>
                                 <action selector="done:" destination="xQE-6y-SMG" id="6Dh-g8-a3v"/>
                             </connections>
@@ -304,6 +304,6 @@
         <simulatedScreenMetrics key="destination" type="retina4"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
-        <segue reference="qnK-aQ-M1z"/>
+        <segue reference="BMi-jQ-3L6"/>
     </inferredMetricsTieBreakers>
 </document>
