@@ -236,13 +236,7 @@
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                     </view>
-                    <toolbarItems>
-                        <barButtonItem style="plain" systemItem="flexibleSpace" id="A9C-rr-JTD"/>
-                        <barButtonItem enabled="NO" style="plain" id="gej-kU-vRq">
-                            <color key="tintColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                        </barButtonItem>
-                        <barButtonItem style="plain" systemItem="flexibleSpace" id="UG3-pu-l4N"/>
-                    </toolbarItems>
+                    <toolbarItems/>
                     <navigationItem key="navigationItem" id="CAF-Vy-Kao">
                         <barButtonItem key="rightBarButtonItem" systemItem="edit" id="9Kb-AS-DTb">
                             <connections>
@@ -251,7 +245,6 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
-                        <outlet property="details" destination="gej-kU-vRq" id="EA6-3X-4tn"/>
                         <outlet property="imageView" destination="jNh-pU-6M2" id="eOr-Sm-S7o"/>
                         <segue destination="a1I-gI-Ty5" kind="modal" identifier="editItemSegue" id="qnK-aQ-M1z"/>
                     </connections>
@@ -304,6 +297,6 @@
         <simulatedScreenMetrics key="destination" type="retina4"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
-        <segue reference="BMi-jQ-3L6"/>
+        <segue reference="qnK-aQ-M1z"/>
     </inferredMetricsTieBreakers>
 </document>

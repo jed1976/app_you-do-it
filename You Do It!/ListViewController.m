@@ -64,6 +64,8 @@ NSString *kTableName = @"ShoppingList";
         [slf setupItems];
     }];
     
+    [self.navigationController setToolbarHidden:NO animated:YES];
+    
     [self setupItems];
 }
 
@@ -321,11 +323,7 @@ NSString *kTableName = @"ShoppingList";
         else
             [self playAudioFile:@"You Promised"];
         
-        if ( ! self.searchDisplayController.active && self.selectedFilterSegment == 1)
-        {
-            [[self.items objectAtIndex:indexPath.section] removeObjectAtIndex:indexPath.row];
-            [self.tableView deleteRowsAtIndexPaths:@[self.currentEditIndexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
-        }
+        [self setupItems];
     }
 }
 

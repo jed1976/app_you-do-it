@@ -12,8 +12,6 @@ NSString *kSegueShowEditFormId = @"editItemSegue";
 
 @interface ProductImageViewController()
 
-@property (nonatomic, strong) IBOutlet UIBarButtonItem *details;
-
 @end
 
 @implementation ProductImageViewController
@@ -41,7 +39,18 @@ NSString *kSegueShowEditFormId = @"editItemSegue";
     else
     {
         [self.navigationController setToolbarHidden:NO animated:YES];
-        self.details.title = self.record[@"details"];
+        
+        UILabel *detailLabel = [[UILabel alloc] initWithFrame:self.navigationController.toolbar.frame];
+        [detailLabel setText:self.record[@"details"]];
+        [detailLabel setTextAlignment:NSTextAlignmentCenter];
+        [detailLabel setBackgroundColor:[UIColor clearColor]];
+        
+        if (floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_6_1)
+            [detailLabel setTextColor:[UIColor whiteColor]];
+        
+        UIBarButtonItem *barButton = [[UIBarButtonItem alloc] initWithCustomView:detailLabel];
+        UIBarButtonItem *spaceItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:NULL];
+        self.toolbarItems = @[spaceItem, barButton, spaceItem];
     }
     
     if ( ! [self.record[@"photo"] isEqualToString:@""])
