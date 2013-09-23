@@ -41,9 +41,10 @@ NSString *kSegueShowEditFormId = @"editItemSegue";
         [self.navigationController setToolbarHidden:NO animated:YES];
         
         UILabel *detailLabel = [[UILabel alloc] initWithFrame:self.navigationController.toolbar.frame];
+        [detailLabel setBackgroundColor:[UIColor clearColor]];
+        [detailLabel setFont:[UIFont systemFontOfSize:15.0]];
         [detailLabel setText:self.record[@"details"]];
         [detailLabel setTextAlignment:NSTextAlignmentCenter];
-        [detailLabel setBackgroundColor:[UIColor clearColor]];
         
         if (floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_6_1)
             [detailLabel setTextColor:[UIColor whiteColor]];

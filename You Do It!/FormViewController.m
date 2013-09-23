@@ -28,8 +28,8 @@ CGFloat kImageQualityLevel = 0.75;
     
     self.showingDeleteButton = NO;
     
-    [[[[[self navigationController] navigationBar] topItem] rightBarButtonItem] setEnabled:[[self.nameTextField text] isEqualToString:@""]];
-    
+    [[[[[self navigationController] navigationBar] topItem] rightBarButtonItem] setEnabled: ! [self.record[@"name"] isEqualToString:@""]];
+
     if (floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_6_1)
         [self.navigationController.navigationBar setTintColor:[UIColor orangeColor]];
     
@@ -99,6 +99,9 @@ CGFloat kImageQualityLevel = 0.75;
 
 - (IBAction)addPhoto:(id)sender
 {
+    [self.nameTextField resignFirstResponder];
+    [self.detailsTextField resignFirstResponder];
+    
     UIActionSheet *actionSheet = [[UIActionSheet alloc] init];
     [actionSheet setDelegate:self];
     [actionSheet setTag:kAddPhotoAlertSheetTag];

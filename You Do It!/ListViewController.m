@@ -11,6 +11,7 @@
 NSString *kSegueShowFormId = @"editItemSegue";
 NSString *kSegueShowProductImage = @"productImageSegue";
 NSString *kTableName = @"ShoppingList";
+CGFloat kTableFooterViewHeight = 44.0;
 
 @interface ListViewController ()
 {
@@ -45,13 +46,11 @@ NSString *kTableName = @"ShoppingList";
     [DBFilesystem setSharedFilesystem:filesystem];
     
     [self playAudioFile:@"You Do It"];
-
-    self.rawItems = [NSMutableArray array];
-    self.searchResults = [NSMutableArray array];
     
     self.navigationItem.leftBarButtonItem = [self editButtonItem];
     
     [self addFilterControl];
+    [self addTableFooter];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -65,7 +64,10 @@ NSString *kTableName = @"ShoppingList";
     }];
     
     [self.navigationController setToolbarHidden:NO animated:YES];
-    
+
+    self.rawItems = [NSMutableArray array];
+    self.searchResults = [NSMutableArray array];
+
     [self setupItems];
 }
 
@@ -155,6 +157,21 @@ NSString *kTableName = @"ShoppingList";
     self.toolbarItems = @[spaceItem, barButton, spaceItem];
 }
 
+- (void)addTableFooter
+{
+    UILabel *footerView = [[UILabel alloc] initWithFrame:CGRectMake(0.0, 0.0, self.tableView.frame.size.width, kTableFooterViewHeight)];
+    [footerView setTextAlignment:NSTextAlignmentCenter];
+    [footerView setTextColor:[UIColor grayColor]];
+    
+    self.tableView.tableFooterView = footerView;
+}
+
+- (void)updateFooterCount
+{
+    UILabel *footerView = (UILabel *)self.tableView.tableFooterView;
+    footerView.text = [NSString stringWithFormat:@"%i Items", self.rawItems.count];
+}
+
 - (void)disableActionButtons
 {
     self.navigationController.navigationBar.topItem.leftBarButtonItem.enabled = NO;
@@ -180,9 +197,10 @@ NSString *kTableName = @"ShoppingList";
     {
         for (DBRecord *item in section)
         {
-            NSRange textRange = [[item[@"name"] lowercaseString] rangeOfString:[searchText lowercaseString]];
+            NSRange nameTextRange = [[item[@"name"] lowercaseString] rangeOfString:[searchText lowercaseString]];
+            NSRange detailsTextRange = [[item[@"details"] lowercaseString] rangeOfString:[searchText lowercaseString]];
             
-            if (textRange.location != NSNotFound)
+            if (nameTextRange.location != NSNotFound || detailsTextRange.location != NSNotFound)
                 [self.searchResults addObject:item];
         }
     }
@@ -338,6 +356,8 @@ NSString *kTableName = @"ShoppingList";
             [self displayErrorAlert:error];
         else
             [self update:changed];
+        
+        [self updateFooterCount];
     }
 }
 
@@ -473,16 +493,13 @@ NSString *kTableName = @"ShoppingList";
     else
         item = (DBRecord *)[[self.items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
     
-    [cell textLabel].text = [item objectForKey:@"name"];
-    
-    [cell detailTextLabel].text = [item objectForKey:@"details"];
+    cell.textLabel.text = item[@"name"];
+    cell.detailTextLabel.text = item[@"details"];
         
     UISwitch *switchControl = [[UISwitch alloc] initWithFrame:CGRectZero];
-    [switchControl setOn:[[item objectForKey:@"active"] boolValue]];
+    [switchControl setOn:[item[@"active"] boolValue]];
     [switchControl setOnTintColor:[UIColor orangeColor]];
     [switchControl addTarget:self action:@selector(switchToggle:) forControlEvents:UIControlEventValueChanged];
-    [switchControl setTag:2];
-    
     cell.accessoryView = switchControl;
 
     return cell;
@@ -523,14 +540,18 @@ NSString *kTableName = @"ShoppingList";
 
 - (BOOL)tableView:(UITableView *)tableView shouldHighlightRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return ! self.searchDisplayController.active;
+    return YES;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (self.searchDisplayController.active) return;
-
-    self.currentRecord = [[self.items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
+    if (self.searchDisplayController.active)
+    {
+        self.currentRecord = [self.searchResults objectAtIndex:indexPath.row];
+        self.searchDisplayController.active = NO;
+    }
+    else
+        self.currentRecord = [[self.items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
 
     [self performSegueWithIdentifier:tableView.isEditing ? kSegueShowFormId : kSegueShowProductImage sender:self];
 }
