@@ -10,12 +10,22 @@
 
 NSInteger kAddPhotoAlertSheetTag = 1000;
 NSInteger kDeletePhotoAlertSheetTag = 2000;
+NSString *kImageExtension = @"jpg";
+NSString *kImagePrefix = @"image-";
 CGFloat kImageQualityLevel = 0.75;
 
 @interface FormViewController()
 
+@property (nonatomic) IBOutlet UISwitch *activeSwitch;
+@property (nonatomic) IBOutlet UITextField *detailsTextField;
+@property (nonatomic) IBOutlet UITextField *nameTextField;
+@property (nonatomic) IBOutlet UIButton *pickerButton;
+@property (nonatomic) IBOutlet UIImageView *productImageView;
 @property (nonatomic) BOOL showingDeleteButton;
 
+- (IBAction)addPhoto:(id)sender;
+- (IBAction)cancel:(id)sender;
+- (IBAction)done:(id)sender;
 - (IBAction)switchToggle:(id)sender;
 
 @end
@@ -48,53 +58,6 @@ CGFloat kImageQualityLevel = 0.75;
     [self togglePickerButtonText];
 }
 
-- (void)longPress:(UILongPressGestureRecognizer *) gestureRecognizer {
-    if ([gestureRecognizer state] == UIGestureRecognizerStateBegan) {
-        CGPoint location = [gestureRecognizer locationInView:[gestureRecognizer view]];
-        UIMenuController *menuController = [UIMenuController sharedMenuController];
-        NSAssert([self becomeFirstResponder], @"Sorry, UIMenuController will not work with %@ since it cannot become first responder", self);
-        [menuController setTargetRect:CGRectMake(location.x, location.y, 0.0f, 0.0f) inView:[gestureRecognizer view]];
-        [menuController setMenuVisible:YES animated:YES];
-    }
-}
-
-- (void)paste:(id)sender
-{
-    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
-    
-    if ([pasteboard pasteboardTypes].count == 0) return;
-    
-    NSData *data = [pasteboard dataForPasteboardType:[[pasteboard pasteboardTypes] lastObject]];
-    UIImage *image = [[[UIImage alloc] initWithData:data] imageScaledToFitSize:self.productImageView.frame.size];
-    
-    if ([self saveImage:image])
-    {
-        self.productImageView.image = image;
-        [self.nameTextField becomeFirstResponder];
-    }
-}
-
-- (void)delete:(id)sender
-{
-    [self deletePhoto];
-}
-
-- (BOOL)canPerformAction:(SEL)selector withSender:(id) sender
-{
-    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
-
-    if (selector == @selector(paste:) && [pasteboard pasteboardTypes].count > 0) return YES;
-    
-    if (selector == @selector(delete:) && ! [self.record[@"photo"] isEqualToString:@""]) return YES;
-    
-    return NO;
-}
-
-- (BOOL)canBecomeFirstResponder
-{
-    return YES;
-}
-
 #pragma mark - Actions
 
 - (IBAction)addPhoto:(id)sender
@@ -121,6 +84,22 @@ CGFloat kImageQualityLevel = 0.75;
     [actionSheet showInView:self.navigationController.view];
 }
 
+- (BOOL)canBecomeFirstResponder
+{
+    return YES;
+}
+
+- (BOOL)canPerformAction:(SEL)selector withSender:(id) sender
+{
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    
+    if (selector == @selector(paste:) && [pasteboard pasteboardTypes].count > 0) return YES;
+    
+    if (selector == @selector(delete:) && ! [self.record[@"photo"] isEqualToString:@""]) return YES;
+    
+    return NO;
+}
+
 - (IBAction)cancel:(id)sender
 {
     if ([[self.nameTextField text] isEqualToString:@""])
@@ -130,6 +109,12 @@ CGFloat kImageQualityLevel = 0.75;
     [self.detailsTextField resignFirstResponder];
     
     [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+}
+
+
+- (void)delete:(id)sender
+{
+    [self deletePhoto];
 }
 
 - (void)deletePhoto
@@ -182,6 +167,30 @@ CGFloat kImageQualityLevel = 0.75;
         
         self.productImageView.image = [[UIImage alloc] initWithData:[file readData:&error]];
     }
+}
+
+- (void)longPress:(UILongPressGestureRecognizer *) gestureRecognizer
+{
+    if ([gestureRecognizer state] == UIGestureRecognizerStateBegan)
+    {
+        CGPoint location = [gestureRecognizer locationInView:[gestureRecognizer view]];
+        UIMenuController *menuController = [UIMenuController sharedMenuController];
+        NSAssert([self becomeFirstResponder], @"Sorry, UIMenuController will not work with %@ since it cannot become first responder", self);
+        [menuController setTargetRect:CGRectMake(location.x, location.y, 0.0f, 0.0f) inView:[gestureRecognizer view]];
+        [menuController setMenuVisible:YES animated:YES];
+    }
+}
+
+- (void)paste:(id)sender
+{
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    
+    if (pasteboard.image == nil) return;
+
+    UIImage *image = [pasteboard.image imageScaledToFitSize:self.productImageView.frame.size];
+    
+    if ([self saveImage:image])
+        self.productImageView.image = image;
 }
 
 - (void)togglePickerButtonText
@@ -273,7 +282,7 @@ CGFloat kImageQualityLevel = 0.75;
 - (BOOL)saveImage:(UIImage *)image
 {
     DBError *error;
-    DBPath *path = [[DBPath root] childPath:[NSString stringWithFormat:@"image-%@.jpg", self.record.recordId]];
+    DBPath *path = [[DBPath root] childPath:[NSString stringWithFormat:@"%@%@.%@", kImagePrefix, self.record.recordId, kImageExtension]];
     DBFile *file = [[DBFilesystem sharedFilesystem] createFile:path error:nil];
     [file writeData:UIImageJPEGRepresentation(image, kImageQualityLevel) error:&error];
     
@@ -287,6 +296,8 @@ CGFloat kImageQualityLevel = 0.75;
         self.record[@"photo"] = path.name;
         return YES;
     }
+    
+    return NO;
 }
 
 #pragma mark - UITextFieldDelegate
