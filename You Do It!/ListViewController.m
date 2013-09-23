@@ -8,6 +8,7 @@
 
 #import "ListViewController.h"
 
+NSInteger kInitialSelectedFilterSegment = 0;
 NSString *kSegueShowFormId = @"editItemSegue";
 NSString *kSegueShowProductImage = @"productImageSegue";
 NSString *kTableName = @"ShoppingList";
@@ -19,17 +20,17 @@ CGFloat kTableFooterViewHeight = 44.0;
 }
 
 @property (nonatomic, readonly) DBAccountManager *accountManager;
-@property (nonatomic, strong) DBRecord *currentRecord;
-@property (nonatomic, strong) NSIndexPath *currentEditIndexPath;
-@property (nonatomic, strong) UISegmentedControl *filterControl;
-@property (nonatomic, strong) NSMutableArray *items;
-@property (nonatomic, strong) ProductImageViewController *productImageViewController;
-@property (nonatomic, strong) NSMutableArray *rawItems;
-@property IBOutlet UISearchBar *searchBar;
-@property (nonatomic, strong) NSMutableArray *searchResults;
+@property (nonatomic) NSIndexPath *currentEditIndexPath;
+@property (nonatomic) DBRecord *currentRecord;
+@property (nonatomic) UISegmentedControl *filterControl;
+@property (nonatomic) NSMutableArray *items;
+@property (nonatomic) ProductImageViewController *productImageViewController;
+@property (nonatomic) NSMutableArray *rawItems;
+@property (nonatomic) IBOutlet UISearchBar *searchBar;
+@property (nonatomic) NSMutableArray *searchResults;
 @property (nonatomic) NSInteger selectedFilterSegment;
-@property (nonatomic, strong) DBDatastore *store;
-@property (nonatomic, strong) DBTable *table;
+@property (nonatomic) DBDatastore *store;
+@property (nonatomic) DBTable *table;
 
 - (IBAction)switchToggle:(id)sender;
 
@@ -41,16 +42,12 @@ CGFloat kTableFooterViewHeight = 44.0;
 {
     [super viewDidLoad];
     
-    DBAccount *account = [[DBAccountManager sharedManager] linkedAccount];
-    DBFilesystem *filesystem = [[DBFilesystem alloc] initWithAccount:account];
-    [DBFilesystem setSharedFilesystem:filesystem];
-    
-    [self playAudioFile:@"You Do It"];
-    
     self.navigationItem.leftBarButtonItem = [self editButtonItem];
-    
-    [self addFilterControl];
-    [self addTableFooter];
+
+    [self setupFilesystem];
+    [self setupFilterControl];
+    [self setupTableFooter];
+    [self playAudioFile:@"You Do It"];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -92,6 +89,7 @@ CGFloat kTableFooterViewHeight = 44.0;
 {
     [super didReceiveMemoryWarning];
     
+    self.currentRecord = nil;
     self.items = nil;
     self.rawItems = nil;
     self.searchResults = nil;
@@ -134,42 +132,17 @@ CGFloat kTableFooterViewHeight = 44.0;
 
 - (IBAction)add:(id)sender
 {
-    [self disableActionButtons];
-    
-    DBRecord *record = [self.table insert:@{ @"active": @NO, @"created": [NSDate date], @"name": @"", @"details": @"", @"photo": @"" }];
+    DBRecord *record = [self.table insert:@{
+        @"active": @NO,
+        @"created": [NSDate date],
+        @"name": @"",
+        @"details": @"",
+        @"photo": @""
+    }];
     
     self.currentRecord = record;
 
     [self performSegueWithIdentifier:kSegueShowFormId sender:self];
-}
-
-- (void)addFilterControl
-{
-    self.selectedFilterSegment = 0;
-    
-    self.filterControl = [[UISegmentedControl alloc] initWithItems:@[@"All", @"Active"]];
-    [self.filterControl setSegmentedControlStyle:UISegmentedControlStyleBar];
-    [self.filterControl setSelectedSegmentIndex:self.selectedFilterSegment];
-    [self.filterControl addTarget:self action:@selector(toggleFilter:) forControlEvents:UIControlEventValueChanged];
-    
-    UIBarButtonItem *barButton = [[UIBarButtonItem alloc] initWithCustomView:self.filterControl];
-    UIBarButtonItem *spaceItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:NULL];
-    self.toolbarItems = @[spaceItem, barButton, spaceItem];
-}
-
-- (void)addTableFooter
-{
-    UILabel *footerView = [[UILabel alloc] initWithFrame:CGRectMake(0.0, 0.0, self.tableView.frame.size.width, kTableFooterViewHeight)];
-    [footerView setTextAlignment:NSTextAlignmentCenter];
-    [footerView setTextColor:[UIColor grayColor]];
-    
-    self.tableView.tableFooterView = footerView;
-}
-
-- (void)updateFooterCount
-{
-    UILabel *footerView = (UILabel *)self.tableView.tableFooterView;
-    footerView.text = [NSString stringWithFormat:@"%i Items", self.rawItems.count];
 }
 
 - (void)disableActionButtons
@@ -276,6 +249,27 @@ CGFloat kTableFooterViewHeight = 44.0;
     [self.navigationController.navigationBar.topItem.rightBarButtonItem setEnabled: ! [self.tableView isEditing]];
 }
 
+- (void)setupFilesystem
+{
+    DBAccount *account = [[DBAccountManager sharedManager] linkedAccount];
+    DBFilesystem *filesystem = [[DBFilesystem alloc] initWithAccount:account];
+    [DBFilesystem setSharedFilesystem:filesystem];
+}
+
+- (void)setupFilterControl
+{
+    self.selectedFilterSegment = kInitialSelectedFilterSegment;
+    
+    self.filterControl = [[UISegmentedControl alloc] initWithItems:@[NSLocalizedString(@"UISegmentedControlItem1", nil), NSLocalizedString(@"UISegmentedControlItem2", nil)]];
+    [self.filterControl setSegmentedControlStyle:UISegmentedControlStyleBar];
+    [self.filterControl setSelectedSegmentIndex:self.selectedFilterSegment];
+    [self.filterControl addTarget:self action:@selector(toggleFilter:) forControlEvents:UIControlEventValueChanged];
+    
+    UIBarButtonItem *barButton = [[UIBarButtonItem alloc] initWithCustomView:self.filterControl];
+    UIBarButtonItem *spaceItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:NULL];
+    self.toolbarItems = @[spaceItem, barButton, spaceItem];
+}
+
 - (void)setupItems
 {
     DBError *error;
@@ -291,24 +285,31 @@ CGFloat kTableFooterViewHeight = 44.0;
             }
         }];
         
-        if (self.selectedFilterSegment == 0)
-            _rawItems = [NSMutableArray arrayWithArray:[self.table query:nil error:&error]];
-        else
-            _rawItems = [NSMutableArray arrayWithArray:[self.table query:@{ @"active": @YES } error:&error]];
+        _rawItems = [NSMutableArray arrayWithArray:[self.table query:self.selectedFilterSegment == 0 ? nil : @{ @"active": @YES } error:&error]];
         
         if (error != nil)
             [self displayErrorAlert:error];
     }
     else
     {
-        _store = nil;
-        _items = nil;
+        self.store = nil;
+        self.items = nil;
         self.rawItems = nil;
         
         [[DBAccountManager sharedManager] linkFromController:self];
     }
     
     [self syncItems];
+}
+
+- (void)setupTableFooter
+{
+    UILabel *footerView = [[UILabel alloc] initWithFrame:CGRectMake(0.0, 0.0, self.tableView.frame.size.width, kTableFooterViewHeight)];
+    [footerView setFont:[UIFont systemFontOfSize:17.0]];
+    [footerView setTextAlignment:NSTextAlignmentCenter];
+    [footerView setTextColor:[UIColor grayColor]];
+    
+    self.tableView.tableFooterView = footerView;
 }
 
 - (IBAction)switchToggle:(id)sender
@@ -320,7 +321,6 @@ CGFloat kTableFooterViewHeight = 44.0;
     self.currentEditIndexPath = indexPath;
     
     DBRecord *item = nil;
-    DBError *error;
     
     if (self.searchDisplayController.active)
         item = (DBRecord *)[self.searchResults objectAtIndex:indexPath.row];
@@ -328,37 +328,29 @@ CGFloat kTableFooterViewHeight = 44.0;
         item = (DBRecord *)[[self.items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
     
     item[@"active"] = [NSNumber numberWithBool:switchControl.on];
-    [self.store sync:&error];
+    [self syncStore];
     
-    if (error != nil)
-    {
-        [self displayErrorAlert:error];
-    }
-    else
-    {
-        if ([switchControl isOn])
-            [self playAudioFile:@"Oh Yeah"];
-        else
-            [self playAudioFile:@"You Promised"];
-        
-        [self setupItems];
-    }
+    [self playAudioFile:[switchControl isOn] ? @"Oh Yeah" : @"You Promised"];
+    
+    [self setupItems];
 }
 
 - (void)syncItems
 {
-    if (self.account)
-    {
-        DBError *error;
-        NSDictionary *changed = [self.store sync:&error];
-        
-        if (error != nil)
-            [self displayErrorAlert:error];
-        else
-            [self update:changed];
-        
-        [self updateFooterCount];
-    }
+    NSDictionary *changed = [self syncStore];
+    [self update:changed];
+    [self updateFooterCount];
+}
+
+- (NSDictionary *)syncStore
+{
+    DBError *error;
+    NSDictionary *changes = [self.store sync:&error];
+    
+    if (error != nil)
+        [self displayErrorAlert:error];
+    
+    return changes;
 }
 
 - (void)toggleFilter:(id)sender
@@ -370,8 +362,6 @@ CGFloat kTableFooterViewHeight = 44.0;
 
 - (void)update:(NSDictionary *)changedDict
 {
-    [self disableActionButtons];
-    
     NSMutableArray *deleted = [NSMutableArray array];
     
     for (NSInteger i = [self.rawItems count] - 1; i >= 0; i--)
@@ -423,8 +413,12 @@ CGFloat kTableFooterViewHeight = 44.0;
 
     if ( ! self.searchDisplayController.active)
         [self.tableView reloadData];
-    
-    [self enableActionButtons];
+}
+
+- (void)updateFooterCount
+{
+    UILabel *footerView = (UILabel *)self.tableView.tableFooterView;
+    footerView.text = [NSString stringWithFormat:@"%i %@", self.rawItems.count, NSLocalizedString(@"UITableViewFooterLabelItem", nil)];
 }
 
 #pragma mark - UISearchDisplayController Delegate Methods
@@ -529,12 +523,8 @@ CGFloat kTableFooterViewHeight = 44.0;
         }
         
         [item deleteRecord];
-        [self.store sync:&error];
-        
-        if (error != nil)
-            [self displayErrorAlert:error];
-        else
-            [self syncItems];
+        [self syncStore];
+        [self syncItems];
     }
 }
 
@@ -551,7 +541,9 @@ CGFloat kTableFooterViewHeight = 44.0;
         self.searchDisplayController.active = NO;
     }
     else
+    {
         self.currentRecord = [[self.items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
+    }
 
     [self performSegueWithIdentifier:tableView.isEditing ? kSegueShowFormId : kSegueShowProductImage sender:self];
 }
@@ -560,25 +552,14 @@ CGFloat kTableFooterViewHeight = 44.0;
 
 - (void)didFinishEditingItem:(DBRecord *)record
 {
-    DBError *error;
-    
-    [self.store sync:&error];
-    
-    if (error != nil)
-        [self displayErrorAlert:error];
-    else
-        [self playAudioFile:@"You Do It"];
+    [self syncStore];
+    [self playAudioFile:@"You Do It"];
 }
 
 - (void)didCancelEditingItem:(DBRecord *)record
 {
-    DBError *error;
-
     [record deleteRecord];
-    [self.store sync:&error];
-    
-    if (error != nil)
-        [self displayErrorAlert:error];
+    [self syncStore];
 }
 
 @end

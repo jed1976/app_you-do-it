@@ -10,6 +10,7 @@
 		D87B6B5D17E796770062A5B8 /* Base64.m in Sources */ = {isa = PBXBuildFile; fileRef = D87B6B5C17E796770062A5B8 /* Base64.m */; };
 		D87B6B6017E7A7F00062A5B8 /* UIImage+ProportionalFill.m in Sources */ = {isa = PBXBuildFile; fileRef = D87B6B5F17E7A7F00062A5B8 /* UIImage+ProportionalFill.m */; };
 		D87B6B6417E8A0FB0062A5B8 /* ProductImageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D87B6B6317E8A0FB0062A5B8 /* ProductImageViewController.m */; };
+		D8B79D8517F0AE1500C219FC /* Dropbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D811774E17F0A8CD00C92D35 /* Dropbox.framework */; };
 		D8BD8CAE17DA9F07002941C9 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8BD8CAD17DA9F07002941C9 /* Foundation.framework */; };
 		D8BD8CB017DA9F07002941C9 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8BD8CAF17DA9F07002941C9 /* CoreGraphics.framework */; };
 		D8BD8CB217DA9F07002941C9 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8BD8CB117DA9F07002941C9 /* UIKit.framework */; };
@@ -31,7 +32,6 @@
 		D8BD8CF317DABE19002941C9 /* You Promised.m4a in Resources */ = {isa = PBXBuildFile; fileRef = D8BD8CF117DABE19002941C9 /* You Promised.m4a */; };
 		D8BD8CF517DABF4B002941C9 /* Oh Yeah.m4a in Resources */ = {isa = PBXBuildFile; fileRef = D8BD8CF417DABF4B002941C9 /* Oh Yeah.m4a */; };
 		D8BD8CF717DAC021002941C9 /* No.m4a in Resources */ = {isa = PBXBuildFile; fileRef = D8BD8CF617DAC021002941C9 /* No.m4a */; };
-		D8F0BCF017E91BD70081ED64 /* Dropbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8F0BCEF17E91BD70081ED64 /* Dropbox.framework */; };
 		D8F0BCF217E91BF50081ED64 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8F0BCF117E91BF50081ED64 /* CFNetwork.framework */; };
 		D8F0BCF417E91BFC0081ED64 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8F0BCF317E91BFC0081ED64 /* Security.framework */; };
 		D8F0BCF617E91C050081ED64 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8F0BCF517E91C050081ED64 /* SystemConfiguration.framework */; };
@@ -50,6 +50,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		D811774E17F0A8CD00C92D35 /* Dropbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Dropbox.framework; path = "../dropbox-ios-sync-sdk-2.0.0-b6/Dropbox.framework"; sourceTree = "<group>"; };
 		D87B6B5B17E796770062A5B8 /* Base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Base64.h; path = Base64/Base64.h; sourceTree = "<group>"; };
 		D87B6B5C17E796770062A5B8 /* Base64.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Base64.m; path = Base64/Base64.m; sourceTree = "<group>"; };
 		D87B6B5E17E7A7F00062A5B8 /* UIImage+ProportionalFill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+ProportionalFill.h"; sourceTree = "<group>"; };
@@ -83,7 +84,6 @@
 		D8BD8CF117DABE19002941C9 /* You Promised.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = "You Promised.m4a"; sourceTree = "<group>"; };
 		D8BD8CF417DABF4B002941C9 /* Oh Yeah.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Oh Yeah.m4a"; sourceTree = "<group>"; };
 		D8BD8CF617DAC021002941C9 /* No.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = No.m4a; sourceTree = "<group>"; };
-		D8F0BCEF17E91BD70081ED64 /* Dropbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Dropbox.framework; path = "../dropbox-ios-sync-sdk-2.0.0-b6/Dropbox.framework"; sourceTree = "<group>"; };
 		D8F0BCF117E91BF50081ED64 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		D8F0BCF317E91BFC0081ED64 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		D8F0BCF517E91C050081ED64 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
@@ -97,11 +97,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				D8F0BCFA17E91C1F0081ED64 /* libc++.dylib in Frameworks */,
+				D8B79D8517F0AE1500C219FC /* Dropbox.framework in Frameworks */,
 				D8F0BCF817E91C0E0081ED64 /* QuartzCore.framework in Frameworks */,
 				D8F0BCF617E91C050081ED64 /* SystemConfiguration.framework in Frameworks */,
 				D8F0BCF417E91BFC0081ED64 /* Security.framework in Frameworks */,
 				D8F0BCF217E91BF50081ED64 /* CFNetwork.framework in Frameworks */,
-				D8F0BCF017E91BD70081ED64 /* Dropbox.framework in Frameworks */,
 				D8BD8CEF17DABDA1002941C9 /* AVFoundation.framework in Frameworks */,
 				D8BD8CB017DA9F07002941C9 /* CoreGraphics.framework in Frameworks */,
 				D8BD8CB217DA9F07002941C9 /* UIKit.framework in Frameworks */,
@@ -155,12 +155,12 @@
 		D8BD8CAC17DA9F07002941C9 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D811774E17F0A8CD00C92D35 /* Dropbox.framework */,
 				D8F0BCF917E91C1F0081ED64 /* libc++.dylib */,
 				D8F0BCF717E91C0E0081ED64 /* QuartzCore.framework */,
 				D8F0BCF517E91C050081ED64 /* SystemConfiguration.framework */,
 				D8F0BCF317E91BFC0081ED64 /* Security.framework */,
 				D8F0BCF117E91BF50081ED64 /* CFNetwork.framework */,
-				D8F0BCEF17E91BD70081ED64 /* Dropbox.framework */,
 				D8BD8CEE17DABDA1002941C9 /* AVFoundation.framework */,
 				D8BD8CAD17DA9F07002941C9 /* Foundation.framework */,
 				D8BD8CAF17DA9F07002941C9 /* CoreGraphics.framework */,
@@ -477,8 +477,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"/Users/joe/Documents/azuresdk-iOS-v1.0.3",
-					"/Users/joe/Documents/dropbox-ios-sync-sdk-2.0.0-b6",
+					"/Users/joe/Development/dropbox-ios-sync-sdk-2.0.0-b6",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "You Do It!/You Do It!-Prefix.pch";
@@ -500,8 +499,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"/Users/joe/Documents/azuresdk-iOS-v1.0.3",
-					"/Users/joe/Documents/dropbox-ios-sync-sdk-2.0.0-b6",
+					"/Users/joe/Development/dropbox-ios-sync-sdk-2.0.0-b6",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "You Do It!/You Do It!-Prefix.pch";

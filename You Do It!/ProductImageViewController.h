@@ -13,8 +13,8 @@
 
 @interface ProductImageViewController : UIViewController <FormViewControllerDelegate>
 
-@property (nonatomic, strong) DBRecord *record;
-@property (nonatomic, strong) IBOutlet UIImageView *imageView;
+@property (nonatomic) DBRecord *record;
+@property (nonatomic) IBOutlet UIImageView *imageView;
 
 - (IBAction)edit:(id)sender;
 

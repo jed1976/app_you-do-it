@@ -18,13 +18,13 @@
 
 @interface FormViewController : UITableViewController <UIActionSheetDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate>
 
-@property (nonatomic, strong) IBOutlet UISwitch *activeSwitch;
+@property (nonatomic) IBOutlet UISwitch *activeSwitch;
 @property (nonatomic, assign) id <FormViewControllerDelegate> delegate;
-@property (nonatomic, strong) IBOutlet UITextField *detailsTextField;
-@property (nonatomic, strong) IBOutlet UITextField *nameTextField;
-@property (nonatomic, strong) IBOutlet UIButton *pickerButton;
-@property (nonatomic, strong) IBOutlet UIImageView *productImageView;
-@property (nonatomic, strong) DBRecord *record;
+@property (nonatomic) IBOutlet UITextField *detailsTextField;
+@property (nonatomic) IBOutlet UITextField *nameTextField;
+@property (nonatomic) IBOutlet UIButton *pickerButton;
+@property (nonatomic) IBOutlet UIImageView *productImageView;
+@property (nonatomic) DBRecord *record;
 
 - (IBAction)addPhoto:(id)sender;
 - (IBAction)cancel:(id)sender;

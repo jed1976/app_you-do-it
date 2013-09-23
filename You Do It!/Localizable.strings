@@ -29,3 +29,8 @@
 
 "UIButtonAddPhoto" = "Add Photo";
 "UIButtonEditPhoto" = "Edit Photo";
+
+"UISegmentedControlItem1" = "All";
+"UISegmentedControlItem2" = "Active";
+
+"UITableViewFooterLabelItem" = "Items";
