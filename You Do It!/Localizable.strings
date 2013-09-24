@@ -33,4 +33,5 @@
 "UISegmentedControlItem1" = "All";
 "UISegmentedControlItem2" = "Active";
 
-"UITableViewFooterLabelItem" = "Items";
+"UITableViewFooterLabelItemSingular" = "Item";
+"UITableViewFooterLabelItemPlural" = "Items";

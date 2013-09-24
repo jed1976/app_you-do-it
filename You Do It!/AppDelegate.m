@@ -18,6 +18,8 @@
                                                                          secret:[bundle objectForInfoDictionaryKey:@"APP_SECRET"]];
     [DBAccountManager setSharedManager:accountManager];
     
+    [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalMinimum];
+    
     return YES;
 }
 
@@ -26,6 +28,15 @@
     [[DBAccountManager sharedManager] handleOpenURL:url];
     
     return YES;
+}
+
+-(void)application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
+{
+    ListViewController *listViewController = [[self.window.rootViewController childViewControllers] lastObject];
+    [listViewController setupItems];
+    [listViewController updateBadgeCount];
+    
+    completionHandler(UIBackgroundFetchResultNewData);
 }
 
 @end

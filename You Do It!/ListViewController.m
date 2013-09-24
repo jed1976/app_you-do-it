@@ -19,6 +19,7 @@ CGFloat kTableFooterViewHeight = 44.0;
     AVAudioPlayer *audioPlayer;
 }
 
+@property (nonatomic, readonly) DBAccount *account;
 @property (nonatomic, readonly) DBAccountManager *accountManager;
 @property (nonatomic) NSIndexPath *currentEditIndexPath;
 @property (nonatomic) DBRecord *currentRecord;
@@ -61,10 +62,7 @@ CGFloat kTableFooterViewHeight = 44.0;
     }];
     
     [self.navigationController setToolbarHidden:NO animated:YES];
-
-    self.rawItems = [NSMutableArray array];
-    self.searchResults = [NSMutableArray array];
-
+    
     [self setupItems];
 }
 
@@ -74,8 +72,8 @@ CGFloat kTableFooterViewHeight = 44.0;
 
     [self.accountManager removeObserver:self];
 
-    if (_store)
-        [_store removeObserver:self];
+    if (self.store)
+        [self.store removeObserver:self];
 }
 
 - (void)viewDidDisappear:(BOOL)animated
@@ -129,6 +127,13 @@ CGFloat kTableFooterViewHeight = 44.0;
 }
 
 #pragma mark - Actions
+
+- (NSInteger)activeItemCount
+{
+    NSMutableArray *activeItems = [NSMutableArray arrayWithArray:[self.table query:@{ @"active": @YES } error:nil]];
+    
+    return activeItems.count;
+}
 
 - (IBAction)add:(id)sender
 {
@@ -274,6 +279,9 @@ CGFloat kTableFooterViewHeight = 44.0;
 {
     DBError *error;
     
+    self.rawItems = [NSMutableArray array];
+    self.searchResults = [NSMutableArray array];
+    
     if (self.account)
     {
         __weak ListViewController *slf = self;
@@ -292,10 +300,6 @@ CGFloat kTableFooterViewHeight = 44.0;
     }
     else
     {
-        self.store = nil;
-        self.items = nil;
-        self.rawItems = nil;
-        
         [[DBAccountManager sharedManager] linkFromController:self];
     }
     
@@ -337,9 +341,13 @@ CGFloat kTableFooterViewHeight = 44.0;
 
 - (void)syncItems
 {
-    NSDictionary *changed = [self syncStore];
-    [self update:changed];
-    [self updateFooterCount];
+    if (self.account)
+    {
+        NSDictionary *changed = [self syncStore];
+        [self update:changed];
+        [self updateFooterCount];
+        [self updateBadgeCount];
+    }
 }
 
 - (NSDictionary *)syncStore
@@ -415,10 +423,16 @@ CGFloat kTableFooterViewHeight = 44.0;
         [self.tableView reloadData];
 }
 
+- (void)updateBadgeCount
+{
+    [[UIApplication sharedApplication] setApplicationIconBadgeNumber:[self activeItemCount]];
+}
+
 - (void)updateFooterCount
 {
     UILabel *footerView = (UILabel *)self.tableView.tableFooterView;
-    footerView.text = [NSString stringWithFormat:@"%i %@", self.rawItems.count, NSLocalizedString(@"UITableViewFooterLabelItem", nil)];
+    NSString *suffix = self.rawItems.count == 1 ? NSLocalizedString(@"UITableViewFooterLabelItemSingular", nil) : NSLocalizedString(@"UITableViewFooterLabelItemPlural", nil);
+    footerView.text = [NSString stringWithFormat:@"%i %@", self.rawItems.count, suffix];
 }
 
 #pragma mark - UISearchDisplayController Delegate Methods
@@ -438,7 +452,7 @@ CGFloat kTableFooterViewHeight = 44.0;
     return YES;
 }
 
-- (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar
+- (void)searchDisplayControllerDidEndSearch:(UISearchDisplayController *)controller
 {
     [self enableActionButtons];
 }

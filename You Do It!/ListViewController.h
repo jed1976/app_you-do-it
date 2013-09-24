@@ -14,4 +14,8 @@
 
 @interface ListViewController : UITableViewController <FormViewControllerDelegate, UISearchBarDelegate, UISearchDisplayDelegate>
 
+- (NSInteger)activeItemCount;
+- (void)setupItems;
+- (void)updateBadgeCount;
+
 @end
