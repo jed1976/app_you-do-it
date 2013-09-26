@@ -80,8 +80,7 @@
 				destY = round((scaledHeight - targetHeight) / 2.0);
 			}
 		}
-		sourceRect = CGRectMake(destX / scaleFactor, destY / scaleFactor, 
-								targetWidth / scaleFactor, targetHeight / scaleFactor);
+		sourceRect = CGRectMake(destX / scaleFactor, destY / scaleFactor, targetWidth / scaleFactor, targetHeight / scaleFactor);
 	} else {
 		sourceRect = CGRectMake(0, 0, sourceWidth, sourceHeight);
 		destRect = CGRectMake(0, 0, scaledWidth, scaledHeight);

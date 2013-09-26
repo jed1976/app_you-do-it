@@ -8,6 +8,12 @@
 
 #import "AppDelegate.h"
 
+@interface AppDelegate()
+
+@property (nonatomic) UIBackgroundTaskIdentifier backgroundTask;
+
+@end
+
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -28,15 +34,6 @@
     [[DBAccountManager sharedManager] handleOpenURL:url];
     
     return YES;
-}
-
--(void)application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
-{
-    ListViewController *listViewController = [[self.window.rootViewController childViewControllers] lastObject];
-    [listViewController setupItems];
-    [listViewController updateBadgeCount];
-    
-    completionHandler(UIBackgroundFetchResultNewData);
 }
 
 @end

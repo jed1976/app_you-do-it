@@ -23,6 +23,14 @@ NSString *kSegueShowEditFormId = @"editItemSegue";
     [self loadRecord];
 }
 
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    
+    self.record = nil;
+    self.imageView.image = nil;
+}
+
 #pragma mark - Actions
 
 - (IBAction)edit:(id)sender

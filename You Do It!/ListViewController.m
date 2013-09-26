@@ -81,6 +81,11 @@ CGFloat kTableFooterViewHeight = 44.0;
     [super viewDidDisappear:animated];
     
     self.editing = NO;
+    
+    self.currentRecord = nil;
+    self.items = nil;
+    self.rawItems = nil;
+    self.searchResults = nil;
 }
 
 - (void)didReceiveMemoryWarning
@@ -245,6 +250,8 @@ CGFloat kTableFooterViewHeight = 44.0;
         ProductImageViewController *destinationController = segue.destinationViewController;
         [destinationController setRecord:self.currentRecord];
     }
+    
+    self.currentRecord = nil;
 }
 
 - (void)setEditing:(BOOL)editing animated:(BOOL)animated

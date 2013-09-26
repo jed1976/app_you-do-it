@@ -58,6 +58,16 @@ CGFloat kImageQualityLevel = 0.75;
     [self togglePickerButtonText];
 }
 
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    
+    self.record = nil;
+    self.nameTextField = nil;
+    self.detailsTextField = nil;
+    self.activeSwitch = nil;
+}
+
 #pragma mark - Actions
 
 - (IBAction)addPhoto:(id)sender

@@ -8,11 +8,9 @@
 
 #import <UIKit/UIKit.h>
 #import <Dropbox/Dropbox.h>
-#import "ListViewController.h"
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (nonatomic) UIWindow *window;
-@property (nonatomic) ListViewController *listViewController;
 
 @end
