@@ -121,7 +121,6 @@ CGFloat kImageQualityLevel = 0.75;
     [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
 }
 
-
 - (void)delete:(id)sender
 {
     [self deletePhoto];

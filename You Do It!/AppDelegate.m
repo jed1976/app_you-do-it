@@ -8,12 +8,6 @@
 
 #import "AppDelegate.h"
 
-@interface AppDelegate()
-
-@property (nonatomic) UIBackgroundTaskIdentifier backgroundTask;
-
-@end
-
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -23,8 +17,6 @@
     DBAccountManager *accountManager = [[DBAccountManager alloc] initWithAppKey:[bundle objectForInfoDictionaryKey:@"APP_KEY"]
                                                                          secret:[bundle objectForInfoDictionaryKey:@"APP_SECRET"]];
     [DBAccountManager setSharedManager:accountManager];
-    
-    [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalMinimum];
     
     return YES;
 }

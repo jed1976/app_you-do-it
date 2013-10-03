@@ -44,7 +44,7 @@ CGFloat kTableFooterViewHeight = 44.0;
     [super viewDidLoad];
     
     self.navigationItem.leftBarButtonItem = [self editButtonItem];
-
+    
     [self setupFilesystem];
     [self setupFilterControl];
     [self setupTableFooter];
