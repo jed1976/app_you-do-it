@@ -146,8 +146,7 @@ CGFloat kTableFooterViewHeight = 44.0;
         @"active": @NO,
         @"created": [NSDate date],
         @"name": @"",
-        @"details": @"",
-        @"photo": @""
+        @"details": @""
     }];
     
     self.currentRecord = record;
@@ -529,21 +528,9 @@ CGFloat kTableFooterViewHeight = 44.0;
 {
     if (editingStyle == UITableViewCellEditingStyleDelete)
     {
-        DBError *error;
         DBRecord *item = (DBRecord *)[[self.items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
-        
-        if ( ! [item[@"photo"] isEqualToString:@""])
-        {
-            DBPath *path = [[DBPath root] initWithString:item[@"photo"]];
-            [[DBFilesystem sharedFilesystem] deletePath:path error:&error];
-            
-            if (error != nil)
-                [self displayErrorAlert:error];
-            else
-                item[@"photo"] = @"";
-        }
-        
         [item deleteRecord];
+        
         [self syncStore];
         [self syncItems];
     }

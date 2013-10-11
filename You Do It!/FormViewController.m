@@ -10,8 +10,6 @@
 
 NSInteger kAddPhotoAlertSheetTag = 1000;
 NSInteger kDeletePhotoAlertSheetTag = 2000;
-NSString *kImageExtension = @"jpg";
-NSString *kImagePrefix = @"image-";
 CGFloat kImageQualityLevel = 0.75;
 
 @interface FormViewController()
@@ -105,7 +103,7 @@ CGFloat kImageQualityLevel = 0.75;
     
     if (selector == @selector(paste:) && [pasteboard pasteboardTypes].count > 0) return YES;
     
-    if (selector == @selector(delete:) && ! [self.record[@"photo"] isEqualToString:@""]) return YES;
+    if (selector == @selector(delete:) && self.record[@"photoData"] != nil) return YES;
     
     return NO;
 }
@@ -167,15 +165,7 @@ CGFloat kImageQualityLevel = 0.75;
     self.nameTextField.text = self.record[@"name"];
     self.detailsTextField.text = self.record[@"details"];
     self.activeSwitch.on = [self.record[@"active"] boolValue];
-    
-    if ( ! [self.record[@"photo"] isEqualToString:@""])
-    {
-        DBError *error;
-        DBPath *path = [[DBPath root] childPath:self.record[@"photo"]];
-        DBFile *file = [[DBFilesystem sharedFilesystem] openFile:path error:&error];
-        
-        self.productImageView.image = [[UIImage alloc] initWithData:[file readData:&error]];
-    }
+    self.productImageView.image = [[UIImage alloc] initWithData:self.record[@"photoData"]];
 }
 
 - (void)longPress:(UILongPressGestureRecognizer *) gestureRecognizer
@@ -198,8 +188,8 @@ CGFloat kImageQualityLevel = 0.75;
 
     UIImage *image = [pasteboard.image imageScaledToFitSize:self.productImageView.frame.size];
     
-    if ([self saveImage:image])
-        self.productImageView.image = image;
+    self.record[@"photoData"] = UIImageJPEGRepresentation(image, kImageQualityLevel);
+    self.productImageView.image = image;
 }
 
 - (void)togglePickerButtonText
@@ -241,29 +231,15 @@ CGFloat kImageQualityLevel = 0.75;
     else if ([actionSheet tag] == kDeletePhotoAlertSheetTag)
     {
         if (buttonIndex == 0)
-            [self deletePhotoAtStringPath:self.record[@"photo"]];
+        {
+            [self.record removeObjectForKey:@"photoData"];
+            self.productImageView.image = nil;
+        }
         
         [self.nameTextField becomeFirstResponder];
     }
     
     [self togglePickerButtonText];
-}
-
-- (void)deletePhotoAtStringPath:(NSString *)string
-{
-    DBError *error;
-    DBPath *path = [[DBPath root] initWithString:string];
-    [[DBFilesystem sharedFilesystem] deletePath:path error:&error];
-    
-    if (error != nil)
-    {
-        [self displayErrorAlert:error];
-    }
-    else
-    {
-        self.record[@"photo"] = @"";
-        self.productImageView.image = nil;
-    }
 }
 
 #pragma mark - UIImagePickerControllerDelegate
@@ -275,38 +251,14 @@ CGFloat kImageQualityLevel = 0.75;
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
 {
-    if ( ! [self.record[@"photo"] isEqualToString:@""])
-        [self deletePhotoAtStringPath:self.record[@"photo"]];
-    
     UIImage *resizedImage = [[info objectForKey:UIImagePickerControllerEditedImage] imageScaledToFitSize:self.productImageView.frame.size];
 
-    if ([self saveImage:resizedImage])
-    {
-        [self dismissPicker:picker];
-        self.productImageView.image = resizedImage;
-        [self.pickerButton setTitle:NSLocalizedString(@"UIButtonEditPhoto", nil) forState:UIControlStateNormal];
-    }
-}
+    self.productImageView.image = resizedImage;
+    self.record[@"photoData"] = UIImageJPEGRepresentation(resizedImage, kImageQualityLevel);
 
-- (BOOL)saveImage:(UIImage *)image
-{
-    DBError *error;
-    DBPath *path = [[DBPath root] childPath:[NSString stringWithFormat:@"%@%@.%@", kImagePrefix, self.record.recordId, kImageExtension]];
-    DBFile *file = [[DBFilesystem sharedFilesystem] createFile:path error:nil];
-    [file writeData:UIImageJPEGRepresentation(image, kImageQualityLevel) error:&error];
+    [self dismissPicker:picker];
     
-    if (error != nil)
-    {
-        [self displayErrorAlert:error];
-        return NO;
-    }
-    else
-    {
-        self.record[@"photo"] = path.name;
-        return YES;
-    }
-    
-    return NO;
+    [self.pickerButton setTitle:NSLocalizedString(@"UIButtonEditPhoto", nil) forState:UIControlStateNormal];
 }
 
 #pragma mark - UITextFieldDelegate

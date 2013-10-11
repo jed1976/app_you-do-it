@@ -16,9 +16,9 @@ NSString *kSegueShowEditFormId = @"editItemSegue";
 
 @implementation ProductImageViewController
 
-- (void)viewDidLoad
+- (void)viewWillAppear:(BOOL)animated
 {
-    [super viewDidLoad];
+    [super viewWillAppear:animated];
     
     [self loadRecord];
 }
@@ -62,14 +62,7 @@ NSString *kSegueShowEditFormId = @"editItemSegue";
         self.toolbarItems = @[spaceItem, barButton, spaceItem];
     }
     
-    if ( ! [self.record[@"photo"] isEqualToString:@""])
-    {
-        DBError *error;
-        DBPath *path = [[DBPath root] childPath:self.record[@"photo"]];
-        DBFile *file = [[DBFilesystem sharedFilesystem] openFile:path error:&error];
-        
-        self.imageView.image = [[UIImage alloc] initWithData:[file readData:nil]];
-    }
+    self.imageView.image = self.record[@"photoData"] ? [[UIImage alloc] initWithData:self.record[@"photoData"]] : nil;
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
