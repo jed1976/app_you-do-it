@@ -64,6 +64,7 @@ CGFloat kImageQualityLevel = 0.75;
     self.nameTextField = nil;
     self.detailsTextField = nil;
     self.activeSwitch = nil;
+    self.productImageView = nil;
 }
 
 #pragma mark - Actions
@@ -165,7 +166,7 @@ CGFloat kImageQualityLevel = 0.75;
     self.nameTextField.text = self.record[@"name"];
     self.detailsTextField.text = self.record[@"details"];
     self.activeSwitch.on = [self.record[@"active"] boolValue];
-    self.productImageView.image = [[UIImage alloc] initWithData:self.record[@"photoData"]];
+    self.productImageView.image = self.record[@"photoData"] ? [[UIImage alloc] initWithData:self.record[@"photoData"]] : nil;
 }
 
 - (void)longPress:(UILongPressGestureRecognizer *) gestureRecognizer

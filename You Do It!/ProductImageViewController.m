@@ -10,15 +10,11 @@
 
 NSString *kSegueShowEditFormId = @"editItemSegue";
 
-@interface ProductImageViewController()
-
-@end
-
 @implementation ProductImageViewController
 
-- (void)viewWillAppear:(BOOL)animated
+- (void)viewDidLoad
 {
-    [super viewWillAppear:animated];
+    [super viewDidLoad];
     
     [self loadRecord];
 }
