@@ -12,6 +12,9 @@ NSInteger kInitialSelectedFilterSegment = 0;
 NSString *kSegueShowFormId = @"editItemSegue";
 NSString *kSegueShowProductImage = @"productImageSegue";
 NSString *kTableName = @"ShoppingList";
+NSString *kAudioEditingName = @"You Do It";
+NSString *kAudioRemovingName = @"You Promised";
+NSString *kAudioActivatingName = @"Oh Yeah";
 CGFloat kTableFooterViewHeight = 44.0;
 
 @interface ListViewController ()
@@ -48,7 +51,7 @@ CGFloat kTableFooterViewHeight = 44.0;
     [self setupFilesystem];
     [self setupFilterControl];
     [self setupTableFooter];
-    [self playAudioFile:@"You Do It"];
+    [self playAudioFile:kAudioEditingName];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -340,7 +343,7 @@ CGFloat kTableFooterViewHeight = 44.0;
     item[@"active"] = [NSNumber numberWithBool:switchControl.on];
     [self syncStore];
     
-    [self playAudioFile:[switchControl isOn] ? @"Oh Yeah" : @"You Promised"];
+    [self playAudioFile:[switchControl isOn] ? kAudioActivatingName : kAudioRemovingName];
     
     [self setupItems];
 }
@@ -389,7 +392,7 @@ CGFloat kTableFooterViewHeight = 44.0;
         }
     }
     
-    NSMutableArray *changed = [NSMutableArray arrayWithArray:[changedDict[@"ShoppingList"] allObjects]];
+    NSMutableArray *changed = [NSMutableArray arrayWithArray:[changedDict[kTableName] allObjects]];
     NSMutableArray *updates = [NSMutableArray array];
     
     for (NSInteger i = [changed count] - 1; i >= 0; i--)
@@ -561,7 +564,7 @@ CGFloat kTableFooterViewHeight = 44.0;
 - (void)didFinishEditingItem:(DBRecord *)record
 {
     [self syncStore];
-    [self playAudioFile:@"You Do It"];
+    [self playAudioFile:kAudioEditingName];
 }
 
 - (void)didCancelEditingItem:(DBRecord *)record
