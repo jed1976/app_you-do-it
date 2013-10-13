@@ -35,12 +35,18 @@ CGFloat kTableFooterViewHeight = 44.0;
 @property (nonatomic) NSInteger selectedFilterSegment;
 @property (nonatomic) DBDatastore *store;
 @property (nonatomic) DBTable *table;
+@property (nonatomic) NSUndoManager *undoManager;
 
 - (IBAction)switchToggle:(id)sender;
 
 @end
 
 @implementation ListViewController
+
+- (BOOL)canBecomeFirstResponder
+{
+    return YES;
+}
 
 - (void)viewDidLoad
 {
@@ -69,6 +75,13 @@ CGFloat kTableFooterViewHeight = 44.0;
     [self setupItems];
 }
 
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    
+    [self becomeFirstResponder];
+}
+
 - (void)viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
@@ -89,6 +102,8 @@ CGFloat kTableFooterViewHeight = 44.0;
     self.items = nil;
     self.rawItems = nil;
     self.searchResults = nil;
+    
+    [self resignFirstResponder];
 }
 
 - (void)didReceiveMemoryWarning
@@ -100,6 +115,12 @@ CGFloat kTableFooterViewHeight = 44.0;
     self.rawItems = nil;
     self.searchResults = nil;
     self.store = nil;
+}
+
+- (void)motionEnded:(UIEventSubtype)motion withEvent:(UIEvent *)event
+{
+    if (motion == UIEventSubtypeMotionShake)
+        [self.undoManager undo];
 }
 
 #pragma mark - UIAlert actions
@@ -263,6 +284,13 @@ CGFloat kTableFooterViewHeight = 44.0;
     [self.navigationController.navigationBar.topItem.rightBarButtonItem setEnabled: ! [self.tableView isEditing]];
 }
 
+- (void)setRecord:(DBRecord *)record activeState:(NSNumber *)activeState
+{
+    record[@"active"] = activeState;
+    [self syncStore];
+    [self setupItems];
+}
+
 - (void)setupFilesystem
 {
     DBAccount *account = [[DBAccountManager sharedManager] linkedAccount];
@@ -340,12 +368,13 @@ CGFloat kTableFooterViewHeight = 44.0;
     else
         item = (DBRecord *)[[self.items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
     
-    item[@"active"] = [NSNumber numberWithBool:switchControl.on];
-    [self syncStore];
+    // Enable Undo
+    if (self.selectedFilterSegment == 1)
+        [[self.undoManager prepareWithInvocationTarget:self] setRecord:item activeState:[NSNumber numberWithBool: ! switchControl.on]];
+    
+    [self setRecord:item activeState:[NSNumber numberWithBool:switchControl.on]];
     
     [self playAudioFile:[switchControl isOn] ? kAudioActivatingName : kAudioRemovingName];
-    
-    [self setupItems];
 }
 
 - (void)syncItems
