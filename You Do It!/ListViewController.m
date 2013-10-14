@@ -16,6 +16,7 @@ NSString *kAudioEditingName = @"You Do It";
 NSString *kAudioRemovingName = @"You Promised";
 NSString *kAudioActivatingName = @"Oh Yeah";
 CGFloat kTableFooterViewHeight = 44.0;
+NSString *kTableViewCellIdentifier = @"Cell";
 
 @interface ListViewController ()
 {
@@ -368,9 +369,7 @@ CGFloat kTableFooterViewHeight = 44.0;
     else
         item = (DBRecord *)[[self.items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
     
-    // Enable Undo
-    if (self.selectedFilterSegment == 1)
-        [[self.undoManager prepareWithInvocationTarget:self] setRecord:item activeState:[NSNumber numberWithBool: ! switchControl.on]];
+    [[self.undoManager prepareWithInvocationTarget:self] setRecord:item activeState:[NSNumber numberWithBool: ! switchControl.on]];
     
     [self setRecord:item activeState:[NSNumber numberWithBool:switchControl.on]];
     
@@ -529,8 +528,7 @@ CGFloat kTableFooterViewHeight = 44.0;
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    static NSString *CellIdentifier = @"Cell";
-    UITableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    UITableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:kTableViewCellIdentifier];
     
     DBRecord *item = nil;
     
