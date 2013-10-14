@@ -46,7 +46,6 @@ CGFloat kImageQualityLevel = 0.75;
     [self loadRecord];
     
     [self.nameTextField addTarget:self action:@selector(nameTextFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
-    [self.nameTextField becomeFirstResponder];
     
     [self.detailsTextField addTarget:self action:@selector(detailsTextFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
     
@@ -54,6 +53,13 @@ CGFloat kImageQualityLevel = 0.75;
     [self.view addGestureRecognizer:gr];
  
     [self togglePickerButtonText];
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    
+    [self.nameTextField becomeFirstResponder];
 }
 
 - (void)didReceiveMemoryWarning
@@ -111,11 +117,11 @@ CGFloat kImageQualityLevel = 0.75;
 
 - (IBAction)cancel:(id)sender
 {
-    if ([[self.nameTextField text] isEqualToString:@""])
-        [_delegate didCancelEditingItem:self.record];
-    
     [self.nameTextField resignFirstResponder];
     [self.detailsTextField resignFirstResponder];
+
+    if ([[self.nameTextField text] isEqualToString:@""])
+        [_delegate didCancelEditingItem:self.record];
     
     [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
 }

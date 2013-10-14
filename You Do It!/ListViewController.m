@@ -15,6 +15,9 @@ NSString *kTableName = @"ShoppingList";
 NSString *kAudioEditingName = @"You Do It";
 NSString *kAudioRemovingName = @"You Promised";
 NSString *kAudioActivatingName = @"Oh Yeah";
+CGFloat kSearchBarLandscapeY = 53.0;
+CGFloat kSearchBarPortraitY = 65.0;
+CGFloat kSearchResultsAnimationDuration = 0.25;
 CGFloat kTableFooterViewHeight = 44.0;
 NSString *kTableViewCellIdentifier = @"Cell";
 
@@ -32,10 +35,13 @@ NSString *kTableViewCellIdentifier = @"Cell";
 @property (nonatomic) ProductImageViewController *productImageViewController;
 @property (nonatomic) NSMutableArray *rawItems;
 @property (nonatomic) IBOutlet UISearchBar *searchBar;
+@property (nonatomic) CGFloat searchBarYOrigin;
 @property (nonatomic) NSMutableArray *searchResults;
 @property (nonatomic) NSInteger selectedFilterSegment;
 @property (nonatomic) DBDatastore *store;
 @property (nonatomic) DBTable *table;
+@property (nonatomic) IBOutlet UITableView *tableView;
+@property (nonatomic) CGFloat tableViewYOrigin;
 @property (nonatomic) NSUndoManager *undoManager;
 
 - (IBAction)switchToggle:(id)sender;
@@ -122,6 +128,11 @@ NSString *kTableViewCellIdentifier = @"Cell";
 {
     if (motion == UIEventSubtypeMotionShake)
         [self.undoManager undo];
+}
+
+- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+    [self positionSearchFieldForOrientation:toInterfaceOrientation];
 }
 
 #pragma mark - UIAlert actions
@@ -282,7 +293,9 @@ NSString *kTableViewCellIdentifier = @"Cell";
 {
     [super setEditing:editing animated:animated];
 
-    [self.navigationController.navigationBar.topItem.rightBarButtonItem setEnabled: ! [self.tableView isEditing]];
+    [self.navigationController.navigationBar.topItem.rightBarButtonItem setEnabled: ! editing];
+    
+    [self.tableView setEditing:editing animated:YES];
 }
 
 - (void)setRecord:(DBRecord *)record activeState:(NSNumber *)activeState
@@ -474,9 +487,61 @@ NSString *kTableViewCellIdentifier = @"Cell";
 
 #pragma mark - UISearchDisplayController Delegate Methods
 
+- (void)searchDisplayControllerWillBeginSearch:(UISearchDisplayController *)controller
+{
+    [self animateViewInForOrientation:self.interfaceOrientation];
+}
+
+- (void)animateViewInForOrientation:(UIInterfaceOrientation)orientation
+{
+    UIApplication *app = [UIApplication sharedApplication];
+    
+    CGRect searchBarFrame = self.searchDisplayController.searchBar.frame;
+    CGRect tableViewFrame = self.tableView.frame;
+    
+    self.searchBarYOrigin = searchBarFrame.origin.y;
+    self.tableViewYOrigin = tableViewFrame.origin.y;
+    
+    searchBarFrame.origin.y = orientation == UIInterfaceOrientationPortrait ? app.statusBarFrame.size.height : app.statusBarFrame.size.width;
+    tableViewFrame.origin.y = orientation == UIInterfaceOrientationPortrait ? self.searchBarYOrigin : self.searchBarYOrigin + 11.0;
+    
+    [UIView animateWithDuration:kSearchResultsAnimationDuration animations:^(void){
+        self.searchDisplayController.searchBar.frame = searchBarFrame;
+        self.tableView.frame = tableViewFrame;
+    }];
+}
+
+- (void)animateViewOutForOrientation:(UIInterfaceOrientation)orientation
+{
+    CGRect searchBarFrame = self.searchDisplayController.searchBar.frame;
+    CGRect tableViewFrame = self.tableView.frame;
+    
+    searchBarFrame.origin.y = self.searchBarYOrigin;
+    tableViewFrame.origin.y = self.tableViewYOrigin;
+    
+    [UIView animateWithDuration:kSearchResultsAnimationDuration animations:^(void){
+        self.searchDisplayController.searchBar.frame = searchBarFrame;
+        self.tableView.frame = tableViewFrame;
+    }];
+}
+
+- (void)positionSearchFieldForOrientation:(UIInterfaceOrientation)orientation
+{
+    CGRect searchBarFrame = self.searchDisplayController.searchBar.frame;
+    CGRect tableViewFrame = self.tableView.frame;
+    
+    searchBarFrame.origin.y = orientation == UIInterfaceOrientationPortrait ? kSearchBarPortraitY : kSearchBarLandscapeY;
+    CGFloat searchBarHeight = searchBarFrame.origin.y + searchBarFrame.size.height;
+    tableViewFrame.origin.y = searchBarHeight;
+
+    [UIView animateWithDuration:kSearchResultsAnimationDuration animations:^(void){
+        self.searchDisplayController.searchBar.frame = searchBarFrame;
+        self.tableView.frame = tableViewFrame;
+    }];
+}
+
 - (void)searchDisplayControllerDidBeginSearch:(UISearchDisplayController *)controller
 {
-    self.editing = NO;
     [self disableActionButtons];
 }
 
@@ -487,6 +552,11 @@ NSString *kTableViewCellIdentifier = @"Cell";
                                       objectAtIndex:[self.searchDisplayController.searchBar selectedScopeButtonIndex]]];
     
     return YES;
+}
+
+- (void)searchDisplayControllerWillEndSearch:(UISearchDisplayController *)controller
+{
+    [self animateViewOutForOrientation:self.interfaceOrientation];
 }
 
 - (void)searchDisplayControllerDidEndSearch:(UISearchDisplayController *)controller
