@@ -8,18 +8,18 @@
 
 #import "ListViewController.h"
 
-NSInteger kInitialSelectedFilterSegment = 0;
-NSString *kSegueShowFormId = @"editItemSegue";
-NSString *kSegueShowProductImage = @"productImageSegue";
-NSString *kTableName = @"ShoppingList";
-NSString *kAudioEditingName = @"You Do It";
-NSString *kAudioRemovingName = @"You Promised";
-NSString *kAudioActivatingName = @"Oh Yeah";
-CGFloat kSearchBarLandscapeY = 53.0;
-CGFloat kSearchBarPortraitY = 65.0;
-CGFloat kSearchResultsAnimationDuration = 0.25;
-CGFloat kTableFooterViewHeight = 44.0;
-NSString *kTableViewCellIdentifier = @"Cell";
+static NSInteger kInitialSelectedFilterSegment = 0;
+static NSString *kSegueShowFormId = @"editItemSegue";
+static NSString *kSegueShowProductImage = @"productImageSegue";
+static NSString *kTableName = @"ShoppingList";
+static NSString *kAudioEditingName = @"You Do It";
+static NSString *kAudioRemovingName = @"You Promised";
+static NSString *kAudioActivatingName = @"Oh Yeah";
+static CGFloat kSearchBarLandscapeY = 53.0;
+static CGFloat kSearchBarPortraitY = 65.0;
+static CGFloat kSearchResultsAnimationDuration = 0.25;
+static CGFloat kTableFooterViewHeight = 44.0;
+static NSString *kTableViewCellIdentifier = @"Cell";
 
 @interface ListViewController ()
 {
