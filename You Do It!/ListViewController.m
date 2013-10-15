@@ -15,8 +15,8 @@ static NSString *kTableName = @"ShoppingList";
 static NSString *kAudioEditingName = @"You Do It";
 static NSString *kAudioRemovingName = @"You Promised";
 static NSString *kAudioActivatingName = @"Oh Yeah";
-static CGFloat kSearchBarLandscapeY = 53.0;
-static CGFloat kSearchBarPortraitY = 65.0;
+static CGFloat kSearchBarLandscapeY = 52.0;
+static CGFloat kSearchBarPortraitY = 64.0;
 static CGFloat kSearchResultsAnimationDuration = 0.25;
 static CGFloat kTableFooterViewHeight = 44.0;
 static NSString *kTableViewCellIdentifier = @"Cell";
@@ -60,8 +60,8 @@ static NSString *kTableViewCellIdentifier = @"Cell";
     [super viewDidLoad];
     
     self.navigationItem.leftBarButtonItem = [self editButtonItem];
+    self.navigationItem.title = NSLocalizedString(@"UINavigationItemTitle", nil);
     
-    [self setupFilesystem];
     [self setupFilterControl];
     [self setupTableFooter];
     [self playAudioFile:kAudioEditingName];
@@ -105,11 +105,6 @@ static NSString *kTableViewCellIdentifier = @"Cell";
     
     self.editing = NO;
     
-    self.currentRecord = nil;
-    self.items = nil;
-    self.rawItems = nil;
-    self.searchResults = nil;
-    
     [self resignFirstResponder];
 }
 
@@ -133,6 +128,8 @@ static NSString *kTableViewCellIdentifier = @"Cell";
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
     [self positionSearchFieldForOrientation:toInterfaceOrientation];
+    
+    self.tableView.contentInset = UIEdgeInsetsMake(0.0, 0.0, toInterfaceOrientation == UIInterfaceOrientationPortrait ? kTableFooterViewHeight : kTableFooterViewHeight / 2, 0.0);
 }
 
 #pragma mark - UIAlert actions
@@ -303,13 +300,6 @@ static NSString *kTableViewCellIdentifier = @"Cell";
     record[@"active"] = activeState;
     [self syncStore];
     [self setupItems];
-}
-
-- (void)setupFilesystem
-{
-    DBAccount *account = [[DBAccountManager sharedManager] linkedAccount];
-    DBFilesystem *filesystem = [[DBFilesystem alloc] initWithAccount:account];
-    [DBFilesystem setSharedFilesystem:filesystem];
 }
 
 - (void)setupFilterControl
@@ -503,7 +493,7 @@ static NSString *kTableViewCellIdentifier = @"Cell";
     self.tableViewYOrigin = tableViewFrame.origin.y;
     
     searchBarFrame.origin.y = orientation == UIInterfaceOrientationPortrait ? app.statusBarFrame.size.height : app.statusBarFrame.size.width;
-    tableViewFrame.origin.y = orientation == UIInterfaceOrientationPortrait ? self.searchBarYOrigin : self.searchBarYOrigin + 11.0;
+    tableViewFrame.origin.y = orientation == UIInterfaceOrientationPortrait ? self.searchBarYOrigin : self.searchBarYOrigin + 12.0;
     
     [UIView animateWithDuration:kSearchResultsAnimationDuration animations:^(void){
         self.searchDisplayController.searchBar.frame = searchBarFrame;
@@ -621,7 +611,7 @@ static NSString *kTableViewCellIdentifier = @"Cell";
 
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return YES;
+    return ! self.searchDisplayController.active;
 }
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
@@ -647,12 +637,13 @@ static NSString *kTableViewCellIdentifier = @"Cell";
     {
         self.currentRecord = [self.searchResults objectAtIndex:indexPath.row];
         self.searchDisplayController.active = NO;
+        self.searchDisplayController.searchBar.text = @"";
     }
     else
     {
         self.currentRecord = [[self.items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
     }
-
+    
     [self performSegueWithIdentifier:tableView.isEditing ? kSegueShowFormId : kSegueShowProductImage sender:self];
 }
 

@@ -30,6 +30,8 @@
 "UIButtonAddPhoto" = "Add Photo";
 "UIButtonEditPhoto" = "Edit Photo";
 
+"UINavigationItemTitle" = "All Items";
+
 "UISegmentedControlItem1" = "All";
 "UISegmentedControlItem2" = "Active";
 

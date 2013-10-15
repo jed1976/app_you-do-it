@@ -123,7 +123,7 @@ CGFloat kImageQualityLevel = 0.75;
     if ([[self.nameTextField text] isEqualToString:@""])
         [_delegate didCancelEditingItem:self.record];
     
-    [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+    [self performSelector:@selector(dismissModalViewControllerAnimated:) withObject:self.presentingViewController afterDelay:0.5];
 }
 
 - (void)delete:(id)sender

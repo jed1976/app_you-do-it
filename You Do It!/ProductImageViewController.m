@@ -24,7 +24,7 @@ NSString *kSegueShowEditFormId = @"editItemSegue";
     [super didReceiveMemoryWarning];
     
     self.record = nil;
-    self.imageView.image = nil;
+    self.imageView = nil;
 }
 
 #pragma mark - Actions
