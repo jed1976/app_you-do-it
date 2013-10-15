@@ -40,6 +40,7 @@ static NSString *kTableViewCellIdentifier = @"Cell";
 @property (nonatomic) NSInteger selectedFilterSegment;
 @property (nonatomic) DBDatastore *store;
 @property (nonatomic) DBTable *table;
+@property (nonatomic) CGPoint tableContentOffset;
 @property (nonatomic) IBOutlet UITableView *tableView;
 @property (nonatomic) CGFloat tableViewYOrigin;
 @property (nonatomic) NSUndoManager *undoManager;
@@ -61,10 +62,13 @@ static NSString *kTableViewCellIdentifier = @"Cell";
     
     self.navigationItem.leftBarButtonItem = [self editButtonItem];
     self.navigationItem.title = NSLocalizedString(@"UINavigationItemTitle", nil);
+    self.tableContentOffset = CGPointZero;
     
     [self setupFilterControl];
     [self setupTableFooter];
     [self playAudioFile:kAudioEditingName];
+    
+    self.searchResults = [NSMutableArray array];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -72,7 +76,7 @@ static NSString *kTableViewCellIdentifier = @"Cell";
     [super viewWillAppear:animated];
     
     __weak ListViewController *slf = self;
-
+    
     [self.accountManager addObserver:self block:^(DBAccount *account) {
         [slf setupItems];
     }];
@@ -80,6 +84,9 @@ static NSString *kTableViewCellIdentifier = @"Cell";
     [self.navigationController setToolbarHidden:NO animated:YES];
     
     [self setupItems];
+    
+    if (self.searchDisplayController.active)
+        [self.searchDisplayController.searchResultsTableView reloadData];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -95,7 +102,7 @@ static NSString *kTableViewCellIdentifier = @"Cell";
 
     [self.accountManager removeObserver:self];
 
-    if (self.store)
+    if (_store)
         [self.store removeObserver:self];
 }
 
@@ -321,7 +328,6 @@ static NSString *kTableViewCellIdentifier = @"Cell";
     DBError *error;
     
     self.rawItems = [NSMutableArray array];
-    self.searchResults = [NSMutableArray array];
     
     if (self.account)
     {
@@ -338,13 +344,13 @@ static NSString *kTableViewCellIdentifier = @"Cell";
         
         if (error != nil)
             [self displayErrorAlert:error];
+        
+        [self syncItems];
     }
     else
     {
         [[DBAccountManager sharedManager] linkFromController:self];
     }
-    
-    [self syncItems];
 }
 
 - (void)setupTableFooter
@@ -388,11 +394,15 @@ static NSString *kTableViewCellIdentifier = @"Cell";
         [self updateFooterCount];
         [self updateBadgeCount];
     }
+    else
+    {
+        [[DBAccountManager sharedManager] linkFromController:self];        
+    }
 }
 
 - (NSDictionary *)syncStore
 {
-    DBError *error;
+    DBError *error;    
     NSDictionary *changes = [self.store sync:&error];
     
     if (error != nil)
@@ -404,8 +414,13 @@ static NSString *kTableViewCellIdentifier = @"Cell";
 - (void)toggleFilter:(id)sender
 {
     self.selectedFilterSegment = [sender selectedSegmentIndex];
+    
+    CGPoint tableContentOffset = self.tableView.contentOffset;
 
     [self setupItems];
+    
+    self.tableView.contentOffset = self.tableContentOffset;
+    self.tableContentOffset = tableContentOffset;
 }
 
 - (void)update:(NSDictionary *)changedDict
@@ -537,9 +552,7 @@ static NSString *kTableViewCellIdentifier = @"Cell";
 
 -(BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString
 {
-    [self filterContentForSearchText:searchString
-                               scope:[[self.searchDisplayController.searchBar scopeButtonTitles]
-                                      objectAtIndex:[self.searchDisplayController.searchBar selectedScopeButtonIndex]]];
+    [self filterContentForSearchText:searchString scope:nil];
     
     return YES;
 }
@@ -635,12 +648,12 @@ static NSString *kTableViewCellIdentifier = @"Cell";
 {
     if (self.searchDisplayController.active)
     {
+        self.navigationItem.backBarButtonItem.title = NSLocalizedString(@"UINavigationItemSearchTitle", nil);
         self.currentRecord = [self.searchResults objectAtIndex:indexPath.row];
-        self.searchDisplayController.active = NO;
-        self.searchDisplayController.searchBar.text = @"";
     }
     else
     {
+        self.navigationItem.backBarButtonItem.title = NSLocalizedString(@"UINavigationItemTitle", nil);
         self.currentRecord = [[self.items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
     }
     
