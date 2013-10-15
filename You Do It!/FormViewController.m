@@ -8,18 +8,20 @@
 
 #import "FormViewController.h"
 
-NSInteger kAddPhotoAlertSheetTag = 1000;
-NSInteger kDeletePhotoAlertSheetTag = 2000;
-CGFloat kImageQualityLevel = 0.75;
+static NSInteger kAddPhotoAlertSheetTag = 1000;
+static NSInteger kDeletePhotoAlertSheetTag = 2000;
+static CGFloat kImageQualityLevel = 0.75;
 
 @interface FormViewController()
+{
+    BOOL showingDeleteButton;
+}
 
 @property (nonatomic) IBOutlet UISwitch *activeSwitch;
 @property (nonatomic) IBOutlet UITextField *detailsTextField;
 @property (nonatomic) IBOutlet UITextField *nameTextField;
 @property (nonatomic) IBOutlet UIButton *pickerButton;
 @property (nonatomic) IBOutlet UIImageView *productImageView;
-@property (nonatomic) BOOL showingDeleteButton;
 
 - (IBAction)addPhoto:(id)sender;
 - (IBAction)cancel:(id)sender;
@@ -28,13 +30,14 @@ CGFloat kImageQualityLevel = 0.75;
 
 @end
 
+
 @implementation FormViewController
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
     
-    self.showingDeleteButton = NO;
+    showingDeleteButton = NO;
     
     [[[[[self navigationController] navigationBar] topItem] rightBarButtonItem] setEnabled: ! [self.record[@"name"] isEqualToString:@""]];
 
@@ -89,12 +92,12 @@ CGFloat kImageQualityLevel = 0.75;
 
     if (self.productImageView.image != nil)
     {
-        self.showingDeleteButton = YES;
+        showingDeleteButton = YES;
         [actionSheet addButtonWithTitle:NSLocalizedString(@"UIAlertDeletePhoto", nil)];
     }
     
     [actionSheet addButtonWithTitle:NSLocalizedString(@"UIAlertCancelButton", nil)];
-    [actionSheet setCancelButtonIndex:self.showingDeleteButton ? 3 : 2];
+    [actionSheet setCancelButtonIndex:showingDeleteButton ? 3 : 2];
     
     [actionSheet showInView:self.navigationController.view];
 }
@@ -216,11 +219,11 @@ CGFloat kImageQualityLevel = 0.75;
 {
     if ([actionSheet tag] == kAddPhotoAlertSheetTag)
     {
-        if ((self.showingDeleteButton && buttonIndex == 3) || (! self.showingDeleteButton && buttonIndex == 2)) return;
+        if ((showingDeleteButton && buttonIndex == 3) || ( ! showingDeleteButton && buttonIndex == 2)) return;
         
-        if (self.showingDeleteButton && buttonIndex == 2)
+        if (showingDeleteButton && buttonIndex == 2)
         {
-            self.showingDeleteButton = NO;
+            showingDeleteButton = NO;
             [self deletePhoto];
             
             return;

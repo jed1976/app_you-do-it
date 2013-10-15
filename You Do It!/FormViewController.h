@@ -21,6 +21,6 @@
 @interface FormViewController : UITableViewController <UIActionSheetDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate>
 
 @property (nonatomic, assign) id <FormViewControllerDelegate> delegate;
-@property (nonatomic) DBRecord *record;
+@property DBRecord *record;
 
 @end

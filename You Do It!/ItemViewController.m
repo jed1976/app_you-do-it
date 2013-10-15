@@ -8,7 +8,16 @@
 
 #import "ItemViewController.h"
 
-NSString *kSegueShowEditFormId = @"editItemSegue";
+static NSString *kSegueShowEditFormId = @"editItemSegue";
+
+@interface ItemViewController()
+
+@property IBOutlet UIImageView *imageView;
+
+- (IBAction)edit:(id)sender;
+
+@end
+
 
 @implementation ItemViewController
 
@@ -17,14 +26,6 @@ NSString *kSegueShowEditFormId = @"editItemSegue";
     [super viewDidLoad];
     
     [self loadRecord];
-}
-
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    
-    self.record = nil;
-    self.imageView = nil;
 }
 
 #pragma mark - Actions

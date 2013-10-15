@@ -12,10 +12,9 @@
 #import "FormViewController.h"
 #import "ItemViewController.h"
 
-@interface ListViewController : UIViewController <FormViewControllerDelegate, UISearchBarDelegate, UISearchDisplayDelegate, UITableViewDataSource, UITableViewDelegate>
+@interface ListViewController : UIViewController
 
-- (NSInteger)activeItemCount;
-- (void)setupItems;
-- (void)updateBadgeCount;
+<FormViewControllerDelegate, UISearchBarDelegate, UISearchDisplayDelegate, UITableViewDataSource, UITableViewDelegate>
+
 
 @end

@@ -23,31 +23,29 @@ static NSString *kTableViewCellIdentifier = @"Cell";
 
 @interface ListViewController ()
 {
+    DBAccount *account;
+    DBAccountManager *accountManager;
     AVAudioPlayer *audioPlayer;
+    DBRecord *currentRecord;
+    DBTable *dataTable;
+    UISegmentedControl *filterControl;
+    NSMutableArray *items;
+    NSMutableArray *rawItems;
+    DBDatastore *store;
+    CGFloat searchBarYOrigin;
+    NSMutableArray *searchResults;
+    NSInteger selectedFilterSegment;
+    CGPoint tableContentOffset;
+    CGFloat tableViewYOrigin;
 }
 
-@property (nonatomic, readonly) DBAccount *account;
-@property (nonatomic, readonly) DBAccountManager *accountManager;
-@property (nonatomic) NSIndexPath *currentEditIndexPath;
-@property (nonatomic) DBRecord *currentRecord;
-@property (nonatomic) UISegmentedControl *filterControl;
-@property (nonatomic) NSMutableArray *items;
-@property (nonatomic) ItemViewController *productImageViewController;
-@property (nonatomic) NSMutableArray *rawItems;
-@property (nonatomic) IBOutlet UISearchBar *searchBar;
-@property (nonatomic) CGFloat searchBarYOrigin;
-@property (nonatomic) NSMutableArray *searchResults;
-@property (nonatomic) NSInteger selectedFilterSegment;
-@property (nonatomic) DBDatastore *store;
-@property (nonatomic) DBTable *table;
-@property (nonatomic) CGPoint tableContentOffset;
-@property (nonatomic) IBOutlet UITableView *tableView;
-@property (nonatomic) CGFloat tableViewYOrigin;
-@property (nonatomic) NSUndoManager *undoManager;
+@property IBOutlet UISearchBar *searchBar;
+@property IBOutlet UITableView *tableView;
 
 - (IBAction)switchToggle:(id)sender;
 
 @end
+
 
 @implementation ListViewController
 
@@ -62,13 +60,13 @@ static NSString *kTableViewCellIdentifier = @"Cell";
     
     self.navigationItem.leftBarButtonItem = [self editButtonItem];
     self.navigationItem.title = NSLocalizedString(@"UINavigationItemTitle", nil);
-    self.tableContentOffset = CGPointZero;
+    tableContentOffset = CGPointZero;
     
     [self setupFilterControl];
     [self setupTableFooter];
     [self playAudioFile:kAudioEditingName];
     
-    self.searchResults = [NSMutableArray array];
+    searchResults = [NSMutableArray array];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -102,8 +100,8 @@ static NSString *kTableViewCellIdentifier = @"Cell";
 
     [self.accountManager removeObserver:self];
 
-    if (_store)
-        [self.store removeObserver:self];
+    if (store)
+        [store removeObserver:self];
 }
 
 - (void)viewDidDisappear:(BOOL)animated
@@ -119,11 +117,8 @@ static NSString *kTableViewCellIdentifier = @"Cell";
 {
     [super didReceiveMemoryWarning];
     
-    self.currentRecord = nil;
-    self.items = nil;
-    self.rawItems = nil;
-    self.searchResults = nil;
-    self.store = nil;
+    currentRecord = nil;
+    searchResults = nil;
 }
 
 - (void)motionEnded:(UIEventSubtype)motion withEvent:(UIEvent *)event
@@ -165,31 +160,23 @@ static NSString *kTableViewCellIdentifier = @"Cell";
 
 - (DBDatastore *)store
 {
-    if ( ! _store)
-        _store = [DBDatastore openDefaultStoreForAccount:self.account error:nil];
+    if ( ! store)
+        store = [DBDatastore openDefaultStoreForAccount:self.account error:nil];
 
-    return _store;
+    return store;
 }
 
 #pragma mark - Actions
 
 - (NSInteger)activeItemCount
 {
-    NSMutableArray *activeItems = [NSMutableArray arrayWithArray:[self.table query:@{ @"active": @YES } error:nil]];
-    
-    return activeItems.count;
+    return [[NSMutableArray arrayWithArray:[dataTable query:@{ @"active": @YES } error:nil]] count];
 }
 
 - (IBAction)add:(id)sender
 {
-    DBRecord *record = [self.table insert:@{
-        @"active": @NO,
-        @"created": [NSDate date],
-        @"name": @"",
-        @"details": @""
-    }];
-    
-    self.currentRecord = record;
+    DBRecord *record = [dataTable insert:@{ @"active": @NO, @"created": [NSDate date], @"name": @"", @"details": @"" }];
+    currentRecord = record;
 
     [self performSegueWithIdentifier:kSegueShowFormId sender:self];
 }
@@ -198,24 +185,24 @@ static NSString *kTableViewCellIdentifier = @"Cell";
 {
     self.navigationController.navigationBar.topItem.leftBarButtonItem.enabled = NO;
     self.navigationController.navigationBar.topItem.rightBarButtonItem.enabled = NO;
-    self.filterControl.enabled = NO;
+    filterControl.enabled = NO;
 }
 
 - (void)enableActionButtons
 {
     self.navigationController.navigationBar.topItem.leftBarButtonItem.enabled = YES;
     self.navigationController.navigationBar.topItem.rightBarButtonItem.enabled = YES;
-    self.filterControl.enabled = YES;
+    filterControl.enabled = YES;
 }
 
 -(void)filterContentForSearchText:(NSString*)searchText scope:(NSString*)scope
 {
-    [self.searchResults removeAllObjects];
+    [searchResults removeAllObjects];
 
     if ([searchText isEqualToString:@""])
         return;
     
-    for (NSArray *section in self.items)
+    for (NSArray *section in items)
     {
         for (DBRecord *item in section)
         {
@@ -223,7 +210,7 @@ static NSString *kTableViewCellIdentifier = @"Cell";
             NSRange detailsTextRange = [[item[@"details"] lowercaseString] rangeOfString:[searchText lowercaseString]];
             
             if (nameTextRange.location != NSNotFound || detailsTextRange.location != NSNotFound)
-                [self.searchResults addObject:item];
+                [searchResults addObject:item];
         }
     }
 }
@@ -271,7 +258,6 @@ static NSString *kTableViewCellIdentifier = @"Cell";
 	NSError *error;
 	audioPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:url error:&error];
 	audioPlayer.numberOfLoops = 0;
-	
     [audioPlayer play];
 }
 
@@ -282,15 +268,15 @@ static NSString *kTableViewCellIdentifier = @"Cell";
         UINavigationController *navigationController = segue.destinationViewController;
         FormViewController *destinationController = [[navigationController childViewControllers] objectAtIndex:0];
         destinationController.delegate = self;
-        [destinationController setRecord:self.currentRecord];
+        [destinationController setRecord:currentRecord];
     }
     else if ([segue.identifier isEqualToString:kSegueShowProductImage])
     {
         ItemViewController *destinationController = segue.destinationViewController;
-        [destinationController setRecord:self.currentRecord];
+        [destinationController setRecord:currentRecord];
     }
     
-    self.currentRecord = nil;
+    currentRecord = nil;
 }
 
 - (void)setEditing:(BOOL)editing animated:(BOOL)animated
@@ -311,14 +297,14 @@ static NSString *kTableViewCellIdentifier = @"Cell";
 
 - (void)setupFilterControl
 {
-    self.selectedFilterSegment = kInitialSelectedFilterSegment;
+    selectedFilterSegment = kInitialSelectedFilterSegment;
     
-    self.filterControl = [[UISegmentedControl alloc] initWithItems:@[NSLocalizedString(@"UISegmentedControlItem1", nil), NSLocalizedString(@"UISegmentedControlItem2", nil)]];
-    [self.filterControl setSegmentedControlStyle:UISegmentedControlStyleBar];
-    [self.filterControl setSelectedSegmentIndex:self.selectedFilterSegment];
-    [self.filterControl addTarget:self action:@selector(toggleFilter:) forControlEvents:UIControlEventValueChanged];
+    filterControl = [[UISegmentedControl alloc] initWithItems:@[NSLocalizedString(@"UISegmentedControlItem1", nil), NSLocalizedString(@"UISegmentedControlItem2", nil)]];
+    [filterControl setSegmentedControlStyle:UISegmentedControlStyleBar];
+    [filterControl setSelectedSegmentIndex:selectedFilterSegment];
+    [filterControl addTarget:self action:@selector(toggleFilter:) forControlEvents:UIControlEventValueChanged];
     
-    UIBarButtonItem *barButton = [[UIBarButtonItem alloc] initWithCustomView:self.filterControl];
+    UIBarButtonItem *barButton = [[UIBarButtonItem alloc] initWithCustomView:filterControl];
     UIBarButtonItem *spaceItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:NULL];
     self.toolbarItems = @[spaceItem, barButton, spaceItem];
 }
@@ -327,12 +313,12 @@ static NSString *kTableViewCellIdentifier = @"Cell";
 {
     DBError *error;
     
-    self.rawItems = [NSMutableArray array];
+    rawItems = [NSMutableArray array];
     
     if (self.account)
     {
         __weak ListViewController *slf = self;
-        self.table = [self.store getTable:kTableName];
+        dataTable = [self.store getTable:kTableName];
         
         [self.store addObserver:self block:^() {
             if (slf.store.status & (DBDatastoreIncoming | DBDatastoreOutgoing)) {
@@ -340,7 +326,7 @@ static NSString *kTableViewCellIdentifier = @"Cell";
             }
         }];
         
-        _rawItems = [NSMutableArray arrayWithArray:[self.table query:self.selectedFilterSegment == 0 ? nil : @{ @"active": @YES } error:&error]];
+        rawItems = [NSMutableArray arrayWithArray:[dataTable query:selectedFilterSegment == 0 ? nil : @{ @"active": @YES } error:&error]];
         
         if (error != nil)
             [self displayErrorAlert:error];
@@ -369,14 +355,13 @@ static NSString *kTableViewCellIdentifier = @"Cell";
     UITableView *tableView = self.searchDisplayController.active ? self.searchDisplayController.searchResultsTableView : self.tableView;
     CGRect buttonFrame = [switchControl convertRect:switchControl.bounds toView:tableView];
     NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:buttonFrame.origin];
-    self.currentEditIndexPath = indexPath;
     
     DBRecord *item = nil;
     
     if (self.searchDisplayController.active)
-        item = (DBRecord *)[self.searchResults objectAtIndex:indexPath.row];
+        item = (DBRecord *)[searchResults objectAtIndex:indexPath.row];
     else
-        item = (DBRecord *)[[self.items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
+        item = (DBRecord *)[[items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
     
     [[self.undoManager prepareWithInvocationTarget:self] setRecord:item activeState:[NSNumber numberWithBool: ! switchControl.on]];
     
@@ -413,28 +398,28 @@ static NSString *kTableViewCellIdentifier = @"Cell";
 
 - (void)toggleFilter:(id)sender
 {
-    self.selectedFilterSegment = [sender selectedSegmentIndex];
+    selectedFilterSegment = [sender selectedSegmentIndex];
     
-    CGPoint tableContentOffset = self.tableView.contentOffset;
+    CGPoint currentTableContentOffset = self.tableView.contentOffset;
 
     [self setupItems];
     
-    self.tableView.contentOffset = self.tableContentOffset;
-    self.tableContentOffset = tableContentOffset;
+    self.tableView.contentOffset = tableContentOffset;
+    tableContentOffset = currentTableContentOffset;
 }
 
 - (void)update:(NSDictionary *)changedDict
 {
     NSMutableArray *deleted = [NSMutableArray array];
     
-    for (NSInteger i = [self.rawItems count] - 1; i >= 0; i--)
+    for (NSInteger i = [rawItems count] - 1; i >= 0; i--)
     {
-        DBRecord *item = self.rawItems[i];
+        DBRecord *item = rawItems[i];
         
         if (item.deleted)
         {
             [deleted addObject:[NSIndexPath indexPathForRow:i inSection:0]];
-            [self.rawItems removeObjectAtIndex:i];
+            [rawItems removeObjectAtIndex:i];
         }
     }
     
@@ -451,7 +436,7 @@ static NSString *kTableViewCellIdentifier = @"Cell";
         }
         else
         {
-            NSUInteger idx = [self.rawItems indexOfObject:record];
+            NSUInteger idx = [rawItems indexOfObject:record];
             
             if (idx != NSNotFound)
             {
@@ -461,18 +446,18 @@ static NSString *kTableViewCellIdentifier = @"Cell";
         }
     }
     
-    [self.rawItems addObjectsFromArray:changed];
+    [rawItems addObjectsFromArray:changed];
     
     NSMutableArray *inserts = [NSMutableArray array];
     
     for (DBRecord *record in changed)
     {
-        int idx = [self.rawItems indexOfObject:record];
+        int idx = [rawItems indexOfObject:record];
         
         [inserts addObject:[NSIndexPath indexPathForRow:idx inSection:0]];
     }
     
-    self.items = (NSMutableArray *)[self partitionObjects:self.rawItems collationStringSelector:@selector(self)];
+    items = (NSMutableArray *)[self partitionObjects:rawItems collationStringSelector:@selector(self)];
 
     if ( ! self.searchDisplayController.active)
         [self.tableView reloadData];
@@ -486,8 +471,8 @@ static NSString *kTableViewCellIdentifier = @"Cell";
 - (void)updateFooterCount
 {
     UILabel *footerView = (UILabel *)self.tableView.tableFooterView;
-    NSString *suffix = self.rawItems.count == 1 ? NSLocalizedString(@"UITableViewFooterLabelItemSingular", nil) : NSLocalizedString(@"UITableViewFooterLabelItemPlural", nil);
-    footerView.text = [NSString stringWithFormat:@"%i %@", self.rawItems.count, suffix];
+    NSString *suffix = rawItems.count == 1 ? NSLocalizedString(@"UITableViewFooterLabelItemSingular", nil) : NSLocalizedString(@"UITableViewFooterLabelItemPlural", nil);
+    footerView.text = [NSString stringWithFormat:@"%i %@", rawItems.count, suffix];
 }
 
 #pragma mark - UISearchDisplayController Delegate Methods
@@ -504,11 +489,11 @@ static NSString *kTableViewCellIdentifier = @"Cell";
     CGRect searchBarFrame = self.searchDisplayController.searchBar.frame;
     CGRect tableViewFrame = self.tableView.frame;
     
-    self.searchBarYOrigin = searchBarFrame.origin.y;
-    self.tableViewYOrigin = tableViewFrame.origin.y;
+    searchBarYOrigin = searchBarFrame.origin.y;
+    tableViewYOrigin = tableViewFrame.origin.y;
     
     searchBarFrame.origin.y = orientation == UIInterfaceOrientationPortrait ? app.statusBarFrame.size.height : app.statusBarFrame.size.width;
-    tableViewFrame.origin.y = orientation == UIInterfaceOrientationPortrait ? self.searchBarYOrigin : self.searchBarYOrigin + 12.0;
+    tableViewFrame.origin.y = orientation == UIInterfaceOrientationPortrait ? searchBarYOrigin : searchBarYOrigin + 12.0;
     
     [UIView animateWithDuration:kSearchResultsAnimationDuration animations:^(void){
         self.searchDisplayController.searchBar.frame = searchBarFrame;
@@ -521,8 +506,8 @@ static NSString *kTableViewCellIdentifier = @"Cell";
     CGRect searchBarFrame = self.searchDisplayController.searchBar.frame;
     CGRect tableViewFrame = self.tableView.frame;
     
-    searchBarFrame.origin.y = self.searchBarYOrigin;
-    tableViewFrame.origin.y = self.tableViewYOrigin;
+    searchBarFrame.origin.y = searchBarYOrigin;
+    tableViewFrame.origin.y = tableViewYOrigin;
     
     [UIView animateWithDuration:kSearchResultsAnimationDuration animations:^(void){
         self.searchDisplayController.searchBar.frame = searchBarFrame;
@@ -581,12 +566,12 @@ static NSString *kTableViewCellIdentifier = @"Cell";
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return tableView == self.searchDisplayController.searchResultsTableView ? [self.searchResults count] : [[self.items objectAtIndex:section] count];
+    return tableView == self.searchDisplayController.searchResultsTableView ? [searchResults count] : [[items objectAtIndex:section] count];
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
-    BOOL showSection = [[self.items objectAtIndex:section] count] != 0;
+    BOOL showSection = [[items objectAtIndex:section] count] != 0;
     
     if (tableView == self.searchDisplayController.searchResultsTableView)
         return nil;
@@ -606,9 +591,9 @@ static NSString *kTableViewCellIdentifier = @"Cell";
     DBRecord *item = nil;
     
     if (tableView == self.searchDisplayController.searchResultsTableView)
-        item = (DBRecord *)[self.searchResults objectAtIndex:indexPath.row];
+        item = (DBRecord *)[searchResults objectAtIndex:indexPath.row];
     else
-        item = (DBRecord *)[[self.items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
+        item = (DBRecord *)[[items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
     
     cell.textLabel.text = item[@"name"];
     cell.detailTextLabel.text = item[@"details"];
@@ -631,7 +616,7 @@ static NSString *kTableViewCellIdentifier = @"Cell";
 {
     if (editingStyle == UITableViewCellEditingStyleDelete)
     {
-        DBRecord *item = (DBRecord *)[[self.items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
+        DBRecord *item = (DBRecord *)[[items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
         [item deleteRecord];
         
         [self syncStore];
@@ -649,12 +634,12 @@ static NSString *kTableViewCellIdentifier = @"Cell";
     if (self.searchDisplayController.active)
     {
         self.navigationItem.backBarButtonItem.title = NSLocalizedString(@"UINavigationItemSearchTitle", nil);
-        self.currentRecord = [self.searchResults objectAtIndex:indexPath.row];
+        currentRecord = [searchResults objectAtIndex:indexPath.row];
     }
     else
     {
         self.navigationItem.backBarButtonItem.title = NSLocalizedString(@"UINavigationItemTitle", nil);
-        self.currentRecord = [[self.items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
+        currentRecord = [[items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
     }
     
     [self performSegueWithIdentifier:tableView.isEditing ? kSegueShowFormId : kSegueShowProductImage sender:self];

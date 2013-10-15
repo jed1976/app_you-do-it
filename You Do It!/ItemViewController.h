@@ -14,8 +14,5 @@
 @interface ItemViewController : UIViewController <FormViewControllerDelegate>
 
 @property (nonatomic) DBRecord *record;
-@property (nonatomic) IBOutlet UIImageView *imageView;
-
-- (IBAction)edit:(id)sender;
 
 @end
