@@ -10,7 +10,7 @@
 #import <AVFoundation/AVFoundation.h>
 #import <Dropbox/Dropbox.h>
 #import "FormViewController.h"
-#import "ProductImageViewController.h"
+#import "ItemViewController.h"
 
 @interface ListViewController : UITableViewController <FormViewControllerDelegate, UISearchBarDelegate, UISearchDisplayDelegate>
 

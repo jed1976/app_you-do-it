@@ -1,16 +1,16 @@
 //
-//  ProductImageViewController.m
+//  ItemViewController.m
 //  You Do It!
 //
 //  Created by Joe Dakroub on 9/17/13.
 //  Copyright (c) 2013 Teacup Studio, LLC. All rights reserved.
 //
 
-#import "ProductImageViewController.h"
+#import "ItemViewController.h"
 
 NSString *kSegueShowEditFormId = @"editItemSegue";
 
-@implementation ProductImageViewController
+@implementation ItemViewController
 
 - (void)viewDidLoad
 {

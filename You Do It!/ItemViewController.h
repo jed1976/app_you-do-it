@@ -1,5 +1,5 @@
 //
-//  ProductImageViewController.h
+//  ItemViewController.h
 //  You Do It!
 //
 //  Created by Joe Dakroub on 9/17/13.
@@ -11,7 +11,7 @@
 #import "Base64.h"
 #import "FormViewController.h"
 
-@interface ProductImageViewController : UIViewController <FormViewControllerDelegate>
+@interface ItemViewController : UIViewController <FormViewControllerDelegate>
 
 @property (nonatomic) DBRecord *record;
 @property (nonatomic) IBOutlet UIImageView *imageView;

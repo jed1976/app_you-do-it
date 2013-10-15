@@ -29,7 +29,7 @@ NSString *kTableViewCellIdentifier = @"Cell";
 @property (nonatomic) DBRecord *currentRecord;
 @property (nonatomic) UISegmentedControl *filterControl;
 @property (nonatomic) NSMutableArray *items;
-@property (nonatomic) ProductImageViewController *productImageViewController;
+@property (nonatomic) ItemViewController *productImageViewController;
 @property (nonatomic) NSMutableArray *rawItems;
 @property (nonatomic) IBOutlet UISearchBar *searchBar;
 @property (nonatomic) NSMutableArray *searchResults;
@@ -271,7 +271,7 @@ NSString *kTableViewCellIdentifier = @"Cell";
     }
     else if ([segue.identifier isEqualToString:kSegueShowProductImage])
     {
-        ProductImageViewController *destinationController = segue.destinationViewController;
+        ItemViewController *destinationController = segue.destinationViewController;
         [destinationController setRecord:self.currentRecord];
     }
     
