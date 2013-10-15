@@ -24,7 +24,7 @@ NSString *kSegueShowEditFormId = @"editItemSegue";
     [super didReceiveMemoryWarning];
     
     self.record = nil;
-    self.imageView.image = nil;
+    self.imageView = nil;
 }
 
 #pragma mark - Actions
@@ -45,17 +45,18 @@ NSString *kSegueShowEditFormId = @"editItemSegue";
         [self.navigationController setToolbarHidden:NO animated:YES];
         
         UILabel *detailLabel = [[UILabel alloc] initWithFrame:self.navigationController.toolbar.frame];
-        [detailLabel setBackgroundColor:[UIColor clearColor]];
-        [detailLabel setFont:[UIFont systemFontOfSize:15.0]];
-        [detailLabel setText:self.record[@"details"]];
-        [detailLabel setTextAlignment:NSTextAlignmentCenter];
+        detailLabel.alpha = 0.0;
+        detailLabel.backgroundColor = [UIColor clearColor];
+        detailLabel.font = [UIFont systemFontOfSize:15.0];
+        detailLabel.text = self.record[@"details"];
+        detailLabel.textAlignment = NSTextAlignmentCenter;
         
         if (floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_6_1)
-            [detailLabel setTextColor:[UIColor whiteColor]];
+            detailLabel.textColor = [UIColor whiteColor];
         
-        UIBarButtonItem *barButton = [[UIBarButtonItem alloc] initWithCustomView:detailLabel];
+        UIBarButtonItem *detailBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:detailLabel];
         UIBarButtonItem *spaceItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:NULL];
-        self.toolbarItems = @[spaceItem, barButton, spaceItem];
+        self.toolbarItems = @[spaceItem, detailBarButtonItem, spaceItem];
     }
     
     self.imageView.image = self.record[@"photoData"] ? [[UIImage alloc] initWithData:self.record[@"photoData"]] : nil;

@@ -12,7 +12,7 @@
 #import "FormViewController.h"
 #import "ItemViewController.h"
 
-@interface ListViewController : UITableViewController <FormViewControllerDelegate, UISearchBarDelegate, UISearchDisplayDelegate>
+@interface ListViewController : UIViewController <FormViewControllerDelegate, UISearchBarDelegate, UISearchDisplayDelegate, UITableViewDataSource, UITableViewDelegate>
 
 - (NSInteger)activeItemCount;
 - (void)setupItems;

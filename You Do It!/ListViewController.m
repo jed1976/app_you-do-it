@@ -8,15 +8,18 @@
 
 #import "ListViewController.h"
 
-NSInteger kInitialSelectedFilterSegment = 0;
-NSString *kSegueShowFormId = @"editItemSegue";
-NSString *kSegueShowProductImage = @"productImageSegue";
-NSString *kTableName = @"ShoppingList";
-NSString *kAudioEditingName = @"You Do It";
-NSString *kAudioRemovingName = @"You Promised";
-NSString *kAudioActivatingName = @"Oh Yeah";
-CGFloat kTableFooterViewHeight = 44.0;
-NSString *kTableViewCellIdentifier = @"Cell";
+static NSInteger kInitialSelectedFilterSegment = 0;
+static NSString *kSegueShowFormId = @"editItemSegue";
+static NSString *kSegueShowProductImage = @"productImageSegue";
+static NSString *kTableName = @"ShoppingList";
+static NSString *kAudioEditingName = @"You Do It";
+static NSString *kAudioRemovingName = @"You Promised";
+static NSString *kAudioActivatingName = @"Oh Yeah";
+static CGFloat kSearchBarLandscapeY = 52.0;
+static CGFloat kSearchBarPortraitY = 64.0;
+static CGFloat kSearchResultsAnimationDuration = 0.25;
+static CGFloat kTableFooterViewHeight = 44.0;
+static NSString *kTableViewCellIdentifier = @"Cell";
 
 @interface ListViewController ()
 {
@@ -32,10 +35,14 @@ NSString *kTableViewCellIdentifier = @"Cell";
 @property (nonatomic) ItemViewController *productImageViewController;
 @property (nonatomic) NSMutableArray *rawItems;
 @property (nonatomic) IBOutlet UISearchBar *searchBar;
+@property (nonatomic) CGFloat searchBarYOrigin;
 @property (nonatomic) NSMutableArray *searchResults;
 @property (nonatomic) NSInteger selectedFilterSegment;
 @property (nonatomic) DBDatastore *store;
 @property (nonatomic) DBTable *table;
+@property (nonatomic) CGPoint tableContentOffset;
+@property (nonatomic) IBOutlet UITableView *tableView;
+@property (nonatomic) CGFloat tableViewYOrigin;
 @property (nonatomic) NSUndoManager *undoManager;
 
 - (IBAction)switchToggle:(id)sender;
@@ -54,11 +61,14 @@ NSString *kTableViewCellIdentifier = @"Cell";
     [super viewDidLoad];
     
     self.navigationItem.leftBarButtonItem = [self editButtonItem];
+    self.navigationItem.title = NSLocalizedString(@"UINavigationItemTitle", nil);
+    self.tableContentOffset = CGPointZero;
     
-    [self setupFilesystem];
     [self setupFilterControl];
     [self setupTableFooter];
     [self playAudioFile:kAudioEditingName];
+    
+    self.searchResults = [NSMutableArray array];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -66,7 +76,7 @@ NSString *kTableViewCellIdentifier = @"Cell";
     [super viewWillAppear:animated];
     
     __weak ListViewController *slf = self;
-
+    
     [self.accountManager addObserver:self block:^(DBAccount *account) {
         [slf setupItems];
     }];
@@ -74,6 +84,9 @@ NSString *kTableViewCellIdentifier = @"Cell";
     [self.navigationController setToolbarHidden:NO animated:YES];
     
     [self setupItems];
+    
+    if (self.searchDisplayController.active)
+        [self.searchDisplayController.searchResultsTableView reloadData];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -89,7 +102,7 @@ NSString *kTableViewCellIdentifier = @"Cell";
 
     [self.accountManager removeObserver:self];
 
-    if (self.store)
+    if (_store)
         [self.store removeObserver:self];
 }
 
@@ -98,11 +111,6 @@ NSString *kTableViewCellIdentifier = @"Cell";
     [super viewDidDisappear:animated];
     
     self.editing = NO;
-    
-    self.currentRecord = nil;
-    self.items = nil;
-    self.rawItems = nil;
-    self.searchResults = nil;
     
     [self resignFirstResponder];
 }
@@ -122,6 +130,13 @@ NSString *kTableViewCellIdentifier = @"Cell";
 {
     if (motion == UIEventSubtypeMotionShake)
         [self.undoManager undo];
+}
+
+- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+    [self positionSearchFieldForOrientation:toInterfaceOrientation];
+    
+    self.tableView.contentInset = UIEdgeInsetsMake(0.0, 0.0, toInterfaceOrientation == UIInterfaceOrientationPortrait ? kTableFooterViewHeight : kTableFooterViewHeight / 2, 0.0);
 }
 
 #pragma mark - UIAlert actions
@@ -282,7 +297,9 @@ NSString *kTableViewCellIdentifier = @"Cell";
 {
     [super setEditing:editing animated:animated];
 
-    [self.navigationController.navigationBar.topItem.rightBarButtonItem setEnabled: ! [self.tableView isEditing]];
+    [self.navigationController.navigationBar.topItem.rightBarButtonItem setEnabled: ! editing];
+    
+    [self.tableView setEditing:editing animated:YES];
 }
 
 - (void)setRecord:(DBRecord *)record activeState:(NSNumber *)activeState
@@ -290,13 +307,6 @@ NSString *kTableViewCellIdentifier = @"Cell";
     record[@"active"] = activeState;
     [self syncStore];
     [self setupItems];
-}
-
-- (void)setupFilesystem
-{
-    DBAccount *account = [[DBAccountManager sharedManager] linkedAccount];
-    DBFilesystem *filesystem = [[DBFilesystem alloc] initWithAccount:account];
-    [DBFilesystem setSharedFilesystem:filesystem];
 }
 
 - (void)setupFilterControl
@@ -318,7 +328,6 @@ NSString *kTableViewCellIdentifier = @"Cell";
     DBError *error;
     
     self.rawItems = [NSMutableArray array];
-    self.searchResults = [NSMutableArray array];
     
     if (self.account)
     {
@@ -335,13 +344,13 @@ NSString *kTableViewCellIdentifier = @"Cell";
         
         if (error != nil)
             [self displayErrorAlert:error];
+        
+        [self syncItems];
     }
     else
     {
         [[DBAccountManager sharedManager] linkFromController:self];
     }
-    
-    [self syncItems];
 }
 
 - (void)setupTableFooter
@@ -385,11 +394,15 @@ NSString *kTableViewCellIdentifier = @"Cell";
         [self updateFooterCount];
         [self updateBadgeCount];
     }
+    else
+    {
+        [[DBAccountManager sharedManager] linkFromController:self];        
+    }
 }
 
 - (NSDictionary *)syncStore
 {
-    DBError *error;
+    DBError *error;    
     NSDictionary *changes = [self.store sync:&error];
     
     if (error != nil)
@@ -401,8 +414,13 @@ NSString *kTableViewCellIdentifier = @"Cell";
 - (void)toggleFilter:(id)sender
 {
     self.selectedFilterSegment = [sender selectedSegmentIndex];
+    
+    CGPoint tableContentOffset = self.tableView.contentOffset;
 
     [self setupItems];
+    
+    self.tableView.contentOffset = self.tableContentOffset;
+    self.tableContentOffset = tableContentOffset;
 }
 
 - (void)update:(NSDictionary *)changedDict
@@ -474,19 +492,74 @@ NSString *kTableViewCellIdentifier = @"Cell";
 
 #pragma mark - UISearchDisplayController Delegate Methods
 
+- (void)searchDisplayControllerWillBeginSearch:(UISearchDisplayController *)controller
+{
+    [self animateViewInForOrientation:self.interfaceOrientation];
+}
+
+- (void)animateViewInForOrientation:(UIInterfaceOrientation)orientation
+{
+    UIApplication *app = [UIApplication sharedApplication];
+    
+    CGRect searchBarFrame = self.searchDisplayController.searchBar.frame;
+    CGRect tableViewFrame = self.tableView.frame;
+    
+    self.searchBarYOrigin = searchBarFrame.origin.y;
+    self.tableViewYOrigin = tableViewFrame.origin.y;
+    
+    searchBarFrame.origin.y = orientation == UIInterfaceOrientationPortrait ? app.statusBarFrame.size.height : app.statusBarFrame.size.width;
+    tableViewFrame.origin.y = orientation == UIInterfaceOrientationPortrait ? self.searchBarYOrigin : self.searchBarYOrigin + 12.0;
+    
+    [UIView animateWithDuration:kSearchResultsAnimationDuration animations:^(void){
+        self.searchDisplayController.searchBar.frame = searchBarFrame;
+        self.tableView.frame = tableViewFrame;
+    }];
+}
+
+- (void)animateViewOutForOrientation:(UIInterfaceOrientation)orientation
+{
+    CGRect searchBarFrame = self.searchDisplayController.searchBar.frame;
+    CGRect tableViewFrame = self.tableView.frame;
+    
+    searchBarFrame.origin.y = self.searchBarYOrigin;
+    tableViewFrame.origin.y = self.tableViewYOrigin;
+    
+    [UIView animateWithDuration:kSearchResultsAnimationDuration animations:^(void){
+        self.searchDisplayController.searchBar.frame = searchBarFrame;
+        self.tableView.frame = tableViewFrame;
+    }];
+}
+
+- (void)positionSearchFieldForOrientation:(UIInterfaceOrientation)orientation
+{
+    CGRect searchBarFrame = self.searchDisplayController.searchBar.frame;
+    CGRect tableViewFrame = self.tableView.frame;
+    
+    searchBarFrame.origin.y = orientation == UIInterfaceOrientationPortrait ? kSearchBarPortraitY : kSearchBarLandscapeY;
+    CGFloat searchBarHeight = searchBarFrame.origin.y + searchBarFrame.size.height;
+    tableViewFrame.origin.y = searchBarHeight;
+
+    [UIView animateWithDuration:kSearchResultsAnimationDuration animations:^(void){
+        self.searchDisplayController.searchBar.frame = searchBarFrame;
+        self.tableView.frame = tableViewFrame;
+    }];
+}
+
 - (void)searchDisplayControllerDidBeginSearch:(UISearchDisplayController *)controller
 {
-    self.editing = NO;
     [self disableActionButtons];
 }
 
 -(BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString
 {
-    [self filterContentForSearchText:searchString
-                               scope:[[self.searchDisplayController.searchBar scopeButtonTitles]
-                                      objectAtIndex:[self.searchDisplayController.searchBar selectedScopeButtonIndex]]];
+    [self filterContentForSearchText:searchString scope:nil];
     
     return YES;
+}
+
+- (void)searchDisplayControllerWillEndSearch:(UISearchDisplayController *)controller
+{
+    [self animateViewOutForOrientation:self.interfaceOrientation];
 }
 
 - (void)searchDisplayControllerDidEndSearch:(UISearchDisplayController *)controller
@@ -551,7 +624,7 @@ NSString *kTableViewCellIdentifier = @"Cell";
 
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return YES;
+    return ! self.searchDisplayController.active;
 }
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
@@ -575,14 +648,15 @@ NSString *kTableViewCellIdentifier = @"Cell";
 {
     if (self.searchDisplayController.active)
     {
+        self.navigationItem.backBarButtonItem.title = NSLocalizedString(@"UINavigationItemSearchTitle", nil);
         self.currentRecord = [self.searchResults objectAtIndex:indexPath.row];
-        self.searchDisplayController.active = NO;
     }
     else
     {
+        self.navigationItem.backBarButtonItem.title = NSLocalizedString(@"UINavigationItemTitle", nil);
         self.currentRecord = [[self.items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
     }
-
+    
     [self performSegueWithIdentifier:tableView.isEditing ? kSegueShowFormId : kSegueShowProductImage sender:self];
 }
 
