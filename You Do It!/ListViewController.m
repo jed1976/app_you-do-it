@@ -15,8 +15,6 @@ static NSString *kTableName = @"ShoppingList";
 static NSString *kAudioEditingName = @"You Do It";
 static NSString *kAudioRemovingName = @"You Promised";
 static NSString *kAudioActivatingName = @"Oh Yeah";
-static CGFloat kSearchBarLandscapeY = 52.0;
-static CGFloat kSearchBarPortraitY = 64.0;
 static CGFloat kSearchResultsAnimationDuration = 0.25;
 static CGFloat kTableFooterViewHeight = 44.0;
 static NSString *kTableViewCellIdentifier = @"Cell";
@@ -32,6 +30,8 @@ static NSString *kTableViewCellIdentifier = @"Cell";
     NSMutableArray *items;
     NSMutableArray *rawItems;
     DBDatastore *store;
+    CGFloat searchBarPortraitY;
+    CGFloat searchBarLandscapeY;
     CGFloat searchBarYOrigin;
     NSMutableArray *searchResults;
     NSInteger selectedFilterSegment;
@@ -61,6 +61,9 @@ static NSString *kTableViewCellIdentifier = @"Cell";
     self.navigationItem.leftBarButtonItem = [self editButtonItem];
     self.navigationItem.title = NSLocalizedString(@"UINavigationItemTitle", nil);
     tableContentOffset = CGPointZero;
+    
+    searchBarPortraitY = floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_6_1 ? 0.0 : 64.0;
+    searchBarLandscapeY = floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_6_1 ? 0.0 : 52.0;
     
     [self setupFilterControl];
     [self setupTableFooter];
@@ -492,8 +495,11 @@ static NSString *kTableViewCellIdentifier = @"Cell";
     searchBarYOrigin = searchBarFrame.origin.y;
     tableViewYOrigin = tableViewFrame.origin.y;
     
-    searchBarFrame.origin.y = orientation == UIInterfaceOrientationPortrait ? app.statusBarFrame.size.height : app.statusBarFrame.size.width;
-    tableViewFrame.origin.y = orientation == UIInterfaceOrientationPortrait ? searchBarYOrigin : searchBarYOrigin + 12.0;
+    CGFloat searchBarFrameY = floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_6_1 ? 0.0 : (orientation == UIInterfaceOrientationPortrait) ? app.statusBarFrame.size.height : app.statusBarFrame.size.width;
+    CGFloat tableViewFrameY = floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_6_1 ? searchBarFrame.size.height : (orientation == UIInterfaceOrientationPortrait) ? searchBarYOrigin : searchBarYOrigin + 12.0;
+    
+    searchBarFrame.origin.y = searchBarFrameY;
+    tableViewFrame.origin.y = tableViewFrameY;
     
     [UIView animateWithDuration:kSearchResultsAnimationDuration animations:^(void){
         self.searchDisplayController.searchBar.frame = searchBarFrame;
@@ -520,7 +526,7 @@ static NSString *kTableViewCellIdentifier = @"Cell";
     CGRect searchBarFrame = self.searchDisplayController.searchBar.frame;
     CGRect tableViewFrame = self.tableView.frame;
     
-    searchBarFrame.origin.y = orientation == UIInterfaceOrientationPortrait ? kSearchBarPortraitY : kSearchBarLandscapeY;
+    searchBarFrame.origin.y = orientation == UIInterfaceOrientationPortrait ? searchBarYOrigin : searchBarLandscapeY;
     CGFloat searchBarHeight = searchBarFrame.origin.y + searchBarFrame.size.height;
     tableViewFrame.origin.y = searchBarHeight;
 

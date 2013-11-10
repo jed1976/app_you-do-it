@@ -38,6 +38,7 @@ static NSString *kSegueShowEditFormId = @"editItemSegue";
 - (void)loadRecord
 {
     self.navigationItem.title = self.record[@"name"];
+    self.imageView.image = [[UIImage alloc] initWithData:self.record[@"photoData"]];
     
     if ([self.record[@"details"] isEqualToString:@""])
         [self.navigationController setToolbarHidden:YES animated:YES];
@@ -51,22 +52,18 @@ static NSString *kSegueShowEditFormId = @"editItemSegue";
         detailLabel.font = [UIFont systemFontOfSize:15.0];
         detailLabel.text = self.record[@"details"];
         detailLabel.textAlignment = NSTextAlignmentCenter;
-        
-        if (floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_6_1)
-            detailLabel.textColor = [UIColor whiteColor];
+        detailLabel.textColor = floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_6_1 ? [UIColor whiteColor] : [UIColor blackColor];
         
         UIBarButtonItem *detailBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:detailLabel];
         UIBarButtonItem *spaceItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:NULL];
         self.toolbarItems = @[spaceItem, detailBarButtonItem, spaceItem];
     }
-    
-    self.imageView.image = self.record[@"photoData"] ? [[UIImage alloc] initWithData:self.record[@"photoData"]] : nil;
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
     UINavigationController *navigationController = segue.destinationViewController;
-    FormViewController *destinationController = [[navigationController childViewControllers] objectAtIndex:0];
+    FormViewController *destinationController = [[navigationController childViewControllers] firstObject];
     destinationController.delegate = self;
     [destinationController setRecord:self.record];
 }

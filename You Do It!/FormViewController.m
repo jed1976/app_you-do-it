@@ -21,7 +21,7 @@ static CGFloat kImageQualityLevel = 0.75;
 @property (nonatomic) IBOutlet UITextField *detailsTextField;
 @property (nonatomic) IBOutlet UITextField *nameTextField;
 @property (nonatomic) IBOutlet UIButton *pickerButton;
-@property (nonatomic) IBOutlet UIImageView *productImageView;
+@property (nonatomic) IBOutlet UIImageView *imageView;
 
 - (IBAction)addPhoto:(id)sender;
 - (IBAction)cancel:(id)sender;
@@ -37,25 +37,22 @@ static CGFloat kImageQualityLevel = 0.75;
 {
     [super viewDidLoad];
     
-    showingDeleteButton = NO;
-    
-    [[[[[self navigationController] navigationBar] topItem] rightBarButtonItem] setEnabled: ! [self.record[@"name"] isEqualToString:@""]];
-
-    if (floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_6_1)
-        [self.navigationController.navigationBar setTintColor:[UIColor orangeColor]];
-    
-    [self.tableView setSeparatorStyle:UITableViewCellSeparatorStyleSingleLine];
-
+    [self setDoneButtonState];
     [self loadRecord];
+    [self togglePickerButtonText];
+    
+    if (floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_6_1)
+        self.navigationController.navigationBar.tintColor = [UIColor orangeColor];
+    
+    self.tableView.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
     
     [self.nameTextField addTarget:self action:@selector(nameTextFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
-    
     [self.detailsTextField addTarget:self action:@selector(detailsTextFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
     
-    UILongPressGestureRecognizer *gr = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPress:)];
-    [self.view addGestureRecognizer:gr];
- 
-    [self togglePickerButtonText];
+    UILongPressGestureRecognizer *gestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPress:)];
+    [self.view addGestureRecognizer:gestureRecognizer];
+    
+    showingDeleteButton = NO;
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -69,28 +66,28 @@ static CGFloat kImageQualityLevel = 0.75;
 {
     [super didReceiveMemoryWarning];
     
-    self.record = nil;
-    self.nameTextField = nil;
-    self.detailsTextField = nil;
     self.activeSwitch = nil;
-    self.productImageView = nil;
+    self.detailsTextField = nil;
+    self.imageView = nil;
+    self.nameTextField = nil;
+    self.record = nil;
 }
 
 #pragma mark - Actions
 
 - (IBAction)addPhoto:(id)sender
 {
-    [self.nameTextField resignFirstResponder];
-    [self.detailsTextField resignFirstResponder];
+    [self.view endEditing:YES];
     
     UIActionSheet *actionSheet = [[UIActionSheet alloc] init];
     [actionSheet setDelegate:self];
     [actionSheet setTag:kAddPhotoAlertSheetTag];
-    
+
+    // Button order matters here
     [actionSheet addButtonWithTitle:NSLocalizedString(@"UIAlertTakePhoto", nil)];
     [actionSheet addButtonWithTitle:NSLocalizedString(@"UIAlertChoosePhoto", nil)];
-
-    if (self.productImageView.image != nil)
+    
+    if (self.imageView.image != nil)
     {
         showingDeleteButton = YES;
         [actionSheet addButtonWithTitle:NSLocalizedString(@"UIAlertDeletePhoto", nil)];
@@ -98,7 +95,6 @@ static CGFloat kImageQualityLevel = 0.75;
     
     [actionSheet addButtonWithTitle:NSLocalizedString(@"UIAlertCancelButton", nil)];
     [actionSheet setCancelButtonIndex:showingDeleteButton ? 3 : 2];
-    
     [actionSheet showInView:self.navigationController.view];
 }
 
@@ -120,12 +116,12 @@ static CGFloat kImageQualityLevel = 0.75;
 
 - (IBAction)cancel:(id)sender
 {
-    [self.nameTextField resignFirstResponder];
-    [self.detailsTextField resignFirstResponder];
+    [self.view endEditing:YES];
 
     if ([[self.nameTextField text] isEqualToString:@""])
         [_delegate didCancelEditingItem:self.record];
     
+    // Delay the dismissal so that it gives time for the keyboard to disappear first
     [self performSelector:@selector(dismissModalViewControllerAnimated:) withObject:self.presentingViewController afterDelay:0.5];
 }
 
@@ -172,10 +168,10 @@ static CGFloat kImageQualityLevel = 0.75;
 
 - (void)loadRecord
 {
-    self.nameTextField.text = self.record[@"name"];
-    self.detailsTextField.text = self.record[@"details"];
     self.activeSwitch.on = [self.record[@"active"] boolValue];
-    self.productImageView.image = self.record[@"photoData"] ? [[UIImage alloc] initWithData:self.record[@"photoData"]] : nil;
+    self.detailsTextField.text = self.record[@"details"];
+    self.imageView.image = [[UIImage alloc] initWithData:self.record[@"photoData"]];
+    self.nameTextField.text = self.record[@"name"];
 }
 
 - (void)longPress:(UILongPressGestureRecognizer *) gestureRecognizer
@@ -184,9 +180,9 @@ static CGFloat kImageQualityLevel = 0.75;
     {
         CGPoint location = [gestureRecognizer locationInView:[gestureRecognizer view]];
         UIMenuController *menuController = [UIMenuController sharedMenuController];
-        NSAssert([self becomeFirstResponder], @"Sorry, UIMenuController will not work with %@ since it cannot become first responder", self);
-        [menuController setTargetRect:CGRectMake(location.x, location.y, 0.0f, 0.0f) inView:[gestureRecognizer view]];
+        NSAssert([self becomeFirstResponder], nil, self);
         [menuController setMenuVisible:YES animated:YES];
+        [menuController setTargetRect:CGRectMake(location.x, location.y, 0.0, 0.0) inView:[gestureRecognizer view]];
     }
 }
 
@@ -194,23 +190,31 @@ static CGFloat kImageQualityLevel = 0.75;
 {
     UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
     
-    if (pasteboard.image == nil) return;
+    if (pasteboard.image != nil)
+        [self resizeAndSaveImage:pasteboard.image];
+}
 
-    UIImage *image = [pasteboard.image imageScaledToFitSize:self.productImageView.frame.size];
-    
-    self.record[@"photoData"] = UIImageJPEGRepresentation(image, kImageQualityLevel);
-    self.productImageView.image = image;
+- (void)resizeAndSaveImage:(UIImage *)image
+{
+    UIImage *resizedImage = [image imageScaledToFitSize:self.imageView.frame.size];
+    self.imageView.image = resizedImage;
+    self.record[@"photoData"] = UIImageJPEGRepresentation(resizedImage, kImageQualityLevel);
+}
+
+- (void)setDoneButtonState
+{
+    self.navigationController.navigationBar.topItem.rightBarButtonItem.enabled = ! [self.record[@"name"] isEqualToString:@""];
 }
 
 - (void)togglePickerButtonText
 {
-    [self.pickerButton setTitle:NSLocalizedString(self.productImageView.image == nil ? @"UIButtonAddPhoto" : @"UIButtonEditPhoto", nil) forState:UIControlStateNormal];
+    [self.pickerButton setTitle:NSLocalizedString(self.imageView.image == nil ? @"UIButtonAddPhoto" : @"UIButtonEditPhoto", nil)
+                       forState:UIControlStateNormal];
 }
 
 - (IBAction)switchToggle:(id)sender
 {
-    UISwitch *switchControl = (UISwitch *)sender;
-    self.record[@"active"] = [NSNumber numberWithBool:[switchControl isOn]];
+    self.record[@"active"] = [NSNumber numberWithBool:[(UISwitch *)sender isOn]];
 }
 
 #pragma mark - UIActionSheetDelegate
@@ -219,7 +223,11 @@ static CGFloat kImageQualityLevel = 0.75;
 {
     if ([actionSheet tag] == kAddPhotoAlertSheetTag)
     {
-        if ((showingDeleteButton && buttonIndex == 3) || ( ! showingDeleteButton && buttonIndex == 2)) return;
+        if (showingDeleteButton && buttonIndex == 3)
+            return;
+        
+        if ( ! showingDeleteButton && buttonIndex == 2)
+            return;
         
         if (showingDeleteButton && buttonIndex == 2)
         {
@@ -243,7 +251,7 @@ static CGFloat kImageQualityLevel = 0.75;
         if (buttonIndex == 0)
         {
             [self.record removeObjectForKey:@"photoData"];
-            self.productImageView.image = nil;
+            self.imageView.image = nil;
         }
         
         [self.nameTextField becomeFirstResponder];
@@ -261,13 +269,8 @@ static CGFloat kImageQualityLevel = 0.75;
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
 {
-    UIImage *resizedImage = [[info objectForKey:UIImagePickerControllerEditedImage] imageScaledToFitSize:self.productImageView.frame.size];
-
-    self.productImageView.image = resizedImage;
-    self.record[@"photoData"] = UIImageJPEGRepresentation(resizedImage, kImageQualityLevel);
-
+    [self resizeAndSaveImage:[info objectForKey:UIImagePickerControllerEditedImage]];
     [self dismissPicker:picker];
-    
     [self.pickerButton setTitle:NSLocalizedString(@"UIButtonEditPhoto", nil) forState:UIControlStateNormal];
 }
 
@@ -275,10 +278,9 @@ static CGFloat kImageQualityLevel = 0.75;
 
 - (void)nameTextFieldDidChange:(id)sender
 {
-    [[[[[self navigationController] navigationBar] topItem] rightBarButtonItem] setEnabled: ! [[self.nameTextField text] isEqualToString:@""]];
-    
     self.navigationItem.title = self.nameTextField.text;
     self.record[@"name"] = self.nameTextField.text;
+    [self setDoneButtonState];
 }
 
 - (void)detailsTextFieldDidChange:(id)sender
