@@ -62,8 +62,8 @@ static NSString *kTableViewCellIdentifier = @"Cell";
     self.navigationItem.title = NSLocalizedString(@"UINavigationItemTitle", nil);
     tableContentOffset = CGPointZero;
     
-    searchBarPortraitY = floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_6_1 ? 0.0 : 64.0;
-    searchBarLandscapeY = floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_6_1 ? 0.0 : 52.0;
+    searchBarPortraitY = 64.0;
+    searchBarLandscapeY = 52.0;
     
     [self setupFilterControl];
     [self setupTableFooter];
@@ -495,8 +495,8 @@ static NSString *kTableViewCellIdentifier = @"Cell";
     searchBarYOrigin = searchBarFrame.origin.y;
     tableViewYOrigin = tableViewFrame.origin.y;
     
-    CGFloat searchBarFrameY = floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_6_1 ? 0.0 : (orientation == UIInterfaceOrientationPortrait) ? app.statusBarFrame.size.height : app.statusBarFrame.size.width;
-    CGFloat tableViewFrameY = floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_6_1 ? searchBarFrame.size.height : (orientation == UIInterfaceOrientationPortrait) ? searchBarYOrigin : searchBarYOrigin + 12.0;
+    CGFloat searchBarFrameY = (orientation == UIInterfaceOrientationPortrait) ? app.statusBarFrame.size.height : app.statusBarFrame.size.width;
+    CGFloat tableViewFrameY = (orientation == UIInterfaceOrientationPortrait) ? searchBarYOrigin : searchBarYOrigin + 12.0;
     
     searchBarFrame.origin.y = searchBarFrameY;
     tableViewFrame.origin.y = tableViewFrameY;

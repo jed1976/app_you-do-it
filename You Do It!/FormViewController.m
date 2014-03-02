@@ -41,9 +41,6 @@ static CGFloat kImageQualityLevel = 0.75;
     [self loadRecord];
     [self togglePickerButtonText];
     
-    if (floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_6_1)
-        self.navigationController.navigationBar.tintColor = [UIColor orangeColor];
-    
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
     
     [self.nameTextField addTarget:self action:@selector(nameTextFieldDidChange:) forControlEvents:UIControlEventEditingChanged];

@@ -52,7 +52,7 @@ static NSString *kSegueShowEditFormId = @"editItemSegue";
         detailLabel.font = [UIFont systemFontOfSize:15.0];
         detailLabel.text = self.record[@"details"];
         detailLabel.textAlignment = NSTextAlignmentCenter;
-        detailLabel.textColor = floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_6_1 ? [UIColor whiteColor] : [UIColor blackColor];
+        detailLabel.textColor = [UIColor blackColor];
         
         UIBarButtonItem *detailBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:detailLabel];
         UIBarButtonItem *spaceItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:NULL];
