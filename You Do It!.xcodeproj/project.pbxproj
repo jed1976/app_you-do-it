@@ -7,10 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D81C193818D9D1AB00159602 /* Dropbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8A7D63E182F22DC00503791 /* Dropbox.framework */; };
 		D87B6B5D17E796770062A5B8 /* Base64.m in Sources */ = {isa = PBXBuildFile; fileRef = D87B6B5C17E796770062A5B8 /* Base64.m */; };
 		D87B6B6017E7A7F00062A5B8 /* UIImage+ProportionalFill.m in Sources */ = {isa = PBXBuildFile; fileRef = D87B6B5F17E7A7F00062A5B8 /* UIImage+ProportionalFill.m */; };
-		D87B6B6417E8A0FB0062A5B8 /* ItemViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D87B6B6317E8A0FB0062A5B8 /* ItemViewController.m */; };
-		D8A7D63F182F22DC00503791 /* Dropbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8A7D63E182F22DC00503791 /* Dropbox.framework */; };
 		D8BD8CAE17DA9F07002941C9 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8BD8CAD17DA9F07002941C9 /* Foundation.framework */; };
 		D8BD8CB017DA9F07002941C9 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8BD8CAF17DA9F07002941C9 /* CoreGraphics.framework */; };
 		D8BD8CB217DA9F07002941C9 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8BD8CB117DA9F07002941C9 /* UIKit.framework */; };
@@ -28,10 +27,11 @@
 		D8BD8CEA17DAA275002941C9 /* Localizable.strings in Sources */ = {isa = PBXBuildFile; fileRef = D8BD8CE917DAA26A002941C9 /* Localizable.strings */; };
 		D8BD8CED17DAA2A9002941C9 /* FormViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D8BD8CEC17DAA2A9002941C9 /* FormViewController.m */; };
 		D8BD8CEF17DABDA1002941C9 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8BD8CEE17DABDA1002941C9 /* AVFoundation.framework */; };
-		D8BD8CF217DABE19002941C9 /* You Do It.m4a in Resources */ = {isa = PBXBuildFile; fileRef = D8BD8CF017DABE19002941C9 /* You Do It.m4a */; };
-		D8BD8CF317DABE19002941C9 /* You Promised.m4a in Resources */ = {isa = PBXBuildFile; fileRef = D8BD8CF117DABE19002941C9 /* You Promised.m4a */; };
-		D8BD8CF517DABF4B002941C9 /* Oh Yeah.m4a in Resources */ = {isa = PBXBuildFile; fileRef = D8BD8CF417DABF4B002941C9 /* Oh Yeah.m4a */; };
-		D8BD8CF717DAC021002941C9 /* No.m4a in Resources */ = {isa = PBXBuildFile; fileRef = D8BD8CF617DAC021002941C9 /* No.m4a */; };
+		D8C7BBCE18DBCB3A00A03FE1 /* No.m4a in Resources */ = {isa = PBXBuildFile; fileRef = D8C7BBCA18DBCB3A00A03FE1 /* No.m4a */; };
+		D8C7BBCF18DBCB3A00A03FE1 /* Oh Yeah.m4a in Resources */ = {isa = PBXBuildFile; fileRef = D8C7BBCB18DBCB3A00A03FE1 /* Oh Yeah.m4a */; };
+		D8C7BBD018DBCB3A00A03FE1 /* You Do It.m4a in Resources */ = {isa = PBXBuildFile; fileRef = D8C7BBCC18DBCB3A00A03FE1 /* You Do It.m4a */; };
+		D8C7BBD118DBCB3A00A03FE1 /* You Promised.m4a in Resources */ = {isa = PBXBuildFile; fileRef = D8C7BBCD18DBCB3A00A03FE1 /* You Promised.m4a */; };
+		D8C7BBD318DC856700A03FE1 /* Cart.png in Resources */ = {isa = PBXBuildFile; fileRef = D8C7BBD218DC856700A03FE1 /* Cart.png */; };
 		D8F0BCF217E91BF50081ED64 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8F0BCF117E91BF50081ED64 /* CFNetwork.framework */; };
 		D8F0BCF417E91BFC0081ED64 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8F0BCF317E91BFC0081ED64 /* Security.framework */; };
 		D8F0BCF617E91C050081ED64 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8F0BCF517E91C050081ED64 /* SystemConfiguration.framework */; };
@@ -55,8 +55,6 @@
 		D87B6B5C17E796770062A5B8 /* Base64.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Base64.m; path = Base64/Base64.m; sourceTree = "<group>"; };
 		D87B6B5E17E7A7F00062A5B8 /* UIImage+ProportionalFill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+ProportionalFill.h"; sourceTree = "<group>"; };
 		D87B6B5F17E7A7F00062A5B8 /* UIImage+ProportionalFill.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+ProportionalFill.m"; sourceTree = "<group>"; };
-		D87B6B6217E8A0FB0062A5B8 /* ItemViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ItemViewController.h; sourceTree = "<group>"; };
-		D87B6B6317E8A0FB0062A5B8 /* ItemViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ItemViewController.m; sourceTree = "<group>"; };
 		D8A7D63E182F22DC00503791 /* Dropbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Dropbox.framework; path = "../../Libraries/dropbox-ios-sync-sdk-2.0.0-b6/Dropbox.framework"; sourceTree = "<group>"; };
 		D8BD8CAA17DA9F07002941C9 /* You Do It!.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "You Do It!.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8BD8CAD17DA9F07002941C9 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -81,10 +79,11 @@
 		D8BD8CEB17DAA2A9002941C9 /* FormViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FormViewController.h; sourceTree = "<group>"; };
 		D8BD8CEC17DAA2A9002941C9 /* FormViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FormViewController.m; sourceTree = "<group>"; };
 		D8BD8CEE17DABDA1002941C9 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
-		D8BD8CF017DABE19002941C9 /* You Do It.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = "You Do It.m4a"; sourceTree = "<group>"; };
-		D8BD8CF117DABE19002941C9 /* You Promised.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = "You Promised.m4a"; sourceTree = "<group>"; };
-		D8BD8CF417DABF4B002941C9 /* Oh Yeah.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Oh Yeah.m4a"; sourceTree = "<group>"; };
-		D8BD8CF617DAC021002941C9 /* No.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = No.m4a; sourceTree = "<group>"; };
+		D8C7BBCA18DBCB3A00A03FE1 /* No.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = No.m4a; sourceTree = "<group>"; };
+		D8C7BBCB18DBCB3A00A03FE1 /* Oh Yeah.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Oh Yeah.m4a"; sourceTree = "<group>"; };
+		D8C7BBCC18DBCB3A00A03FE1 /* You Do It.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = "You Do It.m4a"; sourceTree = "<group>"; };
+		D8C7BBCD18DBCB3A00A03FE1 /* You Promised.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = "You Promised.m4a"; sourceTree = "<group>"; };
+		D8C7BBD218DC856700A03FE1 /* Cart.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Cart.png; sourceTree = "<group>"; };
 		D8F0BCF117E91BF50081ED64 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		D8F0BCF317E91BFC0081ED64 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		D8F0BCF517E91C050081ED64 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
@@ -97,7 +96,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D8A7D63F182F22DC00503791 /* Dropbox.framework in Frameworks */,
+				D81C193818D9D1AB00159602 /* Dropbox.framework in Frameworks */,
 				D8F0BCFA17E91C1F0081ED64 /* libc++.dylib in Frameworks */,
 				D8F0BCF817E91C0E0081ED64 /* QuartzCore.framework in Frameworks */,
 				D8F0BCF617E91C050081ED64 /* SystemConfiguration.framework in Frameworks */,
@@ -222,8 +221,6 @@
 				D8BD8CE717DA9FC8002941C9 /* ListViewController.m */,
 				D8BD8CEB17DAA2A9002941C9 /* FormViewController.h */,
 				D8BD8CEC17DAA2A9002941C9 /* FormViewController.m */,
-				D87B6B6217E8A0FB0062A5B8 /* ItemViewController.h */,
-				D87B6B6317E8A0FB0062A5B8 /* ItemViewController.m */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -231,12 +228,13 @@
 		D8BD8CE517DA9F44002941C9 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				D8C7BBD218DC856700A03FE1 /* Cart.png */,
 				D8BD8CC517DA9F07002941C9 /* Images.xcassets */,
 				D8BD8CBF17DA9F07002941C9 /* Main.storyboard */,
-				D8BD8CF617DAC021002941C9 /* No.m4a */,
-				D8BD8CF417DABF4B002941C9 /* Oh Yeah.m4a */,
-				D8BD8CF017DABE19002941C9 /* You Do It.m4a */,
-				D8BD8CF117DABE19002941C9 /* You Promised.m4a */,
+				D8C7BBCA18DBCB3A00A03FE1 /* No.m4a */,
+				D8C7BBCB18DBCB3A00A03FE1 /* Oh Yeah.m4a */,
+				D8C7BBCC18DBCB3A00A03FE1 /* You Do It.m4a */,
+				D8C7BBCD18DBCB3A00A03FE1 /* You Promised.m4a */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -325,13 +323,14 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D8BD8CF717DAC021002941C9 /* No.m4a in Resources */,
+				D8C7BBCF18DBCB3A00A03FE1 /* Oh Yeah.m4a in Resources */,
 				D8BD8CC617DA9F07002941C9 /* Images.xcassets in Resources */,
-				D8BD8CF517DABF4B002941C9 /* Oh Yeah.m4a in Resources */,
 				D8BD8CB817DA9F07002941C9 /* InfoPlist.strings in Resources */,
-				D8BD8CF317DABE19002941C9 /* You Promised.m4a in Resources */,
-				D8BD8CF217DABE19002941C9 /* You Do It.m4a in Resources */,
+				D8C7BBD118DBCB3A00A03FE1 /* You Promised.m4a in Resources */,
 				D8BD8CC117DA9F07002941C9 /* Main.storyboard in Resources */,
+				D8C7BBD318DC856700A03FE1 /* Cart.png in Resources */,
+				D8C7BBD018DBCB3A00A03FE1 /* You Do It.m4a in Resources */,
+				D8C7BBCE18DBCB3A00A03FE1 /* No.m4a in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -352,7 +351,6 @@
 			files = (
 				D8BD8CEA17DAA275002941C9 /* Localizable.strings in Sources */,
 				D8BD8CBE17DA9F07002941C9 /* AppDelegate.m in Sources */,
-				D87B6B6417E8A0FB0062A5B8 /* ItemViewController.m in Sources */,
 				D8BD8CBA17DA9F07002941C9 /* main.m in Sources */,
 				D8BD8CED17DAA2A9002941C9 /* FormViewController.m in Sources */,
 				D87B6B5D17E796770062A5B8 /* Base64.m in Sources */,
@@ -484,13 +482,12 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"/Users/joe/Development/dropbox-ios-sync-sdk-2.0.0-b6",
 					"/Users/joe/Development/iOS/Libraries/dropbox-ios-sync-sdk-2.0.0-b6",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "You Do It!/You Do It!-Prefix.pch";
 				INFOPLIST_FILE = "You Do It!/You Do It!-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = 1;
@@ -507,13 +504,12 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"/Users/joe/Development/dropbox-ios-sync-sdk-2.0.0-b6",
 					"/Users/joe/Development/iOS/Libraries/dropbox-ios-sync-sdk-2.0.0-b6",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "You Do It!/You Do It!-Prefix.pch";
 				INFOPLIST_FILE = "You Do It!/You Do It!-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = 1;

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VariablesViewState
+   version = "1.0">
+   <ContextStates>
+      <ContextState
+         contextName = "-[ListViewController switchToggle:]:ListViewController.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[ItemViewController viewDidLoad]:ItemViewController.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[FormViewController switchToggle:]:FormViewController.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[FormViewController loadRecord]:FormViewController.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[FormViewController willMoveToParentViewController:]:FormViewController.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[FormViewController done:]:FormViewController.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[FormViewController didMoveToParentViewController:]:FormViewController.m">
+      </ContextState>
+   </ContextStates>
+</VariablesViewState>

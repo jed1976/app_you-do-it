@@ -10,7 +10,6 @@
 #import <AVFoundation/AVFoundation.h>
 #import <Dropbox/Dropbox.h>
 #import "FormViewController.h"
-#import "ItemViewController.h"
 
 @interface ListViewController : UIViewController
 

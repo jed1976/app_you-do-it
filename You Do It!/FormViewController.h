@@ -13,12 +13,12 @@
 
 @protocol FormViewControllerDelegate
 
-- (void)didFinishEditingItem:(DBRecord *)record;
 - (void)didCancelEditingItem:(DBRecord *)record;
+- (void)didFinishEditingItem:(DBRecord *)record;
 
 @end
 
-@interface FormViewController : UITableViewController <UIActionSheetDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate>
+@interface FormViewController : UIViewController <UIActionSheetDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate>
 
 @property (nonatomic, assign) id <FormViewControllerDelegate> delegate;
 @property DBRecord *record;

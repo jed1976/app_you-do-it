@@ -13,6 +13,7 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     application.applicationSupportsShakeToEdit = YES;
+    application.statusBarStyle = UIStatusBarStyleLightContent;
     
     NSBundle *bundle = [NSBundle mainBundle];
     
