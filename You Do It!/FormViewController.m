@@ -12,8 +12,15 @@ static NSInteger kAddPhotoAlertSheetTag = 1000;
 static NSInteger kDeletePhotoAlertSheetTag = 2000;
 static CGFloat kImageQualityLevel = 0.75;
 
+enum
+{
+    NameFieldTag = 1,
+    DetailFieldTag
+};
+
 @interface FormViewController()
 {
+    BOOL deletedItem;
     BOOL showingDeleteButton;
 }
 
@@ -47,41 +54,24 @@ static CGFloat kImageQualityLevel = 0.75;
     [self.navigationController.toolbar setBackgroundImage:[[UIImage alloc] init] forToolbarPosition:UIBarPositionBottom barMetrics:UIBarMetricsDefault];
     [self.navigationController.toolbar setShadowImage:[[UIImage alloc] init] forToolbarPosition:UIBarPositionBottom];
     
-    // Add switch to toolbar
-    UILabel *switchLabel = [[UILabel alloc] initWithFrame:CGRectMake(0.0, 0.0, 150.0, 32.0)];
-    [switchLabel setFont:[UIFont fontWithName:@"AppleColorEmoji" size:24.0]];
-    [switchLabel setText:@"\U0001F6BC"];
-    [switchLabel setUserInteractionEnabled:YES];
-    
-    self.activeSwitch = [[UISwitch alloc] initWithFrame:CGRectZero];
-    CGRect activeSwitchFrame = self.activeSwitch.frame;
-    activeSwitchFrame.origin.x = 34.0;
-    [self.activeSwitch setFrame:activeSwitchFrame];
-    [self.activeSwitch addTarget:self action:@selector(switchToggle:) forControlEvents:UIControlEventValueChanged];
-    [self.activeSwitch setOnTintColor:[UIColor orangeColor]];
-    
-    [switchLabel addSubview:self.activeSwitch];
-    
-    UIBarButtonItem *item = [self.navigationController.toolbar.items firstObject];
-    [item setCustomView:switchLabel];
-    
+    // Add custom actions for editing changes
     [self.nameTextField addTarget:self action:@selector(nameTextFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
     [self.detailsTextField addTarget:self action:@selector(detailsTextFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
     
+    // Add long press gesture recognizer
     UILongPressGestureRecognizer *gestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPress:)];
-    [self.view addGestureRecognizer:gestureRecognizer];
+    [self.imageView addGestureRecognizer:gestureRecognizer];
     
-    self.initialImage = self.imageView.image;
+    self.initialImage = [self.imageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
     
     showingDeleteButton = NO;
+    deletedItem = NO;
     
     [self loadRecord];
 }
 
 - (void)viewDidAppear:(BOOL)animated
 {
-    [super viewDidAppear:animated];
-    
     if ([self.record[@"name"] isEqualToString:@""])
     {
         [self.nameTextField becomeFirstResponder];        
@@ -90,7 +80,7 @@ static CGFloat kImageQualityLevel = 0.75;
 
 - (void)willMoveToParentViewController:(UIViewController *)parent
 {
-    if (parent == nil)
+    if (parent == nil && deletedItem == NO)
     {
         [self done:nil];
     }
@@ -173,6 +163,7 @@ static CGFloat kImageQualityLevel = 0.75;
 
 - (void)deleteItem:(id)sender
 {
+    deletedItem = YES;
     [_delegate didCancelEditingItem:self.record];
     
     [self cancel:nil];
@@ -340,6 +331,11 @@ static CGFloat kImageQualityLevel = 0.75;
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
 {
     [textField resignFirstResponder];
+    
+    if (textField.tag == NameFieldTag)
+    {
+        [self.detailsTextField becomeFirstResponder];
+    }
     
     return YES;
 }

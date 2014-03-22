@@ -40,7 +40,6 @@ static NSString *kTableViewCellIdentifier = @"Cell";
 @property IBOutlet UITableView *tableView;
 
 - (IBAction)search:(id)sender;
-- (IBAction)switchToggle:(id)sender;
 
 @end
 
@@ -70,12 +69,14 @@ static NSString *kTableViewCellIdentifier = @"Cell";
     
     [self setupItems];
     
+    [self.navigationController setToolbarHidden:YES];
+    
+    [self.tableView setEditing:YES animated:NO];
+    
     if (self.searchDisplayController.active)
     {
         [self.searchDisplayController.searchResultsTableView reloadData];
     }
-    
-    [self.navigationController setToolbarHidden:YES];
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -152,11 +153,6 @@ static NSString *kTableViewCellIdentifier = @"Cell";
 - (NSInteger)activeItemCount
 {
     return [[NSMutableArray arrayWithArray:[dataTable query:@{ @"active": @YES } error:nil]] count];
-}
-
-- (IBAction)search:(id)sender
-{
-    [self.searchDisplayController.searchBar becomeFirstResponder];
 }
 
 -(void)filterContentForSearchText:(NSString*)searchText scope:(NSString*)scope
@@ -246,6 +242,11 @@ static NSString *kTableViewCellIdentifier = @"Cell";
     }
 }
 
+- (IBAction)search:(id)sender
+{
+    [self.searchDisplayController.searchBar becomeFirstResponder];
+}
+
 - (void)setRecord:(DBRecord *)record activeState:(NSNumber *)activeState
 {
     record[@"active"] = activeState;
@@ -260,7 +261,6 @@ static NSString *kTableViewCellIdentifier = @"Cell";
     filterControl = [[UISegmentedControl alloc] initWithItems:@[NSLocalizedString(@"UISegmentedControlItem1", nil), NSLocalizedString(@"UISegmentedControlItem2", nil)]];
     [filterControl addTarget:self action:@selector(toggleFilter:) forControlEvents:UIControlEventValueChanged];
     [filterControl setSelectedSegmentIndex:selectedFilterSegment];
-
     self.navigationItem.titleView = filterControl;
 }
 
@@ -302,31 +302,6 @@ static NSString *kTableViewCellIdentifier = @"Cell";
     [footerView setTextColor:[UIColor grayColor]];
     
     self.tableView.tableFooterView = footerView;
-}
-
-- (IBAction)switchToggle:(id)sender
-{
-    UISwitch *switchControl = (UISwitch *)sender;
-    UITableView *tableView = self.searchDisplayController.active ? self.searchDisplayController.searchResultsTableView : self.tableView;
-    CGRect buttonFrame = [switchControl convertRect:switchControl.bounds toView:tableView];
-    NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:buttonFrame.origin];
-    
-    DBRecord *item = nil;
-    
-    if (self.searchDisplayController.active)
-    {
-        item = (DBRecord *)[searchResults objectAtIndex:indexPath.row];
-    }
-    else
-    {
-        item = (DBRecord *)[[items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
-    }
-    
-    [[self.undoManager prepareWithInvocationTarget:self] setRecord:item activeState:[NSNumber numberWithBool: ! switchControl.on]];
-    
-    [self setRecord:item activeState:[NSNumber numberWithBool:switchControl.on]];
-    
-    [self playAudioFile:[switchControl isOn] ? kAudioActivatingName : kAudioRemovingName];
 }
 
 - (void)syncItems
@@ -438,6 +413,27 @@ static NSString *kTableViewCellIdentifier = @"Cell";
     footerView.text = [NSString stringWithFormat:@"%lu %@", (unsigned long)rawItems.count, suffix];
 }
 
+- (void)viewItem:(id)sender
+{
+    UIButton *disclosureButton = (UIButton *)sender;
+    UITableView *tableView = self.searchDisplayController.active ? self.searchDisplayController.searchResultsTableView : self.tableView;
+    CGRect buttonFrame = [disclosureButton convertRect:disclosureButton.bounds toView:tableView];
+    NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:buttonFrame.origin];
+    
+    if (self.searchDisplayController.active)
+    {
+        self.navigationItem.backBarButtonItem.title = NSLocalizedString(@"UINavigationItemSearchTitle", nil);
+        currentRecord = [searchResults objectAtIndex:indexPath.row];
+    }
+    else
+    {
+        self.navigationItem.backBarButtonItem.title = NSLocalizedString(@"UINavigationItemTitle", nil);
+        currentRecord = [[items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
+    }
+    
+    [self performSegueWithIdentifier:kSegueShowFormId sender:self];
+}
+
 #pragma mark - UISearchDisplayController Delegate Methods
 
 - (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString
@@ -449,6 +445,9 @@ static NSString *kTableViewCellIdentifier = @"Cell";
 
 - (void)searchDisplayControllerWillBeginSearch:(UISearchDisplayController *)controller
 {
+    [controller.searchResultsTableView setAllowsMultipleSelectionDuringEditing:YES];
+    [controller.searchResultsTableView setEditing:YES];
+    
     [controller.searchBar setShowsCancelButton:YES];
 }
 
@@ -476,6 +475,12 @@ static NSString *kTableViewCellIdentifier = @"Cell";
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
+    // Re-fetch the search results
+    if (self.searchDisplayController.searchResultsTableView)
+    {
+        [[self.searchDisplayController delegate] searchDisplayController:self.searchDisplayController shouldReloadTableForSearchString:self.searchDisplayController.searchBar.text];
+    }
+    
     return tableView == self.searchDisplayController.searchResultsTableView ? [searchResults count] : [[items objectAtIndex:section] count];
 }
 
@@ -518,15 +523,13 @@ static NSString *kTableViewCellIdentifier = @"Cell";
         item = (DBRecord *)[[items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
     }
     
-    UISwitch *switchControl = (UISwitch *)[cell.contentView viewWithTag:1];
-    [switchControl setOn:[item[@"active"] boolValue]];
-    [switchControl setOnTintColor:[UIColor orangeColor]];
-    [switchControl addTarget:self action:@selector(switchToggle:) forControlEvents:UIControlEventValueChanged];
+    UIButton *contentViewDisclosureButton = [[UIButton alloc] initWithFrame:cell.contentView.frame];
+    [contentViewDisclosureButton addTarget:self action:@selector(viewItem:) forControlEvents:UIControlEventTouchUpInside];
+    [cell.contentView addSubview:contentViewDisclosureButton];
     
-    UILabel *nameLabel = (UILabel *)[cell.contentView viewWithTag:2];
-    nameLabel.text = item[@"name"];
+    cell.textLabel.text = item[@"name"];
     
-    CGRect nameLabelFrame = nameLabel.frame;
+    CGRect nameLabelFrame = cell.textLabel.frame;
     
     if ([item[@"details"] isEqualToString:@""])
     {
@@ -537,38 +540,55 @@ static NSString *kTableViewCellIdentifier = @"Cell";
         nameLabelFrame.origin.y = kDoubleLabelY;
     }
     
-    nameLabel.frame = nameLabelFrame;
+    cell.textLabel.frame = nameLabelFrame;
+    cell.detailTextLabel.text = item[@"details"];
     
-    UILabel *detailLabel = (UILabel *)[cell.contentView viewWithTag:3];
-    detailLabel.text = item[@"details"];
+    if ([item[@"active"] boolValue])
+    {
+        [tableView selectRowAtIndexPath:indexPath animated:NO scrollPosition:UITableViewScrollPositionNone];
+    }
+    else
+    {
+        [tableView deselectRowAtIndexPath:indexPath animated:NO];
+    }
     
     return cell;
 }
 
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
+- (void)tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return NO;
-}
-
-- (BOOL)tableView:(UITableView *)tableView shouldHighlightRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    return YES;
+    DBRecord *item = nil;
+    
+    if (self.searchDisplayController.active)
+    {
+        item = [searchResults objectAtIndex:indexPath.row];
+    }
+    else
+    {
+        item = [[items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
+    }
+    
+    [self setRecord:item activeState:[NSNumber numberWithBool:NO]];
+    
+    [self playAudioFile:kAudioRemovingName];
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    DBRecord *item = nil;
+    
     if (self.searchDisplayController.active)
     {
-        self.navigationItem.backBarButtonItem.title = NSLocalizedString(@"UINavigationItemSearchTitle", nil);
-        currentRecord = [searchResults objectAtIndex:indexPath.row];
+        item = [searchResults objectAtIndex:indexPath.row];
     }
     else
     {
-        self.navigationItem.backBarButtonItem.title = NSLocalizedString(@"UINavigationItemTitle", nil);
-        currentRecord = [[items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
+        item = [[items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
     }
     
-    [self performSegueWithIdentifier:kSegueShowFormId sender:self];
+    [self setRecord:item activeState:[NSNumber numberWithBool:YES]];
+    
+    [self playAudioFile:kAudioActivatingName];
 }
 
 #pragma mark - FormViewControllerDelegate
@@ -577,12 +597,12 @@ static NSString *kTableViewCellIdentifier = @"Cell";
 {
     [record deleteRecord];
     [self syncStore];
-    [self playAudioFile:kAudioEditingName];
 }
 
 - (void)didFinishEditingItem:(DBRecord *)record
 {
     [self syncStore];
+    [self playAudioFile:kAudioEditingName];
 }
 
 @end
