@@ -8,14 +8,18 @@
 
 #import "FormViewController.h"
 
-static NSInteger kAddPhotoAlertSheetTag = 1000;
-static NSInteger kDeletePhotoAlertSheetTag = 2000;
 static CGFloat kImageQualityLevel = 0.75;
 
 enum
 {
     NameFieldTag = 1,
-    DetailFieldTag
+    DetailFieldTag = 2
+};
+
+enum
+{
+    AddPhotoAlertSheetTag = 1000,
+    DeletePhotoAlertSheetTag = 2000
 };
 
 @interface FormViewController()
@@ -24,7 +28,6 @@ enum
     BOOL showingDeleteButton;
 }
 
-@property (nonatomic) IBOutlet UISwitch *activeSwitch;
 @property (nonatomic) IBOutlet UITextField *detailsTextField;
 @property (nonatomic) IBOutlet UITextField *nameTextField;
 @property (nonatomic) IBOutlet UIButton *pickerButton;
@@ -35,7 +38,6 @@ enum
 - (IBAction)cancel:(id)sender;
 - (IBAction)deleteItem:(id)sender;
 - (IBAction)done:(id)sender;
-- (IBAction)switchToggle:(id)sender;
 
 @end
 
@@ -46,7 +48,7 @@ enum
 {
     [super viewDidLoad];
     
-    [self.navigationController setToolbarHidden:NO];
+    self.navigationController.toolbarHidden = NO;
     
     [self togglePickerButtonText];
     
@@ -90,7 +92,6 @@ enum
 {
     [super didReceiveMemoryWarning];
     
-    self.activeSwitch = nil;
     self.detailsTextField = nil;
     self.imageView = nil;
     self.nameTextField = nil;
@@ -105,8 +106,8 @@ enum
     [self.detailsTextField resignFirstResponder];
     
     UIActionSheet *actionSheet = [[UIActionSheet alloc] init];
-    [actionSheet setDelegate:self];
-    [actionSheet setTag:kAddPhotoAlertSheetTag];
+    actionSheet.delegate = self;
+    actionSheet.tag = AddPhotoAlertSheetTag;
 
     // Button order matters here
     [actionSheet addButtonWithTitle:NSLocalizedString(@"UIAlertTakePhoto", nil)];
@@ -119,7 +120,7 @@ enum
     }
     
     [actionSheet addButtonWithTitle:NSLocalizedString(@"UIAlertCancelButton", nil)];
-    [actionSheet setCancelButtonIndex:showingDeleteButton ? 3 : 2];
+    actionSheet.cancelButtonIndex = showingDeleteButton ? 3 : 2;
     [actionSheet showInView:self.navigationController.view];
 }
 
@@ -132,7 +133,7 @@ enum
 {
     UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
     
-    if (selector == @selector(paste:) && [pasteboard pasteboardTypes].count > 0)
+    if (selector == @selector(paste:) && pasteboard.pasteboardTypes.count > 0)
     {
         return YES;
     }
@@ -147,7 +148,7 @@ enum
 
 - (IBAction)cancel:(id)sender
 {
-    if ([[self.nameTextField text] isEqualToString:@""])
+    if ([self.nameTextField.text isEqualToString:@""])
     {
         [_delegate didCancelEditingItem:self.record];
     }
@@ -176,7 +177,7 @@ enum
                                                     cancelButtonTitle:NSLocalizedString(@"UIAlertCancelButton", nil)
                                                destructiveButtonTitle:NSLocalizedString(@"UIAlertDeletePhoto", nil)
                                                     otherButtonTitles:nil, nil];
-    [actionSheet setTag:kDeletePhotoAlertSheetTag];
+    actionSheet.tag = DeletePhotoAlertSheetTag;
     [actionSheet showInView:self.navigationController.view];
     
 }
@@ -198,26 +199,15 @@ enum
 
 - (void)loadRecord
 {
-    self.activeSwitch.on = [self.record[@"active"] boolValue];
     self.detailsTextField.text = self.record[@"details"];
     UIImage *photo = [[UIImage alloc] initWithData:self.record[@"photoData"]];
-    
-    if (photo != nil)
-    {
-        self.imageView.image = photo;
-    }
-    else
-    {
-        self.initialImage = [self.initialImage imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-        self.imageView.image = self.initialImage;
-    }
-    
+    self.imageView.image = photo != nil ? photo : self.initialImage;
     self.nameTextField.text = self.record[@"name"];
 }
 
 - (void)longPress:(UILongPressGestureRecognizer *) gestureRecognizer
 {
-    if ([gestureRecognizer state] == UIGestureRecognizerStateBegan)
+    if (gestureRecognizer.state == UIGestureRecognizerStateBegan)
     {
         CGPoint location = [gestureRecognizer locationInView:[gestureRecognizer view]];
         UIMenuController *menuController = [UIMenuController sharedMenuController];
@@ -250,23 +240,18 @@ enum
                        forState:UIControlStateNormal];
 }
 
-- (IBAction)switchToggle:(id)sender
-{
-    self.record[@"active"] = [NSNumber numberWithBool:[(UISwitch *)sender isOn]];
-}
-
 #pragma mark - UIActionSheetDelegate
 
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
 {
-    if ([actionSheet tag] == kAddPhotoAlertSheetTag)
+    if ([actionSheet tag] == AddPhotoAlertSheetTag)
     {
         if (showingDeleteButton && buttonIndex == 3)
         {
             return;
         }
         
-        if ( ! showingDeleteButton && buttonIndex == 2)
+        if (showingDeleteButton == NO && buttonIndex == 2)
         {
             return;
         }
@@ -280,17 +265,17 @@ enum
         }
 
         UIImagePickerController *imagePickerController = [[UIImagePickerController alloc] init];
-        [imagePickerController setAllowsEditing:YES];
-        [imagePickerController setDelegate:self];
+        imagePickerController.allowsEditing = YES;
+        imagePickerController.delegate = self;
         
         if (buttonIndex == 0)
         {
-            [imagePickerController setSourceType:UIImagePickerControllerSourceTypeCamera];
+            imagePickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
         }
         
         [self.navigationController presentViewController:imagePickerController animated:YES completion:nil];
     }
-    else if ([actionSheet tag] == kDeletePhotoAlertSheetTag)
+    else if (actionSheet.tag == DeletePhotoAlertSheetTag)
     {
         if (buttonIndex == 0)
         {

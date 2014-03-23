@@ -7,16 +7,17 @@
 //
 
 #import "ListViewController.h"
+#import "Dropbox/Dropbox.h"
 
+static NSString *kAudioActivatingName = @"Oh Yeah";
+static NSString *kAudioEditingName = @"You Do It";
+static NSString *kAudioRemovingName = @"You Promised";
 static CGFloat kDoubleLabelY = 10.0;
 static NSInteger kInitialSelectedFilterSegment = 0;
 static NSString *kSegueShowFormId = @"editItemSegue";
 static CGFloat kSingleLabelY = 20.0;
-static NSString *kTableName = @"ShoppingList";
-static NSString *kAudioEditingName = @"You Do It";
-static NSString *kAudioRemovingName = @"You Promised";
-static NSString *kAudioActivatingName = @"Oh Yeah";
 static CGFloat kTableFooterViewHeight = 44.0;
+static NSString *kTableName = @"ShoppingList";
 static CGFloat kTableRowViewHeight = 64.0;
 static NSString *kTableViewCellIdentifier = @"Cell";
 
@@ -61,17 +62,16 @@ static NSString *kTableViewCellIdentifier = @"Cell";
 {
     [super viewWillAppear:animated];
     
-    __weak ListViewController *slf = self;
+    __weak ListViewController *_self = self;
     
     [self.accountManager addObserver:self block:^(DBAccount *account) {
-        [slf setupItems];
+        [_self setupItems];
     }];
     
     [self setupItems];
     
-    [self.navigationController setToolbarHidden:YES];
-    
-    [self.tableView setEditing:YES animated:NO];
+    self.navigationController.toolbarHidden = YES;
+    self.tableView.editing = YES;
     
     if (self.searchDisplayController.active)
     {
@@ -106,14 +106,6 @@ static NSString *kTableViewCellIdentifier = @"Cell";
     searchResults = nil;
 }
 
-- (void)motionEnded:(UIEventSubtype)motion withEvent:(UIEvent *)event
-{
-    if (motion == UIEventSubtypeMotionShake)
-    {
-        [self.undoManager undo];
-    }
-}
-
 #pragma mark - UIAlert actions
 
 - (void)displayErrorAlert:(DBError *)error
@@ -130,17 +122,17 @@ static NSString *kTableViewCellIdentifier = @"Cell";
 
 - (DBAccount *)account
 {
-    return [DBAccountManager sharedManager].linkedAccount;
+    return DBAccountManager.sharedManager.linkedAccount;
 }
 
 - (DBAccountManager *)accountManager
 {
-    return [DBAccountManager sharedManager];
+    return DBAccountManager.sharedManager;
 }
 
 - (DBDatastore *)store
 {
-    if ( ! store)
+    if (store == NO)
     {
         store = [DBDatastore openDefaultStoreForAccount:self.account error:nil];
     }
@@ -181,8 +173,8 @@ static NSString *kTableViewCellIdentifier = @"Cell";
 
 - (NSArray *)partitionObjects:(NSArray *)array collationStringSelector:(SEL)selector
 {
-    UILocalizedIndexedCollation *collation = [UILocalizedIndexedCollation currentCollation];
-    NSInteger sectionCount = [[collation sectionTitles] count];
+    UILocalizedIndexedCollation *collation = UILocalizedIndexedCollation.currentCollation;
+    NSInteger sectionCount = [collation.sectionTitles count];
     NSMutableArray *unsortedSections = [NSMutableArray arrayWithCapacity:sectionCount];
     
     for (NSInteger i = 0; i < sectionCount; i++)
@@ -217,7 +209,7 @@ static NSString *kTableViewCellIdentifier = @"Cell";
 
 - (void)playAudioFile:(NSString *)file
 {
-    NSURL *url = [NSURL fileURLWithPath:[NSString stringWithFormat:@"%@/%@.m4a", [[NSBundle mainBundle] resourcePath], file]];
+    NSURL *url = [NSURL fileURLWithPath:[NSString stringWithFormat:@"%@/%@.m4a", [NSBundle.mainBundle resourcePath], file]];
 	
 	NSError *error;
 	audioPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:url error:&error];
@@ -260,7 +252,7 @@ static NSString *kTableViewCellIdentifier = @"Cell";
     
     filterControl = [[UISegmentedControl alloc] initWithItems:@[NSLocalizedString(@"UISegmentedControlItem1", nil), NSLocalizedString(@"UISegmentedControlItem2", nil)]];
     [filterControl addTarget:self action:@selector(toggleFilter:) forControlEvents:UIControlEventValueChanged];
-    [filterControl setSelectedSegmentIndex:selectedFilterSegment];
+    filterControl.selectedSegmentIndex = selectedFilterSegment;
     self.navigationItem.titleView = filterControl;
 }
 
@@ -276,7 +268,8 @@ static NSString *kTableViewCellIdentifier = @"Cell";
         dataTable = [self.store getTable:kTableName];
         
         [self.store addObserver:self block:^() {
-            if (slf.store.status & (DBDatastoreIncoming | DBDatastoreOutgoing)) {
+            if (slf.store.status & (DBDatastoreIncoming | DBDatastoreOutgoing))
+            {
                 [slf syncItems];
             }
         }];
@@ -284,22 +277,24 @@ static NSString *kTableViewCellIdentifier = @"Cell";
         rawItems = [NSMutableArray arrayWithArray:[dataTable query:selectedFilterSegment == 0 ? nil : @{ @"active": @YES } error:&error]];
         
         if (error != nil)
+        {
             [self displayErrorAlert:error];
+        }
         
         [self syncItems];
     }
     else
     {
-        [[DBAccountManager sharedManager] linkFromController:self];
+        [DBAccountManager.sharedManager linkFromController:self];
     }
 }
 
 - (void)setupTableFooter
 {
     UILabel *footerView = [[UILabel alloc] initWithFrame:CGRectMake(0.0, 0.0, self.tableView.frame.size.width, kTableFooterViewHeight)];
-    [footerView setFont:[UIFont systemFontOfSize:17.0]];
-    [footerView setTextAlignment:NSTextAlignmentCenter];
-    [footerView setTextColor:[UIColor grayColor]];
+    footerView.font = [UIFont systemFontOfSize:17.0];
+    footerView.textAlignment = NSTextAlignmentCenter;
+    footerView.textColor = [UIColor grayColor];
     
     self.tableView.tableFooterView = footerView;
 }
@@ -315,7 +310,7 @@ static NSString *kTableViewCellIdentifier = @"Cell";
     }
     else
     {
-        [[DBAccountManager sharedManager] linkFromController:self];        
+        [DBAccountManager.sharedManager linkFromController:self];
     }
 }
 
@@ -403,7 +398,7 @@ static NSString *kTableViewCellIdentifier = @"Cell";
 
 - (void)updateBadgeCount
 {
-    [[UIApplication sharedApplication] setApplicationIconBadgeNumber:[self activeItemCount]];
+    [UIApplication.sharedApplication setApplicationIconBadgeNumber:[self activeItemCount]];
 }
 
 - (void)updateFooterCount
@@ -445,32 +440,31 @@ static NSString *kTableViewCellIdentifier = @"Cell";
 
 - (void)searchDisplayControllerWillBeginSearch:(UISearchDisplayController *)controller
 {
-    [controller.searchResultsTableView setAllowsMultipleSelectionDuringEditing:YES];
-    [controller.searchResultsTableView setEditing:YES];
-    
-    [controller.searchBar setShowsCancelButton:YES];
+    controller.searchResultsTableView.allowsMultipleSelectionDuringEditing = YES;
+    controller.searchResultsTableView.editing = YES;
+    controller.searchBar.showsCancelButton = YES;
 }
 
 - (void)searchDisplayControllerWillEndSearch:(UISearchDisplayController *)controller
 {
-    [controller.searchBar setText:@""];
+    controller.searchBar.text = @"";
 }
 
 - (void)searchDisplayControllerDidEndSearch:(UISearchDisplayController *)controller
 {
-    [controller.searchBar setShowsCancelButton:YES];
+    controller.searchBar.showsCancelButton = YES;
 }
 
 #pragma mark - Table view data source
 
 - (NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView
 {
-    return tableView == self.searchDisplayController.searchResultsTableView ? nil : [[UILocalizedIndexedCollation currentCollation] sectionIndexTitles];
+    return tableView == self.searchDisplayController.searchResultsTableView ? nil : [UILocalizedIndexedCollation.currentCollation sectionIndexTitles];
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    return tableView == self.searchDisplayController.searchResultsTableView ? 1 : [[[UILocalizedIndexedCollation currentCollation] sectionTitles] count];
+    return tableView == self.searchDisplayController.searchResultsTableView ? 1 : [UILocalizedIndexedCollation.currentCollation sectionTitles].count;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
@@ -478,10 +472,10 @@ static NSString *kTableViewCellIdentifier = @"Cell";
     // Re-fetch the search results
     if (self.searchDisplayController.searchResultsTableView)
     {
-        [[self.searchDisplayController delegate] searchDisplayController:self.searchDisplayController shouldReloadTableForSearchString:self.searchDisplayController.searchBar.text];
+        [self.searchDisplayController.delegate searchDisplayController:self.searchDisplayController shouldReloadTableForSearchString:self.searchDisplayController.searchBar.text];
     }
     
-    return tableView == self.searchDisplayController.searchResultsTableView ? [searchResults count] : [[items objectAtIndex:section] count];
+    return tableView == self.searchDisplayController.searchResultsTableView ? searchResults.count : [[items objectAtIndex:section] count];
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -499,50 +493,39 @@ static NSString *kTableViewCellIdentifier = @"Cell";
     }
     else
     {
-        return (showSection) ? [[[UILocalizedIndexedCollation currentCollation] sectionTitles] objectAtIndex:section] : nil;
+        return (showSection) ? [[UILocalizedIndexedCollation.currentCollation sectionTitles] objectAtIndex:section] : nil;
     }
 }
 
 - (NSInteger)tableView:(UITableView *)tableView sectionForSectionIndexTitle:(NSString *)title atIndex:(NSInteger)index
 {
-    return tableView == self.searchDisplayController.searchResultsTableView ? 0 : [[UILocalizedIndexedCollation currentCollation] sectionForSectionIndexTitleAtIndex:index];
+    return tableView == self.searchDisplayController.searchResultsTableView ? 0 : [UILocalizedIndexedCollation.currentCollation sectionForSectionIndexTitleAtIndex:index];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     UITableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:kTableViewCellIdentifier];
     
-    DBRecord *item = nil;
+    // Get item
+    DBRecord *item = (tableView == self.searchDisplayController.searchResultsTableView)
+        ? [searchResults objectAtIndex:indexPath.row]
+        : [[items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
     
-    if (tableView == self.searchDisplayController.searchResultsTableView)
-    {
-        item = (DBRecord *)[searchResults objectAtIndex:indexPath.row];
-    }
-    else
-    {
-        item = (DBRecord *)[[items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
-    }
-    
+    // Add disclosure button that covers the entire cell content view
     UIButton *contentViewDisclosureButton = [[UIButton alloc] initWithFrame:cell.contentView.frame];
     [contentViewDisclosureButton addTarget:self action:@selector(viewItem:) forControlEvents:UIControlEventTouchUpInside];
     [cell.contentView addSubview:contentViewDisclosureButton];
-    
+
+    // Name label
     cell.textLabel.text = item[@"name"];
-    
     CGRect nameLabelFrame = cell.textLabel.frame;
-    
-    if ([item[@"details"] isEqualToString:@""])
-    {
-        nameLabelFrame.origin.y = kSingleLabelY;
-    }
-    else
-    {
-        nameLabelFrame.origin.y = kDoubleLabelY;
-    }
-    
+    nameLabelFrame.origin.y = [item[@"details"] isEqualToString:@""] ? kSingleLabelY : kDoubleLabelY;
     cell.textLabel.frame = nameLabelFrame;
+    
+    // Detail label
     cell.detailTextLabel.text = item[@"details"];
     
+    // Set checkmark state
     if ([item[@"active"] boolValue])
     {
         [tableView selectRowAtIndexPath:indexPath animated:NO scrollPosition:UITableViewScrollPositionNone];
@@ -557,37 +540,21 @@ static NSString *kTableViewCellIdentifier = @"Cell";
 
 - (void)tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    DBRecord *item = nil;
-    
-    if (self.searchDisplayController.active)
-    {
-        item = [searchResults objectAtIndex:indexPath.row];
-    }
-    else
-    {
-        item = [[items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
-    }
+    DBRecord *item = (self.searchDisplayController.active)
+        ? [searchResults objectAtIndex:indexPath.row]
+        : [[items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
     
     [self setRecord:item activeState:[NSNumber numberWithBool:NO]];
-    
     [self playAudioFile:kAudioRemovingName];
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    DBRecord *item = nil;
-    
-    if (self.searchDisplayController.active)
-    {
-        item = [searchResults objectAtIndex:indexPath.row];
-    }
-    else
-    {
-        item = [[items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
-    }
+    DBRecord *item = (self.searchDisplayController.active)
+    ? [searchResults objectAtIndex:indexPath.row]
+    : [[items objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
     
     [self setRecord:item activeState:[NSNumber numberWithBool:YES]];
-    
     [self playAudioFile:kAudioActivatingName];
 }
 
@@ -602,7 +569,6 @@ static NSString *kTableViewCellIdentifier = @"Cell";
 - (void)didFinishEditingItem:(DBRecord *)record
 {
     [self syncStore];
-    [self playAudioFile:kAudioEditingName];
 }
 
 @end

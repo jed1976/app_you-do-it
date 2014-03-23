@@ -7,12 +7,12 @@
 //
 
 #import "AppDelegate.h"
+#import "Dropbox/Dropbox.h"
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    application.applicationSupportsShakeToEdit = YES;
     application.statusBarStyle = UIStatusBarStyleLightContent;
     
     NSBundle *bundle = [NSBundle mainBundle];
@@ -26,7 +26,7 @@
 
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
 {
-    [[DBAccountManager sharedManager] handleOpenURL:url];
+    [DBAccountManager.sharedManager handleOpenURL:url];
     
     return YES;
 }

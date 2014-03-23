@@ -7,7 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <Dropbox/Dropbox.h>
+
+@class Dropbox;
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 

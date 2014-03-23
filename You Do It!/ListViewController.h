@@ -8,12 +8,10 @@
 
 #import <UIKit/UIKit.h>
 #import <AVFoundation/AVFoundation.h>
-#import <Dropbox/Dropbox.h>
 #import "FormViewController.h"
 
-@interface ListViewController : UIViewController
+@class Dropbox;
 
-<FormViewControllerDelegate, UISearchBarDelegate, UISearchDisplayDelegate, UITableViewDataSource, UITableViewDelegate>
-
+@interface ListViewController : UIViewController <FormViewControllerDelegate, UISearchBarDelegate, UISearchDisplayDelegate, UITableViewDataSource, UITableViewDelegate>
 
 @end
