@@ -56,6 +56,9 @@ static NSString *kTableViewCellIdentifier = @"Cell";
     [self setupFilterControl];
     [self setupTableFooter];
     [self playAudioFile:kAudioEditingName];
+    
+    DBFilesystem *filesystem = [[DBFilesystem alloc] initWithAccount:self.account];
+    [DBFilesystem setSharedFilesystem:filesystem];
 }
 
 - (void)viewWillAppear:(BOOL)animated

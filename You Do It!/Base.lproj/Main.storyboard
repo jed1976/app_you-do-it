@@ -42,13 +42,13 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                     </view>
                     <toolbarItems>
-                        <barButtonItem style="plain" systemItem="flexibleSpace" id="niH-ju-OrO"/>
                         <barButtonItem systemItem="trash" id="STW-gu-ern">
                             <color key="tintColor" red="1" green="0.50196081400000003" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                             <connections>
                                 <action selector="deleteItem:" destination="FZj-EP-UKD" id="gZV-tb-swe"/>
                             </connections>
                         </barButtonItem>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="niH-ju-OrO"/>
                     </toolbarItems>
                     <navigationItem key="navigationItem" id="0L8-hE-76h">
                         <barButtonItem key="rightBarButtonItem" systemItem="camera" id="a5e-KD-zvG">

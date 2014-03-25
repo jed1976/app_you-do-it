@@ -30,6 +30,8 @@
 "UIButtonAddPhoto" = "Add Photo";
 "UIButtonEditPhoto" = "Edit Photo";
 
+"UIAlertDeleteItem" = "Delete Item";
+
 "UINavigationItemTitle" = "All Items";
 "UINavigationItemSearchTitle" = "Search";
 

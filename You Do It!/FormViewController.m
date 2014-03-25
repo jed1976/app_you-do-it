@@ -8,7 +8,7 @@
 
 #import "FormViewController.h"
 
-static CGFloat kImageQualityLevel = 0.75;
+static CGFloat kImageQualityLevel = 0.75f;
 
 enum
 {
@@ -19,7 +19,8 @@ enum
 enum
 {
     AddPhotoAlertSheetTag = 1000,
-    DeletePhotoAlertSheetTag = 2000
+    DeletePhotoAlertSheetTag = 2000,
+    DeleteItemAlertSheetTag = 3000
 };
 
 @interface FormViewController()
@@ -28,11 +29,14 @@ enum
     BOOL showingDeleteButton;
 }
 
+@property (nonatomic) DBFile *imageFile;
+@property (nonatomic) NSData *imageFileData;
+@property (nonatomic) DBPath *imagePath;
 @property (nonatomic) IBOutlet UITextField *detailsTextField;
-@property (nonatomic) IBOutlet UITextField *nameTextField;
-@property (nonatomic) IBOutlet UIButton *pickerButton;
 @property (nonatomic) IBOutlet UIImageView *imageView;
 @property (nonatomic) UIImage *initialImage;
+@property (nonatomic) IBOutlet UITextField *nameTextField;
+@property (nonatomic) IBOutlet UIButton *pickerButton;
 
 - (IBAction)addPhoto:(id)sender;
 - (IBAction)cancel:(id)sender;
@@ -48,8 +52,7 @@ enum
 {
     [super viewDidLoad];
     
-    self.navigationController.toolbarHidden = NO;
-    
+    [self loadItem];
     [self togglePickerButtonText];
     
     // Remove hairline border on toolbar
@@ -66,10 +69,10 @@ enum
     
     self.initialImage = [self.imageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
     
+    self.navigationController.toolbarHidden = NO;
+    
     showingDeleteButton = NO;
     deletedItem = NO;
-    
-    [self loadRecord];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -138,7 +141,7 @@ enum
         return YES;
     }
     
-    if (selector == @selector(delete:) && self.record[@"photoData"] != nil)
+    if (selector == @selector(delete:) && self.imageFile != nil)
     {
         return YES;
     }
@@ -159,18 +162,21 @@ enum
 
 - (void)delete:(id)sender
 {
-    [self deletePhoto];
+    [self deletePhoto:nil];
 }
 
 - (void)deleteItem:(id)sender
 {
-    deletedItem = YES;
-    [_delegate didCancelEditingItem:self.record];
-    
-    [self cancel:nil];
+    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:nil
+                                                             delegate:self
+                                                    cancelButtonTitle:NSLocalizedString(@"UIAlertCancelButton", nil)
+                                               destructiveButtonTitle:NSLocalizedString(@"UIAlertDeleteItem", nil)
+                                                    otherButtonTitles:nil, nil];
+    actionSheet.tag = DeleteItemAlertSheetTag;
+    [actionSheet showInView:self.navigationController.view];
 }
 
-- (void)deletePhoto
+- (void)deletePhoto:(id)sender
 {
     UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:nil
                                                              delegate:self
@@ -194,15 +200,81 @@ enum
 
 - (IBAction)done:(id)sender
 {
+    [self.view endEditing:YES];
     [_delegate didFinishEditingItem:self.record];
 }
 
-- (void)loadRecord
+- (void)handleAddPhotoAlertResponse:(NSInteger)buttonIndex
+{
+    if (showingDeleteButton && buttonIndex == 3)
+    {
+        return;
+    }
+    
+    if (showingDeleteButton == NO && buttonIndex == 2)
+    {
+        return;
+    }
+    
+    if (showingDeleteButton && buttonIndex == 2)
+    {
+        showingDeleteButton = NO;
+        [self deletePhoto:nil];
+        
+        return;
+    }
+    
+    UIImagePickerController *imagePickerController = [[UIImagePickerController alloc] init];
+    imagePickerController.allowsEditing = YES;
+    imagePickerController.delegate = self;
+    
+    if (buttonIndex == 0)
+    {
+        imagePickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
+    }
+    
+    [self.navigationController presentViewController:imagePickerController animated:YES completion:nil];
+}
+
+- (void)handleDeletePhotoAlertResponse:(NSInteger)buttonIndex
+{
+    if (buttonIndex == 0)
+    {
+        [[DBFilesystem sharedFilesystem] deletePath:self.imagePath error:nil];
+        self.imageView.image = self.initialImage;
+    }
+}
+
+- (void)handleDeleteItemAlertResponse:(NSInteger)buttonIndex
+{
+    if (buttonIndex == 0)
+    {
+        deletedItem = YES;
+        [_delegate didCancelEditingItem:self.record];
+        [self cancel:nil];
+    }
+}
+
+- (void)loadImageInBackground:(id)sender
+{
+    self.imageFile = [[DBFilesystem sharedFilesystem] openFile:self.imagePath error:nil];
+    self.imageFileData = [self.imageFile readData:nil];
+    [self performSelectorOnMainThread:@selector(updateImageOnMainThread:) withObject:self waitUntilDone:NO];
+}
+
+- (void)loadItem
 {
     self.detailsTextField.text = self.record[@"details"];
-    UIImage *photo = [[UIImage alloc] initWithData:self.record[@"photoData"]];
-    self.imageView.image = photo != nil ? photo : self.initialImage;
     self.nameTextField.text = self.record[@"name"];
+    self.imageView.image = self.initialImage;
+    
+    self.imagePath = [[DBPath root] childPath:self.record.recordId];
+    DBFileInfo *fileInfo = [[DBFilesystem sharedFilesystem] fileInfoForPath:self.imagePath error:nil];
+    
+    if (fileInfo != nil)
+    {
+        [self performSelectorInBackground:@selector(loadImageInBackground:) withObject:self];
+    }
 }
 
 - (void)longPress:(UILongPressGestureRecognizer *) gestureRecognizer
@@ -231,57 +303,48 @@ enum
 {
     UIImage *resizedImage = [image imageScaledToFitSize:self.imageView.frame.size];
     self.imageView.image = resizedImage;
-    self.record[@"photoData"] = UIImageJPEGRepresentation(resizedImage, kImageQualityLevel);
+    
+    if (self.imageFile == nil)
+    {
+        self.imageFile = [[DBFilesystem sharedFilesystem] createFile:self.imagePath error:nil];
+    }
+    
+    [self.imageFile writeData:UIImageJPEGRepresentation(resizedImage, kImageQualityLevel) error:nil];
 }
 
 - (void)togglePickerButtonText
 {
-    [self.pickerButton setTitle:NSLocalizedString(self.imageView.image == nil ? @"UIButtonAddPhoto" : @"UIButtonEditPhoto", nil)
-                       forState:UIControlStateNormal];
+    [self.pickerButton setTitle:NSLocalizedString(self.imageView.image == nil ? @"UIButtonAddPhoto" : @"UIButtonEditPhoto", nil) forState:UIControlStateNormal];
+}
+
+- (void)updateImageOnMainThread:(id)sender
+{
+    if (self.imageFileData == nil)
+    {
+        return;
+    }
+    
+    UIImage *photo = [[UIImage alloc] initWithData:self.imageFileData];
+    self.imageView.image = photo;
 }
 
 #pragma mark - UIActionSheetDelegate
 
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
 {
-    if ([actionSheet tag] == AddPhotoAlertSheetTag)
+    switch (actionSheet.tag)
     {
-        if (showingDeleteButton && buttonIndex == 3)
-        {
-            return;
-        }
-        
-        if (showingDeleteButton == NO && buttonIndex == 2)
-        {
-            return;
-        }
-        
-        if (showingDeleteButton && buttonIndex == 2)
-        {
-            showingDeleteButton = NO;
-            [self deletePhoto];
+        case AddPhotoAlertSheetTag:
+            [self handleAddPhotoAlertResponse:buttonIndex];
+        break;
             
-            return;
-        }
-
-        UIImagePickerController *imagePickerController = [[UIImagePickerController alloc] init];
-        imagePickerController.allowsEditing = YES;
-        imagePickerController.delegate = self;
-        
-        if (buttonIndex == 0)
-        {
-            imagePickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
-        }
-        
-        [self.navigationController presentViewController:imagePickerController animated:YES completion:nil];
-    }
-    else if (actionSheet.tag == DeletePhotoAlertSheetTag)
-    {
-        if (buttonIndex == 0)
-        {
-            [self.record removeObjectForKey:@"photoData"];
-            self.imageView.image = self.initialImage;
-        }
+        case DeletePhotoAlertSheetTag:
+            [self handleDeletePhotoAlertResponse:buttonIndex];
+        break;
+            
+        case DeleteItemAlertSheetTag:
+            [self handleDeleteItemAlertResponse:buttonIndex];
+        break;
     }
     
     [self togglePickerButtonText];
