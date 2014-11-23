@@ -10,6 +10,7 @@
 		D87B6B5D17E796770062A5B8 /* Base64.m in Sources */ = {isa = PBXBuildFile; fileRef = D87B6B5C17E796770062A5B8 /* Base64.m */; };
 		D87B6B6017E7A7F00062A5B8 /* UIImage+ProportionalFill.m in Sources */ = {isa = PBXBuildFile; fileRef = D87B6B5F17E7A7F00062A5B8 /* UIImage+ProportionalFill.m */; };
 		D89701021A082762004FB5FE /* Dropbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D89701011A082762004FB5FE /* Dropbox.framework */; };
+		D8B5C6D41A082EF1006E91D0 /* Launch Screen.xib in Resources */ = {isa = PBXBuildFile; fileRef = D8B5C6D31A082EF1006E91D0 /* Launch Screen.xib */; };
 		D8BD8CAE17DA9F07002941C9 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8BD8CAD17DA9F07002941C9 /* Foundation.framework */; };
 		D8BD8CB017DA9F07002941C9 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8BD8CAF17DA9F07002941C9 /* CoreGraphics.framework */; };
 		D8BD8CB217DA9F07002941C9 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8BD8CB117DA9F07002941C9 /* UIKit.framework */; };
@@ -55,6 +56,7 @@
 		D87B6B5E17E7A7F00062A5B8 /* UIImage+ProportionalFill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+ProportionalFill.h"; sourceTree = "<group>"; };
 		D87B6B5F17E7A7F00062A5B8 /* UIImage+ProportionalFill.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+ProportionalFill.m"; sourceTree = "<group>"; };
 		D89701011A082762004FB5FE /* Dropbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Dropbox.framework; path = "../dropbox-ios-sync-sdk-3.1.1/Dropbox.framework"; sourceTree = "<group>"; };
+		D8B5C6D31A082EF1006E91D0 /* Launch Screen.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = "Launch Screen.xib"; sourceTree = "<group>"; };
 		D8BD8CAA17DA9F07002941C9 /* You Do It!.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "You Do It!.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8BD8CAD17DA9F07002941C9 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		D8BD8CAF17DA9F07002941C9 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -233,6 +235,7 @@
 				D8C7BBCB18DBCB3A00A03FE1 /* Oh Yeah.m4a */,
 				D8C7BBCC18DBCB3A00A03FE1 /* You Do It.m4a */,
 				D8C7BBCD18DBCB3A00A03FE1 /* You Promised.m4a */,
+				D8B5C6D31A082EF1006E91D0 /* Launch Screen.xib */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -323,6 +326,7 @@
 			files = (
 				D8C7BBCF18DBCB3A00A03FE1 /* Oh Yeah.m4a in Resources */,
 				D8BD8CC617DA9F07002941C9 /* Images.xcassets in Resources */,
+				D8B5C6D41A082EF1006E91D0 /* Launch Screen.xib in Resources */,
 				D8BD8CB817DA9F07002941C9 /* InfoPlist.strings in Resources */,
 				D8C7BBD118DBCB3A00A03FE1 /* You Promised.m4a in Resources */,
 				D8FCC43418DE0A1F00785259 /* Camera.png in Resources */,

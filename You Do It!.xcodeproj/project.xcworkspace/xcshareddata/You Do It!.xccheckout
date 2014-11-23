@@ -11,21 +11,25 @@
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
 		<key>0C96EE61-4AA0-4EFD-8585-D2D10732C536</key>
-		<string>admin@teacupstudio.com:Code/git/you-do-it.git</string>
+		<string>teacupstudio.com:Code/git/you-do-it.git</string>
+		<key>A1DEF35E5BA0490BED0BB2784A731821870ECED8</key>
+		<string>web458.webfaction.com:webapps/git/repos/you-do-it.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>You Do It!.xcodeproj/project.xcworkspace</string>
+	<string>You Do It!.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>0C96EE61-4AA0-4EFD-8585-D2D10732C536</key>
+		<string>../../../You Do It!</string>
+		<key>A1DEF35E5BA0490BED0BB2784A731821870ECED8</key>
 		<string>../..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
-	<string>admin@teacupstudio.com:Code/git/you-do-it.git</string>
+	<string>web458.webfaction.com:webapps/git/repos/you-do-it.git</string>
 	<key>IDESourceControlProjectVersion</key>
-	<integer>110</integer>
+	<integer>111</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>0C96EE61-4AA0-4EFD-8585-D2D10732C536</string>
+	<string>A1DEF35E5BA0490BED0BB2784A731821870ECED8</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
 		<dict>
@@ -35,6 +39,14 @@
 			<string>0C96EE61-4AA0-4EFD-8585-D2D10732C536</string>
 			<key>IDESourceControlWCCName</key>
 			<string>You Do It!</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>A1DEF35E5BA0490BED0BB2784A731821870ECED8</string>
+			<key>IDESourceControlWCCName</key>
+			<string>you-do-it</string>
 		</dict>
 	</array>
 </dict>

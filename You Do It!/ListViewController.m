@@ -3,7 +3,7 @@
 //  You Do It!
 //
 //  Created by Joe Dakroub on 9/6/13.
-//  Copyright (c) 2013 Teacup Studio, LLC. All rights reserved.
+//  Copyright (c) 2014 Hand Whittled, LLC. All rights reserved.
 //
 
 #import "ListViewController.h"
@@ -59,6 +59,15 @@ static NSString *kTableViewCellIdentifier = @"Cell";
     
     DBFilesystem *filesystem = [[DBFilesystem alloc] initWithAccount:self.account];
     [DBFilesystem setSharedFilesystem:filesystem];
+
+    // Register for notifications - required for application icon badging
+    Class userNotification = NSClassFromString(@"UIUserNotificationSettings");
+    
+    if (userNotification)
+    {
+        UIUserNotificationSettings* notificationSettings = [UIUserNotificationSettings settingsForTypes:UIUserNotificationTypeAlert | UIUserNotificationTypeBadge | UIUserNotificationTypeSound categories:nil];
+        [[UIApplication sharedApplication] registerUserNotificationSettings:notificationSettings];
+    }
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -113,7 +122,7 @@ static NSString *kTableViewCellIdentifier = @"Cell";
 
 - (void)displayErrorAlert:(DBError *)error
 {
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:[NSString stringWithFormat:@"Error %i", error.code]
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:[NSString stringWithFormat:@"Error %li", (long)error.code]
                                                     message:error.description
                                                    delegate:self
                                           cancelButtonTitle:nil
@@ -271,7 +280,8 @@ static NSString *kTableViewCellIdentifier = @"Cell";
         dataTable = [self.store getTable:kTableName];
         
         [self.store addObserver:self block:^() {
-            if (slf.store.status & (DBDatastoreIncoming | DBDatastoreOutgoing))
+//            if (slf.store.status & (DBDatastoreIncoming | DBDatastoreOutgoing))
+            if (slf.store.status)
             {
                 [slf syncItems];
             }
@@ -398,6 +408,17 @@ static NSString *kTableViewCellIdentifier = @"Cell";
         [self.tableView reloadData];
     }
 }
+
+#ifdef __IPHONE_8_0
+
+- (BOOL)checkNotificationType:(UIUserNotificationType)type
+{
+    UIUserNotificationSettings *currentSettings = [[UIApplication sharedApplication] currentUserNotificationSettings];
+    
+    return (currentSettings.types & type);
+}
+
+#endif
 
 - (void)updateBadgeCount
 {

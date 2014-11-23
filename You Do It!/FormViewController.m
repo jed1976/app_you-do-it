@@ -3,7 +3,7 @@
 //  You Do It!
 //
 //  Created by Joe Dakroub on 9/6/13.
-//  Copyright (c) 2013 Teacup Studio, LLC. All rights reserved.
+//  Copyright (c) 2014 Hand Whittled, LLC. All rights reserved.
 //
 
 #import "FormViewController.h"
@@ -190,7 +190,7 @@ enum
 
 - (void)displayErrorAlert:(DBError *)error
 {
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:[NSString stringWithFormat:@"Error %i", error.code]
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:[NSString stringWithFormat:@"Error %li", (long)error.code]
                                                     message:error.description
                                                    delegate:self
                                           cancelButtonTitle:nil
