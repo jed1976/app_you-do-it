@@ -1,4 +1,3 @@
-You Do It!
-=========
+# You Do It!
 
-A simple iOS 7+ shopping list application that uses the Dropbox syncing API
+A simple iOS application for maker other people do stuff that uses the Dropbox syncing API.
